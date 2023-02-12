@@ -5,7 +5,7 @@ class ModelTesting(TestCase):
 
     def setUp(self):
         self.post = Post.objects.create(
-                type = "post",
+                object_type = "post",
                 title = "example post",
                 post_id = "http://127.0.0.1:5454/authors/1/posts/1",
                 post_source = "http://lastplaceigotthisfrom.com/posts/yyyyy",
