@@ -23,6 +23,7 @@ class Post(models.Model):
     pub_date = models.DateTimeField()
     # put in visibility here
     is_unlisted = models.BooleanField()
+    visibility = models.CharField(max_length=SMALLER_MAX_LENGTH)
 
     def __str__(self):
         return self.title
