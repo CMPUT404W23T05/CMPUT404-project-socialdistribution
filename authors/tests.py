@@ -5,7 +5,7 @@ class ModelTesting(TestCase):
 
     def setUp(self):
         self.author = Author.objects.create(
-                type = "author",
+                object_type = "author",
                 home_host = "http://127.0.0.1:5454/",
                 display_name = "Gandalf the Grey",
                 profile_url = "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",

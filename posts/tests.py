@@ -5,7 +5,7 @@ class ModelTesting(TestCase):
 
     def setUp(self):
         self.post = Post.objects.create(
-                type = "post",
+                object_type = "post",
                 title = "example post",
                 post_id = "http://127.0.0.1:5454/authors/1/posts/1",
                 post_source = "http://lastplaceigotthisfrom.com/posts/yyyyy",
@@ -16,7 +16,8 @@ class ModelTesting(TestCase):
                 comment_count = 0,
                 comments = "http://127.0.0.1:5454/authors/1/posts/1/comments",
                 pub_date = "2015-03-09T13:07:04+00:00",
-                is_unlisted = False
+                is_unlisted = False,
+                visibility = "PUBLIC"
                 )
 
     def test_post_model_is_valid(self):

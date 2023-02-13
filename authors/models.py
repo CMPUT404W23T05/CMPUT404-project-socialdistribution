@@ -11,7 +11,7 @@ SMALLER_MAX_LENGTH = 50
 }
 '''
 class Authors(models.Model):
-    type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     
 
 
@@ -28,8 +28,8 @@ class Authors(models.Model):
 '''
 
 class Author(models.Model):
-    type = models.CharField(max_length=SMALLER_MAX_LENGTH)
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # ID of the author
+    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # ID of the author
     home_host = models.URLField() # the home host 
     display_name = models.CharField(max_length=MAX_LENGTH) # the display name
     profile_url = models.URLField(max_length=MAX_LENGTH) # url to the author's profile

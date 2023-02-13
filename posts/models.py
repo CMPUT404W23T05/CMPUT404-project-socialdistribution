@@ -7,7 +7,7 @@ SMALLER_MAX_LENGTH = 50
 
 
 class Post(models.Model):
-    type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     title =  models.CharField(max_length=MAX_LENGTH) # title of a post
     post_id = models.URLField(max_length=MAX_LENGTH) # id of a post
     post_source = models.URLField(max_length=MAX_LENGTH) # where did you get this post from?
@@ -21,8 +21,8 @@ class Post(models.Model):
     comments = models.URLField(max_length=MAX_LENGTH) 
     # commentsSrc is OPTIONAL and can be missing
     pub_date = models.DateTimeField()
-    # put in visibility here
     is_unlisted = models.BooleanField()
+    visibility = models.CharField(max_length=SMALLER_MAX_LENGTH, default="FRIENDS")
 
     def __str__(self):
         return self.title
