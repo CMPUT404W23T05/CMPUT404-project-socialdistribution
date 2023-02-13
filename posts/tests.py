@@ -16,7 +16,7 @@ class ModelTesting(TestCase):
                 comment_count = 0,
                 comments = "http://127.0.0.1:5454/authors/1/posts/1/comments",
                 pub_date = "2015-03-09T13:07:04+00:00",
-                is_unlisted = False
+                is_unlisted = False,
                 visibility = "PUBLIC"
                 )
 
