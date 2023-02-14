@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Followers 
+from .models import Followers, Follow
 from authors.models import Author
 from django.forms.models import model_to_dict
 
@@ -8,7 +8,7 @@ class ModelTesting(TestCase):
     def setUp(self):
 
         self.author1 = Author.objects.create(
-                type = "author",
+                object_type = "author",
                 home_host = "http://127.0.0.1:5454/",
                 display_name = "Lara Croft",
                 profile_url = "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
@@ -17,7 +17,7 @@ class ModelTesting(TestCase):
                 )
 
         self.author2 = Author.objects.create(
-                type = "author",
+                object_type = "author",
                 home_host = "http://127.0.0.1:5454/",
                 display_name = "Greg Johnson",
                 profile_url = "http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
@@ -26,13 +26,14 @@ class ModelTesting(TestCase):
                 )
 
         self.author3 = Author.objects.create(
-                type = "author",
+                object_type = "author",
                 home_host = "http://127.0.0.1:5454/",
                 display_name = "John Doe",
                 profile_url = "http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
                 author_github = "http://github.com/jdoe",
                 profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
                 )
+                
     def test_present_fields(self):
         # tests to make sure all the fields remain when we convert from model to dict
 
@@ -76,7 +77,16 @@ class ModelTesting(TestCase):
         author2_followers = self.author2.followers_info.all()
 
         # is Greg following Lara?
-        self.assertEqual(author1_followers[0].display_name, self.author2.display_name)
+        check_author2 = author1_followers.filter(display_name = self.author2.display_name).exists()
+        self.assertTrue(check_author2)
 
         # is Lara following Greg?
-        self.assertEqual(author2_followers[0].display_name, self.author1.display_name)
+        check_author1 = author2_followers.filter(display_name = self.author1.display_name).exists()
+        self.assertTrue(check_author1)
+
+    def test_follow_object(self):
+
+        # add a follow object where Lara is following Greg (actor = author who is doing the following)
+        new_follow = Follow.objects.create_follow(self.author1, self.author2)
+        self.assertEqual(new_follow.author_actor, self.author1)
+        self.assertEqual(new_follow.author_object, self.author2)
