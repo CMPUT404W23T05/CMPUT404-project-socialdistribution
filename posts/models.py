@@ -7,6 +7,7 @@ SMALLER_MAX_LENGTH = 50
 
 
 class Post(models.Model):
+    # "type": "post"
     object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     title =  models.CharField(max_length=MAX_LENGTH) # title of a post
     post_id = models.URLField(max_length=MAX_LENGTH) # id of a post
@@ -15,8 +16,8 @@ class Post(models.Model):
     description = models.TextField(max_length=MAX_LENGTH) # a brief description of the post
     content_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     content = models.TextField(max_length=MAX_LENGTH)
-  #  author = models.ForeignKey(Author, on_delete=models.CASCADE) # an author can write many posts
-    # put in categories here
+    # author = models.ForeignKey(Author, on_delete=models.CASCADE) # an author can write many posts
+    # put in categories here: a list of string
     comment_count = models.IntegerField()
     comments = models.URLField(max_length=MAX_LENGTH) 
     # commentsSrc is OPTIONAL and can be missing
