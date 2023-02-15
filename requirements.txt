@@ -6,3 +6,4 @@ coverage
 Django
 sqlparse
 # additional requirements (add new ones under here)
+markdown-it-py
