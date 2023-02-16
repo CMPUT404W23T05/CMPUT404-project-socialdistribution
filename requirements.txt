@@ -6,3 +6,6 @@ coverage
 Django
 sqlparse
 # additional requirements (add new ones under here)
+
+
+djangorestframework

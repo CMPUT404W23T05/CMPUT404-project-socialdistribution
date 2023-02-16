@@ -2,6 +2,10 @@ from django.test import TestCase
 from .models import Followers, Follow
 from authors.models import Author
 from django.forms.models import model_to_dict
+from .serializers import *
+from rest_framework.renderers import JSONRenderer
+
+import json
 
 class ModelTesting(TestCase):
 
@@ -48,14 +52,14 @@ class ModelTesting(TestCase):
 
         # pass in author 2 (Greg) as a follower of author 1 (Lara)
         following_author1 = model_to_dict(self.author2)
-        self.author1.followers_info.create(**following_author1)
+        self.author1.items.create(**following_author1)
 
         # pass in author 3 (John) as a follower of author 1 (Lara)
         following_author1 = model_to_dict(self.author3)
-        self.author1.followers_info.create(**following_author1)
+        self.author1.items.create(**following_author1)
 
         # check the number of followers
-        all_followers = self.author1.followers_info.all()
+        all_followers = self.author1.items.all()
         self.assertEqual(len(all_followers), 2)
 
         # check who the follower is
@@ -67,14 +71,14 @@ class ModelTesting(TestCase):
         
         # pass in author 2 (Greg) as a follower of author 1 (Lara)
         following_author1 = model_to_dict(self.author2)
-        self.author1.followers_info.create(**following_author1)
+        self.author1.items.create(**following_author1)
 
         # pass in author 1 (Lara) as a follower of author 2 (Greg)
         following_author2 = model_to_dict(self.author1)
-        self.author2.followers_info.create(**following_author2)
+        self.author2.items.create(**following_author2)
 
-        author1_followers = self.author1.followers_info.all()
-        author2_followers = self.author2.followers_info.all()
+        author1_followers = self.author1.items.all()
+        author2_followers = self.author2.items.all()
 
         # is Greg following Lara?
         check_author2 = author1_followers.filter(display_name = self.author2.display_name).exists()
@@ -84,9 +88,47 @@ class ModelTesting(TestCase):
         check_author1 = author2_followers.filter(display_name = self.author1.display_name).exists()
         self.assertTrue(check_author1)
 
-    def test_follow_object(self):
+    def test_follow_object_and_serializer(self):
 
         # add a follow object where Lara is following Greg (actor = author who is doing the following)
-        new_follow = Follow.objects.create_follow(self.author1, self.author2)
-        self.assertEqual(new_follow.author_actor, self.author1)
-        self.assertEqual(new_follow.author_object, self.author2)
+        author1 = AuthorSerializer(self.author1)
+        author2 = AuthorSerializer(self.author2)
+
+        author1_json = JSONRenderer().render(author1.data)
+        author2_json = JSONRenderer().render(author2.data)
+
+        # turn author1_json and author2_json into dicts and pass it in as arguments
+        new_follow = Follow.objects.create_follow(json.loads(author2_json), json.loads(author1_json))
+        
+        follow_request = FollowSerializer(new_follow)
+
+        # check if the actor and object were assigned correctly
+        self.assertEqual(follow_request.data['actor']['displayName'], self.author2.display_name)
+        self.assertEqual(follow_request.data['object']['displayName'], self.author1.display_name)
+    
+    def test_author_and_followers_serializers(self):
+      
+        # pass in author 2 (Greg) as a follower of author 1 (Lara)
+        following_author1 = model_to_dict(self.author2)
+        self.author1.items.create(**following_author1)
+
+        # pass in author 3 (John) as a follower of author 1 (Lara)
+        following_author1 = model_to_dict(self.author3)
+        self.author1.items.create(**following_author1)
+ 
+        author1_followers = AuthorFollowersSerializer(self.author1)
+        test_json = JSONRenderer().render(author1_followers.data)
+        parsed_json = json.loads(test_json) # dictionary containing type and items
+        
+        # check that the list items contains 2 followers
+        self.assertEqual(len(parsed_json['items']), 2)
+
+
+    
+        
+
+
+
+
+
+        
