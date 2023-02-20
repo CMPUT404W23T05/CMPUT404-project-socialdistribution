@@ -36,3 +36,7 @@ class Like(models.Model):
     # like_author =  models.OneToOneField(Author, on_delete=models.CASCADE)
     content_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     obj = models.URLField(max_length=MAX_LENGTH)
+
+class Liked(models.Model):
+    context = models.URLField(max_length=MAX_LENGTH)
+    # put in items here?
