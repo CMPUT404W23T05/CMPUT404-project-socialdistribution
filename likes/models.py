@@ -6,7 +6,7 @@ SMALLER_MAX_LENGTH = 50
 class Like(models.Model):
     context = models.URLField(max_length=MAX_LENGTH)
     # put in summary here
-    type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
 #    like_author =  models.OneToOneField(Author, on_delete=models.CASCADE) 
     content_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
-    object = models.URLField(max_length=MAX_LENGTH)
+    obj = models.URLField(max_length=MAX_LENGTH)
