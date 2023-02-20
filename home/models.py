@@ -46,3 +46,14 @@ class Inbox(models.Model):
     object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     author = models.URLField(max_length=MAX_LENGTH)
     # put in items (consists of posts) here?
+
+
+class Followers(models.Model):
+    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+
+
+class Follow(models.Model):
+    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    # put in summary here
+    # actor = models.ForeignKey(Author, on_delete=models.CASCADE)
+    # object = models.ForeignKey(Author, on_delete=models.CASCADE)
