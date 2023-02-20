@@ -35,7 +35,28 @@ class ModelTesting(TestCase):
 class PlainTextPostTesting(TestCase):
     
     def setUp(self):
+        # data for test_post_creation()
         self.post_data = {
+                "type": "post",
+                "title": "Test Plain Text Post",
+                "contentType": "text/plain",
+                "content": "testing...123"
+                }
+
+        self.post_data1 = {
+                "type": "post",
+                "contentType": "text/plain",
+                "content": "testing...123"
+                }
+
+        self.post_data2 = {
+                "type": "post",
+                "title": "Test Plain Text Post",
+                "contentType": "text/plain",
+                "content": "testing...123"
+                }
+
+        self.post_data3 = {
                 "type": "post",
                 "title": "Test Plain Text Post",
                 "contentType": "text/plain",
@@ -65,3 +86,7 @@ class PlainTextPostTesting(TestCase):
         self.assertEqual(post.is_unlisted, False)
         self.assertEqual(post.visibility, "PUBLIC")
         # replace this later with a check on the actual datetime
+
+
+    def test_missing_title(self):
+        
