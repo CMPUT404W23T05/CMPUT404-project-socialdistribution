@@ -27,3 +27,12 @@ class Post(models.Model):
 
 class ImagePost(models.Model):
     pass
+
+
+class Like(models.Model):
+    context = models.URLField(max_length=MAX_LENGTH)
+    # put in summary here
+    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    # like_author =  models.OneToOneField(Author, on_delete=models.CASCADE)
+    content_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    obj = models.URLField(max_length=MAX_LENGTH)
