@@ -9,17 +9,20 @@ class PostTesting(TestCase):
         self.post = Post.objects.create(
                 object_type = "post",
                 title = "example post",
-                post_id = "http://127.0.0.1:5454/authors/1/posts/1",
+                post_id = "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd3/posts/764efa883dda1e11db4767",
                 post_source = "http://lastplaceigotthisfrom.com/posts/yyyyy",
                 post_origin = "http://whereitcamefrom.com/posts/zzzzz",
                 description = "this is an example post for testing",
                 content_type = "text/plain",
                 content = "testing... 1,2,3",
-                comment_count = 0,
-                comments = "http://127.0.0.1:5454/authors/1/posts/1/comments",
+                # author = {},
+                # categories = [] # this is where we put tags as list of strs
+                comment_count = 5,
+                comments = "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34/posts/764efa8e3dd81e11db4941/comments",
+                # commentsSrc = "put here"  # OPTIONAL, for reducing api calls later
                 pub_date = "2015-03-09T13:07:04+00:00",
-                is_unlisted = False,
-                visibility = "PUBLIC"
+                visibility = "PUBLIC",
+                is_unlisted = False
                 )
 
     def test_post_model_is_valid(self):
@@ -94,6 +97,7 @@ class AuthorTesting(TestCase):
     def setUp(self):
         self.author = Author.objects.create(
                 object_type = "author",
+                uid = "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
                 home_host = "http://127.0.0.1:5454/",
                 display_name = "Gandalf the Grey",
                 profile_url = "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
