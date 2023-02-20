@@ -76,28 +76,10 @@ class Comment(models.Model):
     # comment = models.ForeignKey(Comments, on_delete=models.CASCADE) (brings up an error when running server)
 
 
-'''
-{
-"type": "authors",
-"items": [ {"type":"author",...}, ...]
-}
-'''
 class Authors(models.Model):
     object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
 
 
-
-'''
-{
-"type": "author",
-"id": ...
-"host": ...
-"displayName": ...
-"url": ...
-"github": ...
-"profileImage": ...
-}
-'''
 class Author(models.Model):
     object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     uid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)  # ID of the author

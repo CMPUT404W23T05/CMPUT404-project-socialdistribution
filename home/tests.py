@@ -3,9 +3,8 @@ from .models import Post, Author
 from datetime import datetime
 from django.urls import reverse
 
-
+# ---------------------- testing post model ----------------------------------
 class PostTesting(TestCase):
-
     def setUp(self):
         self.post = Post.objects.create(
                 object_type = "post",
@@ -33,7 +32,6 @@ class PostTesting(TestCase):
 
 
 class PlainTextPostTesting(TestCase):
-
     def setUp(self):
         # data for test_post_creation()
         self.post_data = {
@@ -90,8 +88,9 @@ class PlainTextPostTesting(TestCase):
 
     # def test_missing_title(self):
 
-class AuthorTesting(TestCase):
 
+# ---------------------- testing author model ----------------------------------
+class AuthorTesting(TestCase):
     def setUp(self):
         self.author = Author.objects.create(
                 object_type = "author",
