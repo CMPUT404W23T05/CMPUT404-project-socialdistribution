@@ -40,3 +40,9 @@ class Like(models.Model):
 class Liked(models.Model):
     context = models.URLField(max_length=MAX_LENGTH)
     # put in items here?
+
+
+class Inbox(models.Model):
+    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    author = models.URLField(max_length=MAX_LENGTH)
+    # put in items (consists of posts) here?
