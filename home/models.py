@@ -1,4 +1,5 @@
-from django.db import models
+from django.db import models, IntegrityError
+# from django.contrib.postgres.fields import ArrayField
 
 MAX_LENGTH = 100
 SMALLER_MAX_LENGTH = 50
@@ -6,7 +7,7 @@ SMALLER_MAX_LENGTH = 50
 class Author(models.Model):
     object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     # unique=True here is allowing uid to be used as a secondary key/ foreign key
-    uid = models.URLField(max_length=MAX_LENGTH, unique=True)  # ID of the author
+    uid = models.URLField(max_length=MAX_LENGTH, unique=True, null=False)  # ID of the author
     home_host = models.URLField() # the home host
     display_name = models.CharField(max_length=MAX_LENGTH) # the display name
     profile_url = models.URLField(max_length=MAX_LENGTH) # url to the author's profile
@@ -17,21 +18,65 @@ class Author(models.Model):
         # clearer description of object itself rather than Author(1) in admin interface
         return self.display_name
 
+
 class Authors(models.Model):
     object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+
+
+class PostManager(models.Manager):
+    def create_post(self, request_body):
+        if request_body['contentType'] == 'text/plain':
+            return self.create_text_post(request_body)
+        elif request_body['contentType'] == 'text/markdown':
+            return self.create_markdown_post(self, request_body)
+        elif request_body['contentType'] == 'application/base64':
+            pass
+        elif request_body['contentType'] == 'image/jpeg;base64':
+            pass
+        elif request_body['contentType'] == 'image/png;base64':
+            pass
+
+    def create_text_post(self, request_body):
+        # uid = request_body['author']
+        try:
+            post = self.create(
+                                object_type = request_body['type'],
+                                title = request_body['title'],
+                                post_id = request_body['id'],
+                                post_source = request_body['source'],
+                                post_origin = request_body['origin'],
+                                description = request_body['description'],
+                                content_type = request_body['contentType'],
+                                content = request_body['content'],
+                                # author = Author.objects.get(uid=uid),
+                                # categories = request_body['categories'],
+                                comment_count = request_body['count'],
+                                comments = request_body['comments'],
+                                # commentSrc = request_body[''],
+                                pub_date = request_body['published'],
+                                is_unlisted = request_body['unlisted'],
+                                visibility = request_body['visibility']
+                                )
+            return post
+        except IntegrityError:
+            return "idk something to mean error, figure it out later"
+
+    def create_markdown_post(self, request_body):
+        pass
 
 
 class Post(models.Model):
     object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     title =  models.CharField(max_length=MAX_LENGTH) # title of a post
-    post_id = models.URLField(max_length=MAX_LENGTH, unique=True) # id of a post
+    post_id = models.URLField(max_length=MAX_LENGTH, unique=True, null=False) # id of a post
     post_source = models.URLField(max_length=MAX_LENGTH) # where did you get this post from?
     post_origin =  models.URLField(max_length=MAX_LENGTH) # where is it actually from
     description = models.TextField(max_length=MAX_LENGTH) # a brief description of the post
     content_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     content = models.TextField(max_length=MAX_LENGTH)
-    # author = models.ForeignKey(Author, on_delete=models.CASCADE) # an author can write many posts
-    # put in categories here (id = models.AutoField(primary_key=True, null=True)i.e. tags): a list of string
+    # author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', null=False) # an author can write many posts
+    # put in categories here i.e. tags): a list of string
+    # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField()
     comments = models.URLField(max_length=MAX_LENGTH)
     # commentsSrc is OPTIONAL and can be missing
@@ -39,8 +84,11 @@ class Post(models.Model):
     is_unlisted = models.BooleanField()
     visibility = models.CharField(max_length=SMALLER_MAX_LENGTH, default="FRIENDS")
 
+    objects = PostManager()
+
     def __str__(self):
         return self.title
+
 
 class ImagePost(models.Model):
     pass
@@ -73,6 +121,7 @@ class LikeManager(models.Manager):
                             obj = object_url
                             )
         return like
+
 
 class Like(models.Model):
     """

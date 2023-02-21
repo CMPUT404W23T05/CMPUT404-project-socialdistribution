@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound
 from .models import Post
 from datetime import datetime
+import json
 
 '''
 view for login
@@ -49,3 +50,13 @@ def plain_text_post(request):
     post.is_unlisted = False     # only true for image posts
     post.visibility = "PUBLIC"   # this is a public post, need to figure out how to pass whether its public or not
     post.save()
+
+# Creation URL ://service/authors/{AUTHOR_ID}/posts/
+# POST [local] create a new post but generate a new id
+def create_new_post(request):
+    if request.method == 'POST':
+        # parse the json data from req body into python dict
+        body_str = request.body.decode('utf-8')
+        data = json.loads(body_str)
+        if data['type'] == 'post':
+            response = Post.objects.create_post(data)
