@@ -7,7 +7,7 @@ SMALLER_MAX_LENGTH = 50
 class Author(models.Model):
     object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     # unique=True here is allowing uid to be used as a secondary key/ foreign key
-    uid = models.URLField(max_length=MAX_LENGTH, unique=True, null=False)  # ID of the author
+    uid = models.CharField(max_length=MAX_LENGTH, unique=True, null=False)  # ID of the author
     home_host = models.URLField() # the home host
     display_name = models.CharField(max_length=MAX_LENGTH) # the display name
     profile_url = models.URLField(max_length=MAX_LENGTH) # url to the author's profile
@@ -37,7 +37,6 @@ class PostManager(models.Manager):
             pass
 
     def create_text_post(self, request_body):
-        # uid = request_body['author']
         try:
             post = self.create(
                                 object_type = request_body['type'],
@@ -48,7 +47,7 @@ class PostManager(models.Manager):
                                 description = request_body['description'],
                                 content_type = request_body['contentType'],
                                 content = request_body['content'],
-                                # author = Author.objects.get(uid=uid),
+                                author = Author.objects.get(uid=request_body['author']),
                                 # categories = request_body['categories'],
                                 comment_count = request_body['count'],
                                 comments = request_body['comments'],
@@ -59,7 +58,9 @@ class PostManager(models.Manager):
                                 )
             return post
         except IntegrityError:
-            return "idk something to mean error, figure it out later"
+            return "violation of database integrity constraints"
+        except Author.DoesNotExist:
+            return "Author object does not exist"
 
     def create_markdown_post(self, request_body):
         pass
@@ -68,13 +69,13 @@ class PostManager(models.Manager):
 class Post(models.Model):
     object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     title =  models.CharField(max_length=MAX_LENGTH) # title of a post
-    post_id = models.URLField(max_length=MAX_LENGTH, unique=True, null=False) # id of a post
+    post_id = models.CharField(max_length=MAX_LENGTH, unique=True, null=False) # id of a post
     post_source = models.URLField(max_length=MAX_LENGTH) # where did you get this post from?
     post_origin =  models.URLField(max_length=MAX_LENGTH) # where is it actually from
     description = models.TextField(max_length=MAX_LENGTH) # a brief description of the post
     content_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
     content = models.TextField(max_length=MAX_LENGTH)
-    # author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', null=False) # an author can write many posts
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', null=False) # an author can write many posts
     # put in categories here i.e. tags): a list of string
     # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField()
