@@ -39,7 +39,7 @@ class PostTesting(TestCase):
                 profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
                 )
 
-        # valid author id
+        # valid author id (exists)
         post_data1 = {
                 "type": "post",
                 "title": "example post",
