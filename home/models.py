@@ -1,13 +1,16 @@
 from django.db import models, IntegrityError
 # from django.contrib.postgres.fields import ArrayField
 
-MAX_LENGTH = 100
-SMALLER_MAX_LENGTH = 50
+CONTENT_MAX_LENGTH = 10000  # for content field
+URL_MAX_LENGTH = 2000       # for urls
+COMMENT_MAX_LENGTH = 200    # for comment length
+ID_MAX_LENGTH = 50          # for ids
+BIG_MAX_LENGTH = 80         # for longer fields like 'title'
+SMALL_MAX_LENGTH = 20       # for short fields like 'type'
 
 class AuthorManager(models.Manager):
     pass
-
-
+    
 
 class Author(models.Model):
     """
@@ -16,14 +19,14 @@ class Author(models.Model):
     Example:
     - Author.objects.create_author(request_body)
     """
-    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     # unique=True here is allowing uid to be used as a secondary key/ foreign key
-    uid = models.CharField(max_length=MAX_LENGTH, unique=True, null=False)  # ID of the author
-    home_host = models.URLField() # the home host
-    display_name = models.CharField(max_length=MAX_LENGTH) # the display name
-    profile_url = models.URLField(max_length=MAX_LENGTH) # url to the author's profile
-    author_github = models.URLField(max_length=MAX_LENGTH) # HATEOS url for Github API
-    profile_image = models.URLField(max_length=MAX_LENGTH) # Image from a public domain (or ImageField?)
+    uid = models.CharField(max_length=BIG_MAX_LENGTH, unique=True, null=False)  # ID of the author
+    home_host = models.URLField(max_length=URL_MAX_LENGTH) # the home host
+    display_name = models.CharField(max_length=SMALL_MAX_LENGTH) # the display name
+    profile_url = models.URLField(max_length=URL_MAX_LENGTH) # url to the author's profile
+    author_github = models.URLField(max_length=URL_MAX_LENGTH) # HATEOS url for Github API
+    profile_image = models.URLField(max_length=URL_MAX_LENGTH) # Image from a public domain (or ImageField?)
 
     objects = AuthorManager()
 
@@ -33,7 +36,7 @@ class Author(models.Model):
 
 
 class Authors(models.Model):
-    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
 
 
 class PostManager(models.Manager):
@@ -102,23 +105,23 @@ class Post(models.Model):
     Example:
     - Post.objects.create_post(request_body)
     """
-    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
-    title =  models.CharField(max_length=MAX_LENGTH) # title of a post
-    post_id = models.CharField(max_length=MAX_LENGTH, unique=True, null=False) # id of a post
-    post_source = models.URLField(max_length=MAX_LENGTH) # where did you get this post from?
-    post_origin =  models.URLField(max_length=MAX_LENGTH) # where is it actually from
-    description = models.TextField(max_length=MAX_LENGTH) # a brief description of the post
-    content_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
-    content = models.TextField(max_length=MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
+    title =  models.CharField(max_length=BIG_MAX_LENGTH) # title of a post
+    post_id = models.CharField(max_length=ID_MAX_LENGTH, unique=True, null=False) # id of a post
+    post_source = models.URLField(max_length=URL_MAX_LENGTH) # where did you get this post from?
+    post_origin =  models.URLField(max_length=URL_MAX_LENGTH) # where is it actually from
+    description = models.TextField(max_length=BIG_MAX_LENGTH) # a brief description of the post
+    content_type = models.CharField(max_length=SMALL_MAX_LENGTH)
+    content = models.TextField(max_length=CONTENT_MAX_LENGTH)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', null=False) # an author can write many posts
     # put in categories here i.e. tags): a list of string
     # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField()
-    comments = models.URLField(max_length=MAX_LENGTH)
+    comments = models.URLField(max_length=URL_MAX_LENGTH)
     # commentsSrc is OPTIONAL and can be missing
     pub_date = models.DateTimeField()
     is_unlisted = models.BooleanField()
-    visibility = models.CharField(max_length=SMALLER_MAX_LENGTH, default="FRIENDS")
+    visibility = models.CharField(max_length=SMALL_MAX_LENGTH, default="FRIENDS")
 
     objects = PostManager()
 
@@ -166,18 +169,18 @@ class Like(models.Model):
     Example:
     - Like.objects.create_like(context_url, author_liking, object_url)
     """
-    context = models.URLField(max_length=MAX_LENGTH)
-    like_summary = models.CharField(max_length=SMALLER_MAX_LENGTH)
-    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    context = models.URLField(max_length=URL_MAX_LENGTH)
+    like_summary = models.CharField(max_length=BIG_MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     author_object = models.JSONField(null=True) # the author that liked your post
-    obj = models.URLField(max_length=MAX_LENGTH) # the post/comment that got liked
+    obj = models.URLField(max_length=URL_MAX_LENGTH) # the post/comment that got liked
 
     associated_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name = 'liked_items', null=True, blank=True)
 
     objects = LikeManager() # creates the object and adds a summary along with it
 
 class Liked(models.Model): # may not need to be used?
-    context = models.URLField(max_length=MAX_LENGTH)
+    context = models.URLField(max_length=URL_MAX_LENGTH)
 
 class Inbox(models.Model):
     """
@@ -227,18 +230,18 @@ class Follow(models.Model):
     Example:
     - Follow.objects.create_follow(author_following, author_followed)
     """
-    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     author_actor = models.JSONField(null=True) # dict containing information about the author
     author_object = models.JSONField(null=True)
-    following_summary = models.CharField(max_length=SMALLER_MAX_LENGTH, null=True)
+    following_summary = models.CharField(max_length=BIG_MAX_LENGTH, null=True)
     objects = FollowManager()
 
 class Comments(models.Model):
-    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     page =  models.IntegerField()
     size = models.IntegerField()
-    post = models.URLField(max_length=MAX_LENGTH)
-    comments_id = models.URLField(max_length=MAX_LENGTH)
+    post = models.URLField(max_length=URL_MAX_LENGTH)
+    comments_id = models.URLField(max_length=URL_MAX_LENGTH)
 
 class Comment(models.Model):
     """
@@ -253,12 +256,12 @@ class Comment(models.Model):
         - a = Author.objects.create(...)
         - a.comment_items.create(...comment_content=...content_type=...)
     """
-    object_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     author_json = models.JSONField(null=True, blank=True)
-    comment_content = models.TextField(max_length=MAX_LENGTH)
-    content_type = models.CharField(max_length=SMALLER_MAX_LENGTH)
+    comment_content = models.TextField(max_length=COMMENT_MAX_LENGTH)
+    content_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     pub_date = models.DateTimeField()
-    comment_id = models.URLField(max_length=MAX_LENGTH, unique=True)
+    comment_id = models.URLField(max_length=ID_MAX_LENGTH, unique=True)
 
     comments = models.ForeignKey(Comments, on_delete=models.CASCADE, related_name = 'comments_list', null=True, blank=True)
     associated_author =  models.ForeignKey(Author, on_delete=models.CASCADE, related_name = 'comment_items', null=True, blank=True)
