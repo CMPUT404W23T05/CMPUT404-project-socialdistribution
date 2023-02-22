@@ -10,7 +10,7 @@ SMALL_MAX_LENGTH = 20       # for short fields like 'type'
 
 class AuthorManager(models.Manager):
     pass
-    
+
 
 class Author(models.Model):
     """
@@ -105,23 +105,24 @@ class Post(models.Model):
     Example:
     - Post.objects.create_post(request_body)
     """
-    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    title =  models.CharField(max_length=BIG_MAX_LENGTH) # title of a post
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
+    title =  models.CharField(max_length=BIG_MAX_LENGTH, null=True) # title of a post
     post_id = models.CharField(max_length=ID_MAX_LENGTH, unique=True, null=False) # id of a post
-    post_source = models.URLField(max_length=URL_MAX_LENGTH) # where did you get this post from?
-    post_origin =  models.URLField(max_length=URL_MAX_LENGTH) # where is it actually from
-    description = models.TextField(max_length=BIG_MAX_LENGTH) # a brief description of the post
-    content_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    content = models.TextField(max_length=CONTENT_MAX_LENGTH)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', null=False) # an author can write many posts
+    post_source = models.URLField(max_length=URL_MAX_LENGTH, null=False) # where did you get this post from?
+    post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=False) # where is it actually from
+    description = models.TextField(max_length=BIG_MAX_LENGTH, null=True) # a brief description of the post
+    content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
+    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=False)
+    image = models.ImageField(blank=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='posts', null=False) # an author can write many posts
     # put in categories here i.e. tags): a list of string
     # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
-    comment_count = models.IntegerField()
-    comments = models.URLField(max_length=URL_MAX_LENGTH)
+    comment_count = models.IntegerField(null=True)
+    comments = models.URLField(max_length=URL_MAX_LENGTH, null=True)
     # commentsSrc is OPTIONAL and can be missing
-    pub_date = models.DateTimeField()
-    is_unlisted = models.BooleanField()
-    visibility = models.CharField(max_length=SMALL_MAX_LENGTH, default="FRIENDS")
+    pub_date = models.DateTimeField(null=False)
+    is_unlisted = models.BooleanField(null=False)
+    visibility = models.CharField(max_length=SMALL_MAX_LENGTH, default="FRIENDS", null=False)
 
     objects = PostManager()
 
@@ -129,8 +130,9 @@ class Post(models.Model):
         return self.title
 
 
-class ImagePost(models.Model):
-    pass
+class Image(models.Model):
+    parent_post = models.ForeignKey(Post, on_delete=models.CASCADE, to_field='post_id', related_name='image', default=None)
+    image = models.ImageField(upload_to ='images/', default='images/None/none.jpg')
 
 
 class LikeManager(models.Manager):
