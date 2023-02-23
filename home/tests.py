@@ -1,6 +1,7 @@
 from django.test import TestCase
 from .models import Post, Author
 from django.urls import reverse
+import base64
 
 
 # ---------------------- testing author model ----------------------------------
@@ -28,6 +29,14 @@ class AuthorTesting(TestCase):
 # ---------------------- testing post model ----------------------------------
 class PostTesting(TestCase):
     def setUp(self):
+        # jpeg test image
+        with open('test_image.jpeg', 'rb') as f:
+            image_data = f.read()
+
+        # png test image
+        with open('test_image.png', 'rb') as f:
+            image_data2 = f.read()
+
         # using json data as python dictionary
         self.author = Author.objects.create(
                 object_type = "author",
@@ -38,6 +47,10 @@ class PostTesting(TestCase):
                 author_github = "http://github.com/frodobaggins",
                 profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
                 )
+
+        self.image = Post.objects.create_post(
+
+                                            )
 
         # valid author id (exists)
         post_data1 = {

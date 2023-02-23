@@ -1,5 +1,6 @@
 from django.db import models, IntegrityError
 # from django.contrib.postgres.fields import ArrayField
+import base64
 
 CONTENT_MAX_LENGTH = 10000  # for content field
 URL_MAX_LENGTH = 2000       # for urls
@@ -49,18 +50,13 @@ class PostManager(models.Manager):
         Output:
         - returns either Post instance or error message
         """
-        if request_body['contentType'] == 'text/plain':
-            return self.create_text_post(request_body)
-        elif request_body['contentType'] == 'text/markdown':
-            return self.create_markdown_post(self, request_body)
-        elif request_body['contentType'] == 'application/base64':
-            pass
-        elif request_body['contentType'] == 'image/jpeg;base64':
-            pass
-        elif request_body['contentType'] == 'image/png;base64':
-            pass
 
-    def create_text_post(self, request_body):
+        if request_body['contentType'] == 'application/base64':
+            return self.create_post_from_base64(request_body)
+        else:
+            return self.create_post(request_body)
+
+    def create_post(self, request_body):
         """
         creates a plain text post and stores it in the data base
         Input:
@@ -68,6 +64,22 @@ class PostManager(models.Manager):
         Output:
         - returns either Post instance or error message
         """
+        if Not('image' in request_body and 'content' in request_body):
+            pass #put something here to say you can't make post with image or content
+
+        contentType = request_body['contentType']
+        if 'content' in request_body:
+            content_data = request_body['content']
+        else:
+            content_data = None
+
+        if 'image' in request_body and
+            ('image/jpeg;base64' in contentType or 'image/png;base64' in contentType):
+            image_data = b64decode(request_body['image'])
+            image_obj = Image.objects.create(image=image_data)
+        else:
+            image_obj = None
+
         try:
             post = self.create(
                                 object_type = request_body['type'],
@@ -78,6 +90,7 @@ class PostManager(models.Manager):
                                 description = request_body['description'],
                                 content_type = request_body['contentType'],
                                 content = request_body['content'],
+                                image = image_obj,
                                 author = Author.objects.get(uid=request_body['author']),
                                 # categories = request_body['categories'],
                                 comment_count = request_body['count'],
@@ -87,6 +100,7 @@ class PostManager(models.Manager):
                                 is_unlisted = request_body['unlisted'],
                                 visibility = request_body['visibility']
                                 )
+            # post.image.parent_post = post
             return post
 
         except IntegrityError:
@@ -94,7 +108,7 @@ class PostManager(models.Manager):
         except Author.DoesNotExist:
             return "Author object does not exist"
 
-    def create_markdown_post(self, request_body):
+    def create_post_from_base64(self, request_body):
         pass
 
 
@@ -113,8 +127,9 @@ class Post(models.Model):
     description = models.TextField(max_length=BIG_MAX_LENGTH, null=True) # a brief description of the post
     content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
     content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=False)
-    image = models.ImageField(blank=True)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='posts', null=False) # an author can write many posts
+    image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid',
+                               related_name='posts', null=False)
     # put in categories here i.e. tags): a list of string
     # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField(null=True)
@@ -131,8 +146,7 @@ class Post(models.Model):
 
 
 class Image(models.Model):
-    parent_post = models.ForeignKey(Post, on_delete=models.CASCADE, to_field='post_id', related_name='image', default=None)
-    image = models.ImageField(upload_to ='images/', default='images/None/none.jpg')
+    image = models.ImageField(upload_to ='images/')
 
 
 class LikeManager(models.Manager):
