@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import routers,serializers,viewsets
 from .models import *
 
 # need to pip install rest_framework
@@ -22,7 +22,60 @@ class AuthorSerializer(serializers.ModelSerializer):
         model = Author
         fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage']
 
+    def to_internal_value(self, data):
+        type = data.get('object_type')
+        id = data.get('uid')
+        url = data.get('home_host')
+        host = data.get('display_name')
+        displayName = data.get('profile_url')
+        github = data.get('author_github')
+        profileImage = data.get('profile_image')
+        
+        # data validation.
+        if not type:
+            raise serializers.ValidationError({
+                'type': 'This field is required.'
+            })
+        if not id:
+            raise serializers.ValidationError({
+                'id': 'This field is required.'
+            })
+        
+        if not url:
+            raise serializers.ValidationError({
+                'url': 'This field is required.'
+            })
+        
+        if not host:
+            raise serializers.ValidationError({
+                'host': 'This field is required.'
+            })
+        
+        if not displayName:
+            raise serializers.ValidationError({
+                'displayName': 'This field is required.'
+            })
+        
+        if not github:
+            raise serializers.ValidationError({
+                'github': 'This field is required.'
+            })
 
+        if not profileImage:
+            raise serializers.ValidationError({
+                'profileImage': 'This field is required.'
+            })
+        # returns the validated values
+        return {
+            'type': type,
+            'id': id,
+            'url': url,
+            'host': host,
+            'displayName': displayName,
+            'github': github,
+            'profileImage': profileImage
+        }
+    
 class CommentSerializer(serializers.ModelSerializer):
 
     type = serializers.CharField(default='comment')

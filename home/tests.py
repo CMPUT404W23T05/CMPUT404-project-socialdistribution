@@ -1,7 +1,10 @@
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from .models import Post, Author
 from datetime import datetime
 from django.urls import reverse
+
+from .views import *
+import json 
 
 # ---------------------- testing post model ----------------------------------
 class PostTesting(TestCase):
@@ -112,3 +115,48 @@ class AuthorTesting(TestCase):
     def test_author_model_str(self):
         d = self.author
         self.assertEqual(str(d), "Gandalf the Grey")
+
+# ---------------------- testing follower model ----------------------------------
+class FollowerTesting(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+        self.author = Author.objects.create(
+                object_type = "author",
+                uid = "http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f58147",
+                home_host = "http://127.0.0.1:5454/",
+                display_name = "Greg Johnson",
+                profile_url = "http://127.0.0.1:5454/authors/1d698d25ff008f7538453c120f581471",
+                author_github = "http://github.com/gjohnson",
+                profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
+                )
+        
+        self.author2 = {
+                "object_type": "author",
+                "uid": "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                "home_host":  "http://127.0.0.1:5454/",
+                "display_name": "Lara Croft",
+                "profile_url": "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e",
+                "author_github": "http://github.com/laracroft",
+                "profile_image": "https://i.imgur.com/k7XVwpB.jpeg"
+            }
+        
+        
+        self.author3 = {
+                "object_type": "author",
+                "uid": "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658ee",
+                "home_host":  "http://127.0.0.1:5454/",
+                "display_name": "John Doe",
+                "profile_url": "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658ee",
+                "author_github": "http://github.com/jdoe",
+                "profile_image": "https://i.imgur.com/k7XVwpB.jpeg"
+            }
+        
+        
+    def test_followers_get(self):
+        self.author.followers_items.create(**self.author2)
+        Author.objects.create(**self.author3)
+
+        request = self.factory.get("/authors/1/followers/")
+        response = followers(request, 1) # get the followers of author 1
+      
