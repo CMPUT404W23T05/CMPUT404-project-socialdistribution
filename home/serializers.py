@@ -57,7 +57,7 @@ class PostDeSerializer(serializers.ModelSerializer):
     id = serializers.CharField(source = 'post_id')
     source = serializers.URLField(source = 'post_source')
     origin = serializers.URLField(source = 'post_origin')
-    contentType = serializers.CharField(source = 'content_type')
+    # contentType = serializers.ListField(source = 'content_type')
     image = Base64ImageField(max_length = None, use_url = True, required = False)
     content = serializers.CharField(required = False)
     author = serializers.CharField()
@@ -67,7 +67,7 @@ class PostDeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         # add 'categories' later
-        fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType',
+        fields = ['type', 'title', 'id', 'source', 'origin', 'description',
                   'image', 'content', 'author', 'count', 'comments', 'visibility',
                   'unlisted']
 
