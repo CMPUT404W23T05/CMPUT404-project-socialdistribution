@@ -1,9 +1,11 @@
 from django.shortcuts import render
-from .models import Post
-from .serializers import PostSerializer
+from .models import *
+from .serializers import *
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
+from django.http import Http404
 
 
 from datetime import datetime
@@ -28,16 +30,20 @@ def index(request):
 '''
 page for viewing author posts and creating a new post
 '''
-def posts(request):
-    if request.method == 'POST':
-        # parse the json data from req body into python dict
-        body_str = request.body.decode('utf-8')
-        data = json.loads(body_str)
-        if data['type'] == 'post':
-            response = Post.objects.create_post(data)
+class CreatePost(APIView):
+    def post(self, request, format=None):
+        serializer = PostDeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class GetLatestPosts(APIView):
+
+class GetPosts(APIView):
     def get(self, request, format=None):
         posts = Post.objects.all()[0:5]
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
+
+# class PostDetail(APIView):
+#     def get_object(self, ):

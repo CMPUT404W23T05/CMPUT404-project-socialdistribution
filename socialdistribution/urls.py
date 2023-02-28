@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     # djoser paths
-    path('api/v1/', include('djoser.urls')),
-    path('api/v1/', include('djoser.urls.authtoken')),
-    path('api/v1/', include('home.urls')),
+    path('api/', include('djoser.urls')),
+    path('api/', include('djoser.urls.authtoken')),
+    path('api/', include('home.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,12 +1,39 @@
 from rest_framework import serializers
 from .models import *
 
+from django.core.files.base import ContentFile
+import base64
+import uuid
+import imghdr
+
+
 # need to pip install rest_framework
 # To convert your queries to or from a JSON object (useful when connecting with groups)
 
+# Reference: https://stackoverflow.com/questions/31690991/uploading-base64-images-using-modelserializers-in-django-django-rest-framework
+class Base64ImageField(serializers.ImageField):
+
+    def to_internal_value(self, data):
+        try:
+            decoded_file = base64.b64decode(data)
+        except TypeError:
+            self.fail('invalid_image')
+
+        file_name = 'test_image' + str(uuid.uuid4())[:5] # change to 12 later
+        file_extension = self.get_file_extension(file_name, decoded_file)
+        complete_file_name = '%s.%s' % (file_name, file_extension)
+        img_file = ContentFile(decoded_file, name=complete_file_name)
+
+        return super(Base64ImageField, self).to_internal_value(img_file)
+
+    def get_file_extension(self, file_name, decoded_file):
+        extension = imghdr.what(file_name, decoded_file)
+        extension = 'jpg' if extension == 'jpeg' else extension
+        return extension
+
+
 class PostSerializer(serializers.ModelSerializer):
 
-    # get post information
     type = serializers.CharField(source = 'object_type')
     id = serializers.CharField(source = 'post_id')
     source = serializers.URLField(source = 'post_source')
@@ -23,6 +50,39 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType',
                   'image', 'content', 'author', 'count', 'comments', 'published',
                   'visibility', 'unlisted']
+
+class PostDeSerializer(serializers.ModelSerializer):
+
+    type = serializers.CharField(source = 'object_type')
+    id = serializers.CharField(source = 'post_id')
+    source = serializers.URLField(source = 'post_source')
+    origin = serializers.URLField(source = 'post_origin')
+    contentType = serializers.CharField(source = 'content_type')
+    image = Base64ImageField(max_length = None, use_url = True, required = False)
+    content = serializers.CharField(required = False)
+    author = serializers.CharField()
+    count = serializers.IntegerField(source = 'comment_count')
+    unlisted = serializers.BooleanField(source = 'is_unlisted')
+
+    class Meta:
+        model = Post
+        # add 'categories' later
+        fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType',
+                  'image', 'content', 'author', 'count', 'comments', 'visibility',
+                  'unlisted']
+
+    def get_author(self, author_uid):
+        try:
+            return Author.objects.get(uid=author_uid)
+        except Author.DoesNotExist:
+            raise serializers.ValidationError('Author not found, uid: ', author_uid)
+
+    def create(self, validated_data):
+        author_uid = validated_data.pop('author')
+        author = self.get_author(author_uid)
+        validated_data['author'] = author
+        return super().create(validated_data)
+
 
 class AuthorSerializer(serializers.ModelSerializer):
 
