@@ -1,6 +1,11 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseNotFound
+from django.shortcuts import render
 from .models import Post
+from .serializers import PostSerializer
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+
 from datetime import datetime
 import json
 
@@ -30,3 +35,9 @@ def posts(request):
         data = json.loads(body_str)
         if data['type'] == 'post':
             response = Post.objects.create_post(data)
+
+class GetLatestPosts(APIView):
+    def get(self, request, format=None):
+        posts = Post.objects.all()[0:5]
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)

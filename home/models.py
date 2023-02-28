@@ -1,5 +1,9 @@
 from django.db import models, IntegrityError
 # from django.contrib.postgres.fields import ArrayField
+from django.core.files.base import ContentFile
+from django.core.files import File
+from io import BytesIO
+from PIL import Image
 import base64
 
 CONTENT_MAX_LENGTH = 10000  # for content field
@@ -9,37 +13,10 @@ ID_MAX_LENGTH = 50          # for ids
 BIG_MAX_LENGTH = 80         # for longer fields like 'title'
 SMALL_MAX_LENGTH = 20       # for short fields like 'type'
 
-class AuthorManager(models.Manager):
-    pass
 
 
-class Author(models.Model):
-    """
-    AuthorManager() takes care of creating the objects for us.
 
-    Example:
-    - Author.objects.create_author(request_body)
-    """
-    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    # unique=True here is allowing uid to be used as a secondary key/ foreign key
-    uid = models.CharField(max_length=BIG_MAX_LENGTH, unique=True, null=False)  # ID of the author
-    home_host = models.URLField(max_length=URL_MAX_LENGTH) # the home host
-    display_name = models.CharField(max_length=SMALL_MAX_LENGTH) # the display name
-    profile_url = models.URLField(max_length=URL_MAX_LENGTH) # url to the author's profile
-    author_github = models.URLField(max_length=URL_MAX_LENGTH) # HATEOS url for Github API
-    profile_image = models.URLField(max_length=URL_MAX_LENGTH) # Image from a public domain (or ImageField?)
-
-    objects = AuthorManager()
-
-    def __str__(self):
-        # clearer description of object itself rather than Author(1) in admin interface
-        return self.display_name
-
-
-class Authors(models.Model):
-    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-
-
+###################### Models Managers #########################################
 class PostManager(models.Manager):
     def create_post(self, request_body):
         """
@@ -54,9 +31,9 @@ class PostManager(models.Manager):
         if request_body['contentType'] == 'application/base64':
             return self.create_post_from_base64(request_body)
         else:
-            return self.create_post(request_body)
+            return self.create_text_post(request_body)
 
-    def create_post(self, request_body):
+    def create_text_post(self, request_body):
         """
         creates a plain text post and stores it in the data base
         Input:
@@ -64,7 +41,7 @@ class PostManager(models.Manager):
         Output:
         - returns either Post instance or error message
         """
-        if Not('image' in request_body and 'content' in request_body):
+        if not('image' in request_body and 'content' in request_body):
             pass #put something here to say you can't make post with image or content
 
         contentType = request_body['contentType']
@@ -73,10 +50,11 @@ class PostManager(models.Manager):
         else:
             content_data = None
 
-        if 'image' in request_body and
-            ('image/jpeg;base64' in contentType or 'image/png;base64' in contentType):
-            image_data = b64decode(request_body['image'])
-            image_obj = Image.objects.create(image=image_data)
+        if ('image' in request_body and
+            ('image/jpeg;base64' in contentType or 'image/png;base64' in contentType)):
+            image_data = base64.b64decode(request_body['image'])
+            image_file = ContentFile(image_data, name='test_image')
+            image_obj = Image.objects.create(image=image_file)
         else:
             image_obj = None
 
@@ -112,41 +90,8 @@ class PostManager(models.Manager):
         pass
 
 
-class Post(models.Model):
-    """
-    PostManager() takes care of creating the objects for us.
-
-    Example:
-    - Post.objects.create_post(request_body)
-    """
-    object_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
-    title =  models.CharField(max_length=BIG_MAX_LENGTH, null=True) # title of a post
-    post_id = models.CharField(max_length=ID_MAX_LENGTH, unique=True, null=False) # id of a post
-    post_source = models.URLField(max_length=URL_MAX_LENGTH, null=False) # where did you get this post from?
-    post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=False) # where is it actually from
-    description = models.TextField(max_length=BIG_MAX_LENGTH, null=True) # a brief description of the post
-    content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
-    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=False)
-    image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid',
-                               related_name='posts', null=False)
-    # put in categories here i.e. tags): a list of string
-    # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
-    comment_count = models.IntegerField(null=True)
-    comments = models.URLField(max_length=URL_MAX_LENGTH, null=True)
-    # commentsSrc is OPTIONAL and can be missing
-    pub_date = models.DateTimeField(null=False)
-    is_unlisted = models.BooleanField(null=False)
-    visibility = models.CharField(max_length=SMALL_MAX_LENGTH, default="FRIENDS", null=False)
-
-    objects = PostManager()
-
-    def __str__(self):
-        return self.title
-
-
-class Image(models.Model):
-    image = models.ImageField(upload_to ='images/')
+class AuthorManager(models.Manager):
+    pass
 
 
 class LikeManager(models.Manager):
@@ -178,6 +123,83 @@ class LikeManager(models.Manager):
         return like
 
 
+
+
+
+####################### Models #################################################
+class Author(models.Model):
+    """
+    AuthorManager() takes care of creating the objects for us.
+
+    Example:
+    - Author.objects.create_author(request_body)
+    """
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
+    # unique=True here is allowing uid to be used as a secondary key/ foreign key
+    uid = models.CharField(max_length=BIG_MAX_LENGTH, unique=True, null=False)  # ID of the author
+    home_host = models.URLField(max_length=URL_MAX_LENGTH) # the home host
+    display_name = models.CharField(max_length=SMALL_MAX_LENGTH) # the display name
+    profile_url = models.URLField(max_length=URL_MAX_LENGTH) # url to the author's profile
+    author_github = models.URLField(max_length=URL_MAX_LENGTH) # HATEOS url for Github API
+    profile_image = models.URLField(max_length=URL_MAX_LENGTH) # Image from a public domain (or ImageField?)
+
+    objects = AuthorManager()
+
+    def __str__(self):
+        # clearer description of object itself rather than Author(1) in admin interface
+        return self.display_name
+
+
+class Authors(models.Model):
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
+
+
+# class Image(models.Model):
+#     image = models.ImageField(upload_to ='images/')
+
+
+class Post(models.Model):
+    """
+    PostManager() takes care of creating the objects for us.
+
+    Example:
+    - Post.objects.create_post(request_body)
+    """
+    object_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
+    title =  models.CharField(max_length=BIG_MAX_LENGTH, null=True) # title of a post
+    post_id = models.CharField(max_length=ID_MAX_LENGTH, unique=True, null=False) # id of a post
+    post_source = models.URLField(max_length=URL_MAX_LENGTH, null=False) # where did you get this post from?
+    post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=False) # where is it actually from
+    description = models.TextField(max_length=BIG_MAX_LENGTH, null=True) # a brief description of the post
+    content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
+    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=False)
+    # image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
+    image = models.ImageField(upload_to ='images/', blank=True, null=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid',
+                               related_name='posts', null=False)
+    # put in categories here i.e. tags): a list of string
+    # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
+    comment_count = models.IntegerField(null=True)
+    comments = models.URLField(max_length=URL_MAX_LENGTH, null=True)
+    # commentsSrc is OPTIONAL and can be missing
+    pub_date = models.DateTimeField(auto_now_add=True, null=False)
+    is_unlisted = models.BooleanField(null=False)
+    visibility = models.CharField(max_length=SMALL_MAX_LENGTH, default="FRIENDS", null=False)
+
+    class Meta:
+        ordering = ('-pub_date',)
+
+    objects = PostManager()
+
+    def __str__(self):
+        return self.title
+
+    def get_image(self):
+        if self.image:
+            return 'http://127.0.0.1:8000' + self.image.url
+        return ''
+
+
 class Like(models.Model):
     """
     LikeManager() takes care of creating the objects for us.
@@ -195,8 +217,10 @@ class Like(models.Model):
 
     objects = LikeManager() # creates the object and adds a summary along with it
 
+
 class Liked(models.Model): # may not need to be used?
     context = models.URLField(max_length=URL_MAX_LENGTH)
+
 
 class Inbox(models.Model):
     """
@@ -209,6 +233,7 @@ class Inbox(models.Model):
     inbox_item = models.JSONField(null=True, blank=True)
     associated_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='inbox_items', null=True, blank=True)
 
+
 class Followers(Author):
     """
     A follower is an author.
@@ -218,6 +243,7 @@ class Followers(Author):
     - a.followers_items.create(..display_name=...profile_url=...)
     """
     follower_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='followers_items', null=True, blank=True)
+
 
 class FollowManager(models.Manager):
 
@@ -239,6 +265,7 @@ class FollowManager(models.Manager):
                             )
         return follow
 
+
 class Follow(models.Model):
     """
     FollowManager() takes care of creating the objects for us.
@@ -252,12 +279,14 @@ class Follow(models.Model):
     following_summary = models.CharField(max_length=BIG_MAX_LENGTH, null=True)
     objects = FollowManager()
 
+
 class Comments(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     page =  models.IntegerField()
     size = models.IntegerField()
     post = models.URLField(max_length=URL_MAX_LENGTH)
     comments_id = models.URLField(max_length=URL_MAX_LENGTH)
+
 
 class Comment(models.Model):
     """

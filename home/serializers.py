@@ -4,8 +4,25 @@ from .models import *
 # need to pip install rest_framework
 # To convert your queries to or from a JSON object (useful when connecting with groups)
 
-class PostSerializer(serializers.Serializer):
-    pass
+class PostSerializer(serializers.ModelSerializer):
+
+    # get post information
+    type = serializers.CharField(source = 'object_type')
+    id = serializers.CharField(source = 'post_id')
+    source = serializers.URLField(source = 'post_source')
+    origin = serializers.URLField(source = 'post_origin')
+    contentType = serializers.CharField(source = 'content_type')
+    image = serializers.ImageField(max_length = None, use_url = True, required = False)
+    count = serializers.IntegerField(source = 'comment_count')
+    published = serializers.DateTimeField(source = 'pub_date')
+    unlisted = serializers.BooleanField(source = 'is_unlisted')
+
+    class Meta:
+        model = Post
+        # add 'categories' later
+        fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType',
+                  'image', 'content', 'author', 'count', 'comments', 'published',
+                  'visibility', 'unlisted']
 
 class AuthorSerializer(serializers.ModelSerializer):
 
