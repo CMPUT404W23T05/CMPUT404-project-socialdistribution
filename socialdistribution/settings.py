@@ -28,6 +28,16 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+
+    ),
+}
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -45,7 +55,7 @@ INSTALLED_APPS = [
     'home',
 ]
 
-CORS_ALLOWED_ORIGINS =[
+CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',    # for testing
     # add server ip here
 ]
