@@ -1,51 +1,46 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseNotFound
-from .models import Post
-from datetime import datetime
+from django.shortcuts import render
+from .models import *
+from .serializers import *
 
-'''
-view for login
-'''
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import Http404
+
+
 def login(request):
     pass
 
-
-'''
-default view for home page
-'''
 def index(request):
-    # this below is just the code to handle creating a post
-    if request.method == 'POST':
-        object_type = request.POST.get('type')
-        if object_type == 'post':
-            if request.POST.get('contentType') == 'text/plain':
-                plain_text_post(request)
-            message = "Post creation successful!"
-        else:
-            message = "Post creation failed."
-        return render(request, 'posts/index.html', {'message': message})
-    else:
-        return render(request, 'posts/index.html')
+    pass
 
-'''
-make a public plain text post
-'''
-def plain_text_post(request):
-    post = Post()
-    post.object_type = request.POST.get("type")
-    post.title = request.POST.get("title")
-    post.post_id = "http://127.0.0.1:5454/authors/2/posts/2" # need to actually generate a new id for post eventually
 
-    # these are placeholdes for now, because I don't know how to deal with these yet
-    post.post_source = "https://www.example.com/source"
-    post.post_origin = "https://www.example.com/origin"
-    post.description = "example description"
-    post.comment_count = 0
-    post.comments = "http://127.0.0.1:5454/authors/2/posts/2/comments"
+class CreatePost(APIView):
+    def post(self, request, format=None):
+        serializer = PostDeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    post.content_type = request.POST.get("contentType")
-    post.content = request.POST.get("content")
-    post.pub_date = datetime.utcnow().isoformat()
-    post.is_unlisted = False     # only true for image posts
-    post.visibility = "PUBLIC"   # this is a public post, need to figure out how to pass whether its public or not
-    post.save()
+
+class PostList(APIView):
+    def get(self, request, format=None):
+        posts = Post.objects.all()[0:5]
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
+class PostDetail(APIView):
+    def get_object(self, post_id):
+        try:
+            return Post.objects.get(post_id=post_id)
+        except Product.DoesNotExist:
+            raise Http404
+
+    def get(self, request, post_id, format=None):
+        product = self.get_object(post_id)
+        PostSerializer(product)
+        return Response(serializer.data)
+
+class AuthorList(APIView):
+    pass
