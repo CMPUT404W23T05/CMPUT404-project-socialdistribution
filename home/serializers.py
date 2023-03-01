@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import *
-
 from django.core.files.base import ContentFile
 import base64
 import uuid
