@@ -35,11 +35,13 @@ class Base64ImageField(serializers.ImageField):
 class PostSerializer(serializers.ModelSerializer):
 
     type = serializers.CharField(source = 'object_type')
-    id = serializers.CharField(source = 'post_id')
+    id = serializers.UUIDField(source = 'post_id')
     source = serializers.URLField(source = 'post_source')
     origin = serializers.URLField(source = 'post_origin')
     contentType = serializers.CharField(source = 'content_type')
     image = serializers.ImageField(max_length = None, use_url = True, required = False)
+    content = serializers.CharField(required = False)
+    author = serializers.UUIDField()
     count = serializers.IntegerField(source = 'comment_count')
     published = serializers.DateTimeField(source = 'pub_date')
     unlisted = serializers.BooleanField(source = 'is_unlisted')
@@ -54,13 +56,13 @@ class PostSerializer(serializers.ModelSerializer):
 class PostDeSerializer(serializers.ModelSerializer):
 
     type = serializers.CharField(source = 'object_type')
-    id = serializers.CharField(source = 'post_id')
+    id = serializers.UUIDField(source = 'post_id')
     source = serializers.URLField(source = 'post_source')
     origin = serializers.URLField(source = 'post_origin')
     # contentTypes = serializers.ListField(source = 'content_type')
     image = Base64ImageField(max_length = None, use_url = True, required = False)
     content = serializers.CharField(required = False)
-    author = serializers.CharField()
+    author = serializers.UUIDField()
     count = serializers.IntegerField(source = 'comment_count')
     unlisted = serializers.BooleanField(source = 'is_unlisted')
 
@@ -82,6 +84,11 @@ class PostDeSerializer(serializers.ModelSerializer):
         author = self.get_author(author_uid)
         validated_data['author'] = author
         return super().create(validated_data)
+
+    def validate(self, attrs):
+        if 'content' not in attrs and 'image' not in attrs:
+            raise serializers.ValidationError("At least one of 'body' or 'image' is required.")
+        return attrs
 
 
 class AuthorSerializer(serializers.ModelSerializer):
