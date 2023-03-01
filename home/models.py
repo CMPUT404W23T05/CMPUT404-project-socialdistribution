@@ -91,9 +91,6 @@ class PostManager(models.Manager):
     pass
 
 
-class AuthorManager(models.Manager):
-    pass
-
 
 class LikeManager(models.Manager):
 
@@ -125,16 +122,8 @@ class LikeManager(models.Manager):
 
 
 
-
-
 ####################### Models #################################################
 class Author(models.Model):
-    """
-    AuthorManager() takes care of creating the objects for us.
-
-    Example:
-    - Author.objects.create_author(request_body)
-    """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     # unique=True here is allowing uid to be used as a secondary key/ foreign key
     uid = models.UUIDField(max_length=BIG_MAX_LENGTH, unique=True, null=False, blank=False)  # ID of the author
@@ -143,8 +132,6 @@ class Author(models.Model):
     profile_url = models.URLField(max_length=URL_MAX_LENGTH) # url to the author's profile
     author_github = models.URLField(max_length=URL_MAX_LENGTH) # HATEOS url for Github API
     profile_image = models.URLField(max_length=URL_MAX_LENGTH) # Image from a public domain (or ImageField?)
-
-    objects = AuthorManager()
 
     def __str__(self):
         # clearer description of object itself rather than Author(1) in admin interface
@@ -160,12 +147,6 @@ class Authors(models.Model):
 
 
 class Post(models.Model):
-    """
-    PostManager() takes care of creating the objects for us.
-
-    Example:
-    - Post.objects.create_post(request_body)
-    """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
     title =  models.CharField(max_length=BIG_MAX_LENGTH, null=True) # title of a post
     post_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False) # id of a post
