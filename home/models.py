@@ -137,7 +137,7 @@ class Author(models.Model):
     """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     # unique=True here is allowing uid to be used as a secondary key/ foreign key
-    uid = models.CharField(max_length=BIG_MAX_LENGTH, unique=True, null=False)  # ID of the author
+    uid = models.UUIDField(max_length=BIG_MAX_LENGTH, unique=True, null=False, blank=False)  # ID of the author
     home_host = models.URLField(max_length=URL_MAX_LENGTH) # the home host
     display_name = models.CharField(max_length=SMALL_MAX_LENGTH) # the display name
     profile_url = models.URLField(max_length=URL_MAX_LENGTH) # url to the author's profile
@@ -168,7 +168,7 @@ class Post(models.Model):
     """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
     title =  models.CharField(max_length=BIG_MAX_LENGTH, null=True) # title of a post
-    post_id = models.CharField(max_length=ID_MAX_LENGTH, unique=True, null=False) # id of a post
+    post_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False) # id of a post
     post_source = models.URLField(max_length=URL_MAX_LENGTH, null=False) # where did you get this post from?
     post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=False) # where is it actually from
     description = models.TextField(max_length=BIG_MAX_LENGTH, null=True) # a brief description of the post

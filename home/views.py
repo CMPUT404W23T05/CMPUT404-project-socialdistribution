@@ -8,28 +8,13 @@ from rest_framework import status
 from django.http import Http404
 
 
-from datetime import datetime
-import json
-
-'''
-view for login
-'''
 def login(request):
     pass
 
-
-'''
-default view for home page
-'''
 def index(request):
     pass
 
 
-# Creation URL ://service/authors/{AUTHOR_ID}/posts/
-# POST [local] create a new post but generate a new id
-'''
-page for viewing author posts and creating a new post
-'''
 class CreatePost(APIView):
     def post(self, request, format=None):
         serializer = PostDeSerializer(data=request.data)
@@ -39,11 +24,23 @@ class CreatePost(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetPosts(APIView):
+class PostList(APIView):
     def get(self, request, format=None):
         posts = Post.objects.all()[0:5]
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
-# class PostDetail(APIView):
-#     def get_object(self, ):
+class PostDetail(APIView):
+    def get_object(self, post_id):
+        try:
+            return Post.objects.get(post_id=post_id)
+        except Product.DoesNotExist:
+            raise Http404
+
+    def get(self, request, post_id, format=None):
+        product = self.get_object(post_id)
+        PostSerializer(product)
+        return Response(serializer.data)
+
+class AuthorList(APIView):
+    pass
