@@ -16,7 +16,7 @@ def index(request):
 
 
 class CreatePost(APIView):
-    def post(self, request, format=None):
+    def post(self, request, author_id, format=None):
         serializer = PostDeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -37,10 +37,24 @@ class PostDetail(APIView):
         except Product.DoesNotExist:
             raise Http404
 
-    def get(self, request, post_id, format=None):
+    def get(self, request, post_id, author_id, format=None):
         product = self.get_object(post_id)
-        PostSerializer(product)
+        serializer = PostSerializer(product)
         return Response(serializer.data)
+
+        # PUT DOES NOT WORK CURRENTLY
+    def put(self, request, post_id, author_id, format=None):
+        post = self.get_object(post_id)
+        serializer = PostDeSerializer(post, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, post_id, author_id, format=None):
+        post = self.get_object(post_id)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AuthorList(APIView):
     pass
