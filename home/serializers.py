@@ -84,6 +84,12 @@ class PostDeSerializer(serializers.ModelSerializer):
         validated_data['author'] = author
         return super().create(validated_data)
 
+    def update(self, instance, validated_data):
+        author_uid = validated_data.pop('author')
+        author = self.get_author(author_uid)
+        validated_data['author'] = author
+        return super().update(instance, validated_data)
+
     def validate(self, attrs):
         if 'content' not in attrs and 'image' not in attrs:
             raise serializers.ValidationError("At least one of 'body' or 'image' is required.")

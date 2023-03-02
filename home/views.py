@@ -55,10 +55,10 @@ class PostDetail(APIView):
         # FOR EDITING EXISTING POST
     def post(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
-        serializer = PostDeSerializer(post, data=request.data, partial=True)
+        serializer = PostDeSerializer(instance=post, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # FOR DELETING EXISITING POST
