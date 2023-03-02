@@ -108,3 +108,38 @@ def followers_details(request, author_id, follower_id):
             return HttpResponse(status=404)  
         else:
            return HttpResponse(status=200)  
+        
+@csrf_exempt
+def following_details(request, author_id):
+    try:
+        # selected_author = Author.objects.values('display_name', 'profile_image', 'followers_items')
+        selected_author = Author.objects.filter(followers_items__id= author_id).values('display_name', 'profile_image', 'followers_items')
+        if not len(selected_author):
+            raise IndexError
+
+    except IndexError: # that id does not exist
+        return HttpResponse(status=404)
+      
+    if(request.method == 'GET'):
+        pass
+
+@csrf_exempt
+def friends_details(request, author_id):
+    try:
+        # who is the author currently following?
+        author_followings = Author.objects.filter(followers_items__id= author_id)
+        selected_author = Author.objects.filter(id= author_id)[0].followers_items.all() 
+    
+    except IndexError: # that id does not exist
+        return HttpResponse(status=404)
+      
+    if(request.method == 'GET'):
+        pass
+
+@csrf_exempt
+def requests_details(request, author_id):
+    try:
+        # who is the author currently following?
+        follows = Follow.objects.all()
+    except:
+        pass

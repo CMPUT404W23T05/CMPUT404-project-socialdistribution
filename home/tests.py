@@ -154,9 +154,11 @@ class FollowerTesting(TestCase):
         
         
     def test_followers_get(self):
-        self.author.followers_items.create(**self.author2)
-        Author.objects.create(**self.author3)
+       # a2 = Author.objects.create(**self.author2)
 
-        request = self.factory.get("/authors/1/followers/")
-        response = followers(request, 1) # get the followers of author 1
+        self.author.followers_items.create(**self.author2)
+        a3 = Author.objects.create(**self.author3)
+
+        request = self.factory.get("/authors/1/requests/")
+        response = requests_details(request, 1) # get the followers of author 1
       
