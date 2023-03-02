@@ -8,5 +8,8 @@ sqlparse
 # additional requirements (add new ones under here)
 
 markdown-it-py
-djangorestframework
+django-rest-framework
 django-cors-headers
+djoser
+pillow
+stripe
