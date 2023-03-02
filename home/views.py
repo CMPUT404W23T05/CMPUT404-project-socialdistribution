@@ -34,15 +34,16 @@ class PostDetail(APIView):
     def get_object(self, post_id):
         try:
             return Post.objects.get(post_id=post_id)
-        except Product.DoesNotExist:
+        except Post.DoesNotExist:
             raise Http404
 
+        # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
         product = self.get_object(post_id)
         serializer = PostSerializer(product)
         return Response(serializer.data)
 
-        # PUT DOES NOT WORK CURRENTLY
+        # PUT DOES NOT WORK CURRENTLY - for creating a post from another node in db
     def put(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         serializer = PostDeSerializer(post, data=request.data)
@@ -51,6 +52,16 @@ class PostDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        # FOR EDITING EXISTING POST
+    def post(self, request, post_id, author_id, format=None):
+        post = self.get_object(post_id)
+        serializer = PostDeSerializer(post, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        # FOR DELETING EXISITING POST
     def delete(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         post.delete()
