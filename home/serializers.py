@@ -65,7 +65,7 @@ class PostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         # add 'categories' later
-        fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType',
+        fields = ['type', 'title', 'id', 'source', 'origin', 'description',
                   'image', 'content', 'author', 'count', 'comments', 'published',
                   'visibility', 'unlisted']
 
