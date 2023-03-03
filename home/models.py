@@ -89,7 +89,7 @@ class Post(models.Model):
     comment_count = models.IntegerField(null=True)
     comments = models.URLField(max_length=URL_MAX_LENGTH, null=True)
     # commentsSrc is OPTIONAL and can be missing
-    pub_date = models.DateTimeField(auto_now_add=True, null=False)
+    pub_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     is_unlisted = models.BooleanField(null=False)
     visibility = models.CharField(max_length=SMALL_MAX_LENGTH, default="FRIENDS", null=False)
 

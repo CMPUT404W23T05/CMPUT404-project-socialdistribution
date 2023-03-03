@@ -80,7 +80,7 @@ class PostDeSerializer(serializers.ModelSerializer):
     content = serializers.CharField(required = False)
     author = serializers.UUIDField()
     count = serializers.IntegerField(source = 'comment_count')
-    published = serializers.DateTimeField(source = 'pub_date')
+    published = serializers.DateTimeField(source = 'pub_date', required = False)
     unlisted = serializers.BooleanField(source = 'is_unlisted')
 
     class Meta:
