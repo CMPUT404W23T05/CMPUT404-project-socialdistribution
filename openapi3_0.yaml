@@ -1,0 +1,14 @@
+openapi: 3.0.1
+info:
+  title: Social Distrubition Website API
+  description: This is our API for our social distribution website
+  version: 1.0.0
+  contact:
+    email: jmacdona@ualberta.ca
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+hostname: http://127.0.0.1
+port: 8000
+basePath: /api
+paths: 
