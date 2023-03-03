@@ -8,7 +8,71 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-hostname: http://127.0.0.1
-port: 8000
-basePath: /api
+    
+servers:
+  - url: http://127.0.0.1:8000/api
+  
 paths: 
+  /authors:
+    get:
+      description: Returns list of all authors on the server
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: the type of object (authors object)
+                  items:
+                    type: array
+                    description: list of objects (list of authors)
+                    items:
+                      type: object
+                      description: author object
+                      required:
+                        - type
+                        - id
+                        - url
+                        - host
+                        - displayName
+                        - github
+                        - profileImage
+                      properties:
+                        type:
+                          type: string
+                        id:
+                          type: string
+                          description: ID of author (must be url format)
+                        url:
+                          type: string
+                          description: url of author profile on server (same as id)
+                        host:
+                          type: string
+                          description: hostname of this author
+                        displayName:
+                          type: string
+                        github:
+                          type: string
+                          description: url to this authors github
+                        profileImage:
+                          type: string
+                          description: url to profile image of author
+                    example:
+                      - type: author
+                        id: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        host: http://127.0.0.1:8080/
+                        displayName: Frodo Baggins
+                        github: http://github.com/frodobaggins
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      - type: author
+                        id: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                        url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                        host: http://127.0.0.1:5454/
+                        displayName: Gandalf the Grey
+                        github: http://github.com/gandalfthegrey
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
