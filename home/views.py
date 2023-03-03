@@ -9,13 +9,6 @@ from rest_framework.pagination import PageNumberPagination
 from django.http import Http404
 
 
-def login(request):
-    pass
-
-def index(request):
-    pass
-
-
 class CreatePost(APIView):
 
     def post(self, request, author_id, format=None):
