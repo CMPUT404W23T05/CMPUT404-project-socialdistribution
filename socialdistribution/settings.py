@@ -46,8 +46,6 @@ INSTALLED_APPS = [
     'djoser',
 
     'home',
-    'rest_framework',
-    'corsheaders'
 ]
 
 CORS_ALLOWED_ORIGINS =[

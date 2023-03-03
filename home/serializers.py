@@ -300,7 +300,7 @@ class AuthorInboxSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    type = serializers.CharField(source = 'follow_type')
+    type = serializers.CharField(source = 'object_type')
     actor = serializers.JSONField(source = 'author_actor') # the author who is the follower
     object = serializers.JSONField(source = 'author_object') # the author who is being followed
     summary = serializers.CharField(source = 'following_summary')
@@ -310,9 +310,31 @@ class FollowSerializer(serializers.ModelSerializer):
         fields = ['type', 'actor', 'object', 'summary']
 
 # ---------------------- Followers Serializer ----------------------------------
+
+class FollowersSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Followers
+        fields = ['author_info']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        author_dict = json.loads(data['author_info'])
+        return_data = {}
+        return_data.update({
+                'type': author_dict['object_type'],
+                'id': author_dict['profile_url'],
+                'host': author_dict['home_host'],
+                'displayName': author_dict['display_name'],
+                'url': author_dict['profile_url'],
+                'github':author_dict['author_github'],
+                'profileImage': author_dict['profile_image']
+                })
+        return return_data
+
 class AuthorFollowersSerializer(serializers.ModelSerializer):
     type = serializers.CharField(default="followers")
-    followers_items = AuthorSerializer(many=True) # a list of the followers
+    followers_items = FollowersSerializer(many=True) # a list of the followers
 
     class Meta:
         model = Author
@@ -322,7 +344,7 @@ class AuthorFollowersSerializer(serializers.ModelSerializer):
         followers_info = validated_data.pop('followers_items')
         create_author = Author.objects.create(**validated_data)
         for follower in followers_info:
-            Followers.objects.create(follower_author = create_author,**follower)
+            Followers.objects.create(follower_author = create_author, author_info = json.dumps(follower.author_info))
         return create_author
 
     def to_representation(self, instance):
