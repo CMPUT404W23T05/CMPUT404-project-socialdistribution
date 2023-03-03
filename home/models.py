@@ -1,5 +1,4 @@
 from django.db import models, IntegrityError
-# from django.contrib.postgres.fields import ArrayField
 from django.core.files.base import ContentFile
 from django.core.files import File
 from io import BytesIO
@@ -85,7 +84,6 @@ class Post(models.Model):
     author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid',
                                related_name='posts', null=False)
     # put in categories here i.e. tags): a list of string
-    # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField(null=True)
     comments = models.URLField(max_length=URL_MAX_LENGTH, null=True)
     # commentsSrc is OPTIONAL and can be missing

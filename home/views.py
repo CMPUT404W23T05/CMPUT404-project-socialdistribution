@@ -27,7 +27,6 @@ class CreatePost(APIView):
 
 
 class PostList(APIView, PageNumberPagination):
-
     def get(self, request, format=None):
         posts = Post.objects.all()
 
@@ -41,7 +40,6 @@ class PostList(APIView, PageNumberPagination):
 
 
 class PostDetail(APIView):
-
     def get_object(self, post_id):
         try:
             return Post.objects.get(post_id=post_id)
@@ -79,6 +77,20 @@ class PostDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class AuthorList(APIView):
+class AuthorList(APIView, PageNumberPagination):
+    def get(self, request, format=None):
+        authors = Author.objects.all()
 
-    pass
+        self.page = request.query_params.get('page', 1)
+        self.page_size = request.query_params.get('size', 20)
+
+        results = self.paginate_queryset(authors, request, view=self)
+        serializer = AuthorSerializer(results, many=True)
+        response = {
+                'type': 'authors',
+                'items': serializer.data
+                }
+        return Response(response)
+
+
+

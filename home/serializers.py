@@ -35,7 +35,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     # get the author's information
     type = serializers.CharField(source = 'object_type')
-    id = serializers.UUIDField(source = 'profile_url')
+    id = serializers.UUIDField(source = 'uid')
     url = serializers.URLField(source = 'profile_url')
     host = serializers.URLField(source = 'home_host')
     displayName = serializers.CharField(source = 'display_name')
