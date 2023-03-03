@@ -4,8 +4,6 @@ from home import views
 
 app_name = 'home'
 urlpatterns = [
-        path('', views.login, name='login'),
-        path('home/', views.index, name='index'),
         path('authors/', views.AuthorList.as_view()),
         # path('authors/posts/', views.PostList.as_view()),
         path('authors/<uuid:author_id>/posts/', views.PostList.as_view()),

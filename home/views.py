@@ -9,13 +9,6 @@ from rest_framework.pagination import PageNumberPagination
 from django.http import Http404
 
 
-def login(request):
-    pass
-
-def index(request):
-    pass
-
-
 class CreatePost(APIView):
 
     def post(self, request, author_id, format=None):
@@ -28,7 +21,7 @@ class CreatePost(APIView):
 
 class PostList(APIView, PageNumberPagination):
     def get(self, request, author_id, format=None):
-        posts = Post.objects.all()
+        posts = Post.objects.filter(visibility='PUBLIC')
 
         self.page = request.query_params.get('page', 1)
         self.page_size = request.query_params.get('size', 20)
