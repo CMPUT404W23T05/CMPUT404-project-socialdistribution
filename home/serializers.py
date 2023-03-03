@@ -80,6 +80,7 @@ class PostDeSerializer(serializers.ModelSerializer):
     content = serializers.CharField(required = False)
     author = serializers.UUIDField()
     count = serializers.IntegerField(source = 'comment_count')
+    published = serializers.DateTimeField(source = 'pub_date')
     unlisted = serializers.BooleanField(source = 'is_unlisted')
 
     class Meta:
@@ -87,7 +88,7 @@ class PostDeSerializer(serializers.ModelSerializer):
         # add 'categories' later
         fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType',
                   'image', 'content', 'author', 'count', 'comments', 'visibility',
-                  'unlisted']
+                  'unlisted', 'published']
 
     def get_author(self, author_uid):
         try:
