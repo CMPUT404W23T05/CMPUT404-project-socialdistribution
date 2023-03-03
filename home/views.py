@@ -27,7 +27,7 @@ class CreatePost(APIView):
 
 
 class PostList(APIView, PageNumberPagination):
-    def get(self, request, format=None):
+    def get(self, request, author_id, format=None):
         posts = Post.objects.all()
 
         self.page = request.query_params.get('page', 1)
