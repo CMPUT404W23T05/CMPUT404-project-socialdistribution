@@ -3,7 +3,7 @@ CMPUT404-project-socialdistribution
 
 CMPUT404-project-socialdistribution
 
-See project.org (plain-text/org-mode) for a description of the project.
+See project.org (plain-text/org-mode) for a description of the project. The frontend repo for this project can be found [here](https://github.com/CMPUT404W23T05/Social-Distribution-Front-End).
 
 Make a distributed social network!
 
