@@ -79,7 +79,7 @@ class Post(models.Model):
     post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=False) # where is it actually from
     description = models.TextField(max_length=BIG_MAX_LENGTH, null=True) # a brief description of the post
     content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=True, blank=True)
-    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=False)
+    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True)
     # image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
     image = models.ImageField(upload_to ='images/', blank=True, null=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid',
