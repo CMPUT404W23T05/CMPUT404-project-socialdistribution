@@ -88,7 +88,11 @@ class FollowersDetails(APIView):
             selected_follower = Author.objects.filter(uid=follower_id)[0]
 
             follower_info_to_dict = model_to_dict(selected_follower)
-            del follower_info_to_dict['id']
+            
+            if 'id' in follower_info_to_dict:
+                del follower_info_to_dict['id']
+
+
             follower_info_to_json = json.dumps(follower_info_to_dict, cls=DjangoJSONEncoder)
 
             # is this author a follower of the current author? Compare the information
@@ -109,7 +113,6 @@ class FollowersDetails(APIView):
             selected_follower = current_author.followers_items.filter(author_info = follower_info_to_json)[0]
         
         except IndexError: 
-            print(current_author.followers_items.all())
             return Response(status=status.HTTP_404_NOT_FOUND)  
         else:
             selected_follower.delete() 
@@ -136,7 +139,7 @@ class FollowingList(APIView):
         following_authors = Author.objects.filter(followers_items__author_info = author_info_to_json)
 
         serializer = AuthorSerializer(following_authors, many=True)
-        return Response(serializer)
+        return Response(serializer.data)
 
 class FriendsList(APIView):
 
@@ -164,6 +167,9 @@ class RequestsList(APIView):
 
         current_author = Author.objects.filter(uid=author_id)[0]
         author_info_to_dict = json.loads(json.dumps(model_to_dict(current_author), cls=DjangoJSONEncoder))
+        
+        if 'id' in author_info_to_dict:
+            del author_info_to_dict['id']
 
         # check if any of the Follow objects have the current author as the author that is "being followed"
         follows = Follow.objects.filter(author_object = author_info_to_dict) 
