@@ -5,6 +5,7 @@ from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 from django.http import Http404
 
 
@@ -16,6 +17,7 @@ def index(request):
 
 
 class CreatePost(APIView):
+
     def post(self, request, author_id, format=None):
         serializer = PostDeSerializer(data=request.data)
         if serializer.is_valid():
@@ -24,13 +26,22 @@ class CreatePost(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PostList(APIView):
+class PostList(APIView, PageNumberPagination):
+
     def get(self, request, format=None):
-        posts = Post.objects.all()[0:5]
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
+        posts = Post.objects.all()
+
+        self.page = request.query_params.get('page', 1)
+        self.page_size = request.query_params.get('size', 20)
+
+        results = self.paginate_queryset(posts, request, view=self)
+        serializer = PostSerializer(results, many=True)
+        # return self.get_paginated_response(serializer.data    
+        return Response(serializer.data)        
+
 
 class PostDetail(APIView):
+
     def get_object(self, post_id):
         try:
             return Post.objects.get(post_id=post_id)
@@ -67,5 +78,7 @@ class PostDetail(APIView):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class AuthorList(APIView):
+
     pass

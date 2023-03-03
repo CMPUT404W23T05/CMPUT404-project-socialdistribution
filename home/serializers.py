@@ -29,6 +29,23 @@ class Base64ImageField(serializers.ImageField):
         extension = imghdr.what(file_name, decoded_file)
         extension = 'jpg' if extension == 'jpeg' else extension
         return extension
+    
+
+class AuthorSerializer(serializers.ModelSerializer):
+
+    # get the author's information
+    type = serializers.CharField(source = 'object_type')
+    id = serializers.UUIDField(source = 'profile_url')
+    url = serializers.URLField(source = 'profile_url')
+    host = serializers.URLField(source = 'home_host')
+    displayName = serializers.CharField(source = 'display_name')
+    github = serializers.URLField(source = 'author_github')
+    profileImage = serializers.URLField(source = 'profile_image')
+
+    class Meta:
+        model = Author
+        fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage']
+
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -40,7 +57,7 @@ class PostSerializer(serializers.ModelSerializer):
     contentType = serializers.CharField(source = 'content_type')
     image = serializers.ImageField(max_length = None, use_url = True, required = False)
     content = serializers.CharField(required = False)
-    author = serializers.UUIDField()
+    author = AuthorSerializer()
     count = serializers.IntegerField(source = 'comment_count')
     published = serializers.DateTimeField(source = 'pub_date')
     unlisted = serializers.BooleanField(source = 'is_unlisted')
@@ -58,7 +75,7 @@ class PostDeSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(source = 'post_id')
     source = serializers.URLField(source = 'post_source')
     origin = serializers.URLField(source = 'post_origin')
-    # contentTypes = serializers.ListField(source = 'content_type')
+    contentType = serializers.CharField(source = 'content_type')
     image = Base64ImageField(max_length = None, use_url = True, required = False)
     content = serializers.CharField(required = False)
     author = serializers.UUIDField()
@@ -95,21 +112,6 @@ class PostDeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("At least one of 'body' or 'image' is required.")
         return attrs
 
-
-class AuthorSerializer(serializers.ModelSerializer):
-
-    # get the author's information
-    type = serializers.CharField(source = 'object_type')
-    id = serializers.UUIDField(source = 'profile_url')
-    url = serializers.URLField(source = 'profile_url')
-    host = serializers.URLField(source = 'home_host')
-    displayName = serializers.CharField(source = 'display_name')
-    github = serializers.URLField(source = 'author_github')
-    profileImage = serializers.URLField(source = 'profile_image')
-
-    class Meta:
-        model = Author
-        fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage']
 
 
 class CommentSerializer(serializers.ModelSerializer):
