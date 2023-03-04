@@ -5,12 +5,8 @@ from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-<<<<<<< HEAD
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-=======
-from rest_framework.pagination import PageNumberPagination
->>>>>>> 197b7066713b879967ae810defc775269604c301
 from django.http import Http404
 
 

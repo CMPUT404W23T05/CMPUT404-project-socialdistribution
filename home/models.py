@@ -18,9 +18,6 @@ SMALL_MAX_LENGTH = 20       # for short fields like 'type'
 
 
 ###################### Models Managers #########################################
-<<<<<<< HEAD
-=======
->>>>>>> 197b7066713b879967ae810defc775269604c301
 class LikeManager(models.Manager):
 
     # to create a like, call create_like and pass in these arguments
