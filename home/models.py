@@ -1,5 +1,5 @@
-from django.db import models, IntegrityError
 # from django.contrib.postgres.fields import ArrayField
+from django.db import models, IntegrityError
 from django.core.files.base import ContentFile
 from django.core.files import File
 from io import BytesIO
@@ -18,14 +18,9 @@ SMALL_MAX_LENGTH = 20       # for short fields like 'type'
 
 
 ###################### Models Managers #########################################
-class PostManager(models.Manager):
-    pass
-
-
-class AuthorManager(models.Manager):
-    pass
-
-
+<<<<<<< HEAD
+=======
+>>>>>>> 197b7066713b879967ae810defc775269604c301
 class LikeManager(models.Manager):
 
     # to create a like, call create_like and pass in these arguments
@@ -56,16 +51,8 @@ class LikeManager(models.Manager):
 
 
 
-
-
 ####################### Models #################################################
 class Author(models.Model):
-    """
-    AuthorManager() takes care of creating the objects for us.
-
-    Example:
-    - Author.objects.create_author(request_body)
-    """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     # unique=True here is allowing uid to be used as a secondary key/ foreign key
     uid = models.UUIDField(max_length=BIG_MAX_LENGTH, unique=True, null=False, blank=False)  # ID of the author
@@ -75,8 +62,6 @@ class Author(models.Model):
     author_github = models.URLField(max_length=URL_MAX_LENGTH) # HATEOS url for Github API
     profile_image = models.URLField(max_length=URL_MAX_LENGTH) # Image from a public domain (or ImageField?)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True) # this is for user/author creation
-
-    objects = AuthorManager()
 
     def __str__(self):
         # clearer description of object itself rather than Author(1) in admin interface
@@ -92,20 +77,14 @@ class Authors(models.Model):
 
 
 class Post(models.Model):
-    """
-    PostManager() takes care of creating the objects for us.
-
-    Example:
-    - Post.objects.create_post(request_body)
-    """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
     title =  models.CharField(max_length=BIG_MAX_LENGTH, null=True) # title of a post
     post_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False) # id of a post
     post_source = models.URLField(max_length=URL_MAX_LENGTH, null=False) # where did you get this post from?
     post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=False) # where is it actually from
     description = models.TextField(max_length=BIG_MAX_LENGTH, null=True) # a brief description of the post
-    content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
-    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=False)
+    content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=True, blank=True)
+    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True)
     # image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
     image = models.ImageField(upload_to ='images/', blank=True, null=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid',
@@ -115,14 +94,12 @@ class Post(models.Model):
     comment_count = models.IntegerField(null=True)
     comments = models.URLField(max_length=URL_MAX_LENGTH, null=True)
     # commentsSrc is OPTIONAL and can be missing
-    pub_date = models.DateTimeField(auto_now_add=True, null=False)
+    pub_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
     is_unlisted = models.BooleanField(null=False)
     visibility = models.CharField(max_length=SMALL_MAX_LENGTH, default="FRIENDS", null=False)
 
     class Meta:
         ordering = ('-pub_date',)
-
-    objects = PostManager()
 
     def __str__(self):
         return self.title
