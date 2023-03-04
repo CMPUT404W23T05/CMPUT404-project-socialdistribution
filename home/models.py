@@ -5,6 +5,7 @@ from django.core.files import File
 from io import BytesIO
 from PIL import Image
 import base64
+from django.contrib.auth.models import User
 
 CONTENT_MAX_LENGTH = 10000  # for content field
 URL_MAX_LENGTH = 2000       # for urls
@@ -18,76 +19,6 @@ SMALL_MAX_LENGTH = 20       # for short fields like 'type'
 
 ###################### Models Managers #########################################
 class PostManager(models.Manager):
-#     def create_post(self, request_body):
-#         """
-#         takes request body and checks what kind of post is being created, and
-#         then calls the correct function
-#         Input:
-#         - request_body: the body of POST request as python dictionary
-#         Output:
-#         - returns either Post instance or error message
-#         """
-#
-#         if request_body['contentType'] == 'application/base64':
-#             return self.create_post_from_base64(request_body)
-#         else:
-#             return self.create_text_post(request_body)
-#
-#     def create_text_post(self, request_body):
-#         """
-#         creates a plain text post and stores it in the data base
-#         Input:
-#         - request_body: the body of POST request as python dictionary
-#         Output:
-#         - returns either Post instance or error message
-#         """
-#         if not('image' in request_body and 'content' in request_body):
-#             pass #put something here to say you can't make post with image or content
-#
-#         contentType = request_body['contentType']
-#         if 'content' in request_body:
-#             content_data = request_body['content']
-#         else:
-#             content_data = None
-#
-#         if ('image' in request_body and
-#             ('image/jpeg;base64' in contentType or 'image/png;base64' in contentType)):
-#             image_data = base64.b64decode(request_body['image'])
-#             image_file = ContentFile(image_data, name='test_image')
-#             image_obj = Image.objects.create(image=image_file)
-#         else:
-#             image_obj = None
-#
-#         try:
-#             post = self.create(
-#                                 object_type = request_body['type'],
-#                                 title = request_body['title'],
-#                                 post_id = request_body['id'],
-#                                 post_source = request_body['source'],
-#                                 post_origin = request_body['origin'],
-#                                 description = request_body['description'],
-#                                 content_type = request_body['contentType'],
-#                                 content = request_body['content'],
-#                                 image = image_obj,
-#                                 author = Author.objects.get(uid=request_body['author']),
-#                                 # categories = request_body['categories'],
-#                                 comment_count = request_body['count'],
-#                                 comments = request_body['comments'],
-#                                 # commentSrc = request_body[''],
-#                                 pub_date = request_body['published'],
-#                                 is_unlisted = request_body['unlisted'],
-#                                 visibility = request_body['visibility']
-#                                 )
-#             # post.image.parent_post = post
-#             return post
-#
-#         except IntegrityError:
-#             return "violation of database integrity constraints"
-#         except Author.DoesNotExist:
-#             return "Author object does not exist"
-#
-#     def create_post_from_base64(self, request_body):
-#         pass
     pass
 
 
@@ -143,6 +74,7 @@ class Author(models.Model):
     profile_url = models.URLField(max_length=URL_MAX_LENGTH) # url to the author's profile
     author_github = models.URLField(max_length=URL_MAX_LENGTH) # HATEOS url for Github API
     profile_image = models.URLField(max_length=URL_MAX_LENGTH) # Image from a public domain (or ImageField?)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True) # this is for user/author creation
 
     objects = AuthorManager()
 
