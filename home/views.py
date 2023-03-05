@@ -48,8 +48,8 @@ class PostDetail(APIView):
 
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
-        product = self.get_object(post_id)
-        serializer = PostSerializer(product)
+        post = self.get_object(post_id)
+        serializer = PostSerializer(post)
         return Response(serializer.data)
 
         # PUT DOES NOT WORK CURRENTLY - for creating a post from another node in db
@@ -121,5 +121,17 @@ class CommentList(APIView, PageNumberPagination):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class CommentDetail(APIView):
+    def get_object(self, comment_id):
+        try:
+            return Comment.objects.get(comment_id=comment_id)
+        except Comment.DoesNotExist:
+            raise Http404
+
+    def get(self, request, post_id, author_id, comment_id, format=None):
+        comment = self.get_object(comment_id)
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data)
 
 
