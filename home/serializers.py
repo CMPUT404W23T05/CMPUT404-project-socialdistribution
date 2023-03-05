@@ -40,12 +40,12 @@ class AuthorSerializer(serializers.ModelSerializer):
     url = serializers.URLField(source = 'profile_url')
     host = serializers.URLField(source = 'home_host')
     displayName = serializers.CharField(source = 'display_name')
-    github = serializers.URLField(source = 'author_github')
+    github = serializers.URLField(source = 'author_github', allow_null = True, allow_blank = True)
     profileImage = serializers.URLField(source = 'profile_image')
 
     class Meta:
         model = Author
-        fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage', 'user']
+        fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage']
 
 
 
@@ -77,9 +77,9 @@ class PostDeSerializer(serializers.ModelSerializer):
     source = serializers.URLField(source = 'post_source')
     origin = serializers.URLField(source = 'post_origin')
     contentType = serializers.CharField(source = 'content_type', required = False)
-    image = Base64ImageField(max_length = None, use_url = True, required = False)
-    content = serializers.CharField(required = False)
-    author = AuthorSerializer(read_only=True, source = 'author_uid')
+    image = Base64ImageField(max_length = None, use_url = True, required = False, allow_null=True)
+    content = serializers.CharField(required = False, allow_blank = True, allow_null = True)
+    author = AuthorSerializer() 
     count = serializers.IntegerField(source = 'comment_count')
     published = serializers.DateTimeField(source = 'pub_date', required = False)
     unlisted = serializers.BooleanField(source = 'is_unlisted')
@@ -90,6 +90,26 @@ class PostDeSerializer(serializers.ModelSerializer):
         fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType',
                   'image', 'content', 'author', 'count', 'comments', 'visibility',
                   'unlisted', 'published']
+
+    def get_author(self, author_uid):
+        try:
+            return Author.objects.get(uid=author_uid)
+        except Author.DoesNotExist:
+            raise serializers.ValidationError('Author not found, uid: ', author_uid)
+
+    def create(self, validated_data):
+        author_obj = validated_data.pop('author')
+        author_uid = author_obj['uid']
+        author = self.get_author(author_uid)
+        validated_data['author'] = author
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        author_obj = validated_data.pop('author')
+        author_uid = author_obj['uid']
+        author = self.get_author(author_uid)
+        validated_data['author'] = author
+        return super().create(validated_data)
 
     def validate(self, attrs):
         if 'content' not in attrs and 'image' not in attrs:
