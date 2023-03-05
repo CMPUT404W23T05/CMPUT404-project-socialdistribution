@@ -190,7 +190,7 @@ class Comment(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     post_id = models.UUIDField(max_length=ID_MAX_LENGTH, null=False, blank=False) 
     comment_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False)
-    author = ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='comments', null=False)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='comments', null=False)
     content = models.TextField(max_length=COMMENT_MAX_LENGTH)
     content_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     pub_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
