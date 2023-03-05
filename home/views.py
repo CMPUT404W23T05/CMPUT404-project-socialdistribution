@@ -79,6 +79,7 @@ class PostDetail(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+
 class AuthorList(APIView, PageNumberPagination):
     def get(self, request, format=None):
         authors = Author.objects.all()
@@ -93,6 +94,20 @@ class AuthorList(APIView, PageNumberPagination):
                 "items": serializer.data
                 }
         return Response(response)
+
+class AuthorDetail(APIView):
+    def get_object(self, author_id):
+        try:
+            return Author.objects.get(uid=author_id)
+        except Author.DoesNotExist:
+            raise Http404
+
+    def get(self, request, author_id, format=None):
+        author = self.get_object(author_id)
+        serializer = AuthorSerializer(author)
+        return Response(serializer.data)
+
+
 
 class CommentList(APIView, PageNumberPagination):
     def get(self, request, post_id, author_id, format=None):
@@ -121,6 +136,7 @@ class CommentList(APIView, PageNumberPagination):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CommentDetail(APIView):
     def get_object(self, comment_id):
