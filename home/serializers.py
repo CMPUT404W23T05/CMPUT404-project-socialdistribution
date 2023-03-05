@@ -45,7 +45,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Author
-        fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage']
+        fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage', 'user']
 
 
 
@@ -79,7 +79,7 @@ class PostDeSerializer(serializers.ModelSerializer):
     contentType = serializers.CharField(source = 'content_type', required = False)
     image = Base64ImageField(max_length = None, use_url = True, required = False)
     content = serializers.CharField(required = False)
-    author = serializers.UUIDField()
+    author = AuthorSerializer(read_only=True, source = 'author_uid')
     count = serializers.IntegerField(source = 'comment_count')
     published = serializers.DateTimeField(source = 'pub_date', required = False)
     unlisted = serializers.BooleanField(source = 'is_unlisted')
@@ -90,24 +90,6 @@ class PostDeSerializer(serializers.ModelSerializer):
         fields = ['type', 'title', 'id', 'source', 'origin', 'description', 'contentType',
                   'image', 'content', 'author', 'count', 'comments', 'visibility',
                   'unlisted', 'published']
-
-    def get_author(self, author_uid):
-        try:
-            return Author.objects.get(uid=author_uid)
-        except Author.DoesNotExist:
-            raise serializers.ValidationError('Author not found, uid: ', author_uid)
-
-    def create(self, validated_data):
-        author_uid = validated_data.pop('author')
-        author = self.get_author(author_uid)
-        validated_data['author'] = author
-        return super().create(validated_data)
-
-    def update(self, instance, validated_data):
-        author_uid = validated_data.pop('author')
-        author = self.get_author(author_uid)
-        validated_data['author'] = author
-        return super().update(instance, validated_data)
 
     def validate(self, attrs):
         if 'content' not in attrs and 'image' not in attrs:
@@ -132,6 +114,17 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return AuthorSerializer(author).data
 
 
+# class CustomUserSerializer2(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('id', 'username', 'email')
+
+# class CustomUserDeSerializer2(serializers.ModelSerializer):
+#     class Meta:
+#         model = User
+#         fields = ('id', 'username', 'email')
+
+
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -148,35 +141,35 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['type', 'author', 'comment', 'contentType', 'published', 'id']
 
 
-class CommentsSerializer(serializers.ModelSerializer):
+# class CommentsSerializer(serializers.ModelSerializer):
 
-    type = serializers.CharField(default='comments')
-    id = serializers.URLField(source='comments_id')
-    comments_list = CommentSerializer(many=True)
+#     type = serializers.CharField(default='comments')
+#     id = serializers.URLField(source='comments_id')
+#     comments_list = CommentSerializer(many=True)
 
-    class Meta:
-        model = Comments
-        fields = ['type', 'page', 'size', 'post', 'id', 'comments_list']
+#     class Meta:
+#         model = Comments
+#         fields = ['type', 'page', 'size', 'post', 'id', 'comments_list']
 
 
-    def create(self, validated_data):
-        comments_info = validated_data.pop('comments_list')
-        create_comments = Comments.objects.create(**validated_data)
-        for comment in comments_info:
-            Comment.objects.create(associated_author = create_comments, **comment)
-        return create_comments
+#     def create(self, validated_data):
+#         comments_info = validated_data.pop('comments_list')
+#         create_comments = Comments.objects.create(**validated_data)
+#         for comment in comments_info:
+#             Comment.objects.create(associated_author = create_comments, **comment)
+#         return create_comments
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        return_data = {}
-        return_data.update({
-                'type': data['type'],
-                'page': data['page'],
-                'size': data['size'],
-                'post': data['post'],
-                'id': data['id'],
-                'comments': data['comments_list']})
-        return return_data
+#     def to_representation(self, instance):
+#         data = super().to_representation(instance)
+#         return_data = {}
+#         return_data.update({
+#                 'type': data['type'],
+#                 'page': data['page'],
+#                 'size': data['size'],
+#                 'post': data['post'],
+#                 'id': data['id'],
+#                 'comments': data['comments_list']})
+#         return return_data
 
 class LikeSerializer(serializers.ModelSerializer):
     type = serializers.CharField(source='object_type')

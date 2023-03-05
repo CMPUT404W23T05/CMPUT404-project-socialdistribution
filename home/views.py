@@ -12,22 +12,13 @@ from rest_framework.decorators import permission_classes
 from djoser.views import TokenCreateView
 
 
-class CustomTokenCreateView(TokenCreateView):
-    def post(self, request, *args, **kwargs):
-        response = super().post(request, *args, **kwargs)
-        token = response.data['auth_token']
-        user_id = response.data['user_id']
-        user = self.get_user(user_id)
-
-        custom_data = {
-                'author': user.author
-                }
-        response.data.update(custom_data)
-        return response
-
 class CreatePost(APIView):
-    @permission_classes([IsAuthenticated])
+    # @permission_classes([IsAuthenticated])
     def post(self, request, author_id, format=None):
+        try:
+            Author.objects.get(uid=author_id)
+        except Author.DoesNotExist:
+                raise Http404
         serializer = PostDeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -103,5 +94,7 @@ class AuthorList(APIView, PageNumberPagination):
                 }
         return Response(response)
 
-
+class CommentList(APIView, PageNumberPagination):
+    def get(self, request, format=None):
+        pass
 
