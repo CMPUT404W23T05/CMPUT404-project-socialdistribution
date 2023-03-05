@@ -193,3 +193,6 @@ class Comment(models.Model):
     content = models.TextField(max_length=COMMENT_MAX_LENGTH, blank=True, null=True)
     content_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     pub_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    class Meta:
+        ordering = ('-pub_date',)
