@@ -8,10 +8,25 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from django.http import Http404
+from rest_framework.decorators import permission_classes
+from djoser.views import TokenCreateView
 
+
+class CustomTokenCreateView(TokenCreateView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        token = response.data['auth_token']
+        user_id = response.data['user_id']
+        user = self.get_user(user_id)
+
+        custom_data = {
+                'author': user.author
+                }
+        response.data.update(custom_data)
+        return response
 
 class CreatePost(APIView):
-
+    # @permission_classes([IsAuthenticated])
     def post(self, request, author_id, format=None):
         serializer = PostDeSerializer(data=request.data)
         if serializer.is_valid():
@@ -56,6 +71,7 @@ class PostDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # FOR EDITING EXISTING POST
+    # @permission_classes([IsAuthenticated])
     def post(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         serializer = PostDeSerializer(instance=post, data=request.data)
@@ -65,6 +81,7 @@ class PostDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # FOR DELETING EXISITING POST
+    @permission_classes([IsAuthenticated])
     def delete(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         post.delete()

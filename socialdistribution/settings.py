@@ -61,6 +61,14 @@ CORS_ALLOWED_ORIGINS = [
     # add server ip here
 ]
 
+DJOSER = {
+        'SERIALIZERS': {
+            'user': 'home.serializers.CustomUserSerializer',
+            'user_create': 'home.serializers.CustomUserSerializer',
+            'current_user': 'home.serializers.CustomUserSerializer',
+        },
+}
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

@@ -4,6 +4,7 @@ from django.core.files.base import ContentFile
 import base64
 import uuid
 import imghdr
+from django.contrib.auth import authenticate
 
 
 # need to pip install rest_framework
@@ -29,7 +30,7 @@ class Base64ImageField(serializers.ImageField):
         extension = imghdr.what(file_name, decoded_file)
         extension = 'jpg' if extension == 'jpeg' else extension
         return extension
-    
+
 
 class AuthorSerializer(serializers.ModelSerializer):
 
@@ -112,6 +113,24 @@ class PostDeSerializer(serializers.ModelSerializer):
         if 'content' not in attrs and 'image' not in attrs:
             raise serializers.ValidationError("At least one of 'body' or 'image' is required.")
         return attrs
+
+
+class CustomUserSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'author', 'auth_token')
+        read_only_fields = ('auth_token',)
+
+    def get_author(self, obj):
+        try:
+            author = obj.author
+        except Author.DoesNotExist:
+            author = None
+
+        return AuthorSerializer(author).data
+
 
 
 

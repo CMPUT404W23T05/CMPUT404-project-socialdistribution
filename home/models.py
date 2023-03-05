@@ -58,7 +58,7 @@ class Author(models.Model):
     profile_url = models.URLField(max_length=URL_MAX_LENGTH) # url to the author's profile
     author_github = models.URLField(max_length=URL_MAX_LENGTH) # HATEOS url for Github API
     profile_image = models.URLField(max_length=URL_MAX_LENGTH) # Image from a public domain (or ImageField?)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True) # this is for user/author creation
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='author') # this is for user/author creation
 
     def __str__(self):
         # clearer description of object itself rather than Author(1) in admin interface
