@@ -84,8 +84,7 @@ class Post(models.Model):
     content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True)
     # image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
     image = models.ImageField(upload_to ='images/', blank=True, null=True)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid',
-                               related_name='posts', null=False)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='posts', null=False)
     # put in categories here i.e. tags): a list of string
     # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField(null=True)
@@ -187,33 +186,11 @@ class Follow(models.Model):
     objects = FollowManager()
 
 
-class Comments(models.Model):
-    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    page =  models.IntegerField()
-    size = models.IntegerField()
-    post = models.URLField(max_length=URL_MAX_LENGTH)
-    comments_id = models.URLField(max_length=URL_MAX_LENGTH)
-
-
 class Comment(models.Model):
-    """
-    The last two variables describe the relationships.
-    1. Comments can contain many Comment
-        - Example of adding a comment:
-        - c = Comments.objects.create(...page=...size=...)
-        - c.comments_list.create(...comment_content=...content_type=...)
-
-    2. An author can be associated with many Comment
-        - Example of adding a comment:
-        - a = Author.objects.create(...)
-        - a.comment_items.create(...comment_content=...content_type=...)
-    """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    author_json = models.JSONField(null=True, blank=True)
-    comment_content = models.TextField(max_length=COMMENT_MAX_LENGTH)
+    post_id = models.UUIDField(max_length=ID_MAX_LENGTH, null=False, blank=False) 
+    comment_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False)
+    author = ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='comments', null=False)
+    content = models.TextField(max_length=COMMENT_MAX_LENGTH)
     content_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    pub_date = models.DateTimeField()
-    comment_id = models.URLField(max_length=ID_MAX_LENGTH, unique=True)
-
-    comments = models.ForeignKey(Comments, on_delete=models.CASCADE, related_name = 'comments_list', null=True, blank=True)
-    associated_author =  models.ForeignKey(Author, on_delete=models.CASCADE, related_name = 'comment_items', null=True, blank=True)
+    pub_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
