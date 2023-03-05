@@ -89,12 +89,40 @@ class AuthorList(APIView, PageNumberPagination):
         results = self.paginate_queryset(authors, request, view=self)
         serializer = AuthorSerializer(results, many=True)
         response = {
-                'type': 'authors',
-                'items': serializer.data
+                "type": "authors",
+                "items": serializer.data
                 }
         return Response(response)
 
 class CommentList(APIView, PageNumberPagination):
-    def get(self, request, format=None):
-        pass
+    def get(self, request, post_id, author_id, format=None):
+        comments = Comment.objects.filter(post_id=post_id)
+
+        self.page = request.query_params.get('page', 1)
+        self.page_size = request.query_params.get('size', 5)
+
+        results = self.paginate_queryset(comments, request, view=self)
+        serializer = CommentSerializer(results, many=True)
+        response = {
+                "type": "comments",
+                "page": self.page,
+                "size": self.page_size,
+                "post": request.build_absolute_uri().rstrip('/comments'),
+                "id": request.build_absolute_uri(),
+                "comments": serializer.data
+                }
+
+        if not comments.exists():
+            response['page'] = 1
+            response['size'] = 5
+        return Response(response)
+
+    # @permission_classes([IsAuthenticated])
+    def post(self, request, post_id, author_id, format=None):
+        serializer = CommentSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
