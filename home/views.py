@@ -107,6 +107,14 @@ class AuthorDetail(APIView):
         serializer = AuthorSerializer(author)
         return Response(serializer.data)
 
+    def post(self, request, author_id, format=None):
+        author = self.get_object(author_id)
+        serializer = AuthorSerializer(instance=author, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class CommentList(APIView, PageNumberPagination):
