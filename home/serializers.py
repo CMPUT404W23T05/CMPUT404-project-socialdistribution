@@ -126,7 +126,7 @@ class CommentSerializer(serializers.ModelSerializer):
     author = AuthorSerializer()
     comment = serializers.CharField(source='content')
     contentType = serializers.CharField(source='content_type')
-    published = serializers.DateTimeField(source='pub_date')
+    published = serializers.DateTimeField(source='pub_date', required=False)
 
     class Meta:
         model = Comment
