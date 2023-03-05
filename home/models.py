@@ -56,7 +56,7 @@ class Author(models.Model):
     home_host = models.URLField(max_length=URL_MAX_LENGTH) # the home host
     display_name = models.CharField(max_length=SMALL_MAX_LENGTH) # the display name
     profile_url = models.URLField(max_length=URL_MAX_LENGTH) # url to the author's profile
-    author_github = models.URLField(max_length=URL_MAX_LENGTH) # HATEOS url for Github API
+    author_github = models.URLField(max_length=URL_MAX_LENGTH, blank=True, null=True) # HATEOS url for Github API
     profile_image = models.URLField(max_length=URL_MAX_LENGTH) # Image from a public domain (or ImageField?)
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='author', null=True, blank=False) # this is for user/author creation
 
@@ -79,13 +79,12 @@ class Post(models.Model):
     post_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False) # id of a post
     post_source = models.URLField(max_length=URL_MAX_LENGTH, null=False) # where did you get this post from?
     post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=False) # where is it actually from
-    description = models.TextField(max_length=BIG_MAX_LENGTH, null=True) # a brief description of the post
-    content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=True, blank=True)
-    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True)
+    description = models.TextField(max_length=BIG_MAX_LENGTH, null=True, blank=True) # a brief description of the post
+    content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=True)
+    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True, blank=True)
     # image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
-    image = models.ImageField(upload_to ='images/', blank=True, null=True)
+    image = models.ImageField(upload_to ='images/', null=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='posts', null=False)
-    # put in categories here i.e. tags): a list of string
     # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField(null=True)
     comments = models.URLField(max_length=URL_MAX_LENGTH, null=True)
@@ -191,6 +190,6 @@ class Comment(models.Model):
     post_id = models.UUIDField(max_length=ID_MAX_LENGTH, null=False, blank=False) 
     comment_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='comments', null=False)
-    content = models.TextField(max_length=COMMENT_MAX_LENGTH)
+    content = models.TextField(max_length=COMMENT_MAX_LENGTH, blank=True, null=True)
     content_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     pub_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
