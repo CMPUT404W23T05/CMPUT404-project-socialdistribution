@@ -57,7 +57,7 @@ class PostSerializer(serializers.ModelSerializer):
     origin = serializers.URLField(source='post_origin')
     contentType = serializers.CharField(source='content_type', required=False)
     image = serializers.ImageField(max_length=None, use_url=True, required=False)
-    content = serializers.CharField(require =False)
+    content = serializers.CharField(required=False)
     author = AuthorSerializer()
     count = serializers.IntegerField(source='comment_count')
     published = serializers.DateTimeField(source='pub_date')
@@ -117,32 +117,14 @@ class PostDeSerializer(serializers.ModelSerializer):
         return attrs
 
 
-class CustomUserSerializer(serializers.ModelSerializer):
-
-    author = serializers.SerializerMethodField()
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email', 'author', 'auth_token')
-        read_only_fields = ('auth_token',)
-
-    def get_author(self, obj):
-        try:
-            author = obj.author
-        except Author.DoesNotExist:
-            author = None
-
-        return AuthorSerializer(author).data
-
-
 
 class CommentSerializer(serializers.ModelSerializer):
 
     type = serializers.CharField(default='comment', source='object_type')
-    post_id = serializer.UUIDField(source='post_id')
+    post_id = serializers.UUIDField(source='post_id')
     id = serializers.UUIDField(source='comment_id')
     author = AuthorSerializer()
-    comment = serializers.TextField(source='content')
+    comment = serializers.CharField(source='content')
     contentType = serializers.CharField(source='content_type')
     published = serializers.DateTimeField(source='pub_date')
 

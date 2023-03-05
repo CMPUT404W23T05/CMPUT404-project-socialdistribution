@@ -63,9 +63,7 @@ CORS_ALLOWED_ORIGINS = [
 
 DJOSER = {
         'SERIALIZERS': {
-            'user': 'home.serializers.CustomUserSerializer',
-            'user_create': 'home.serializers.CustomUserSerializer',
-            'current_user': 'home.serializers.CustomUserSerializer',
+            'current_user': 'home.djoser_serializers.CustomUserSerializer',
         },
 }
 
