@@ -105,16 +105,13 @@ class CommentList(APIView, PageNumberPagination):
         serializer = CommentSerializer(results, many=True)
         response = {
                 "type": "comments",
-                "page": self.page,
+                "page": self.page.number,
                 "size": self.page_size,
                 "post": request.build_absolute_uri().rstrip('/comments'),
                 "id": request.build_absolute_uri(),
                 "comments": serializer.data
                 }
 
-        if not comments.exists():
-            response['page'] = 1
-            response['size'] = 5
         return Response(response)
 
     # @permission_classes([IsAuthenticated])

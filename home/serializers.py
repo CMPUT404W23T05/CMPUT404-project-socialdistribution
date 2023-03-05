@@ -121,7 +121,7 @@ class PostDeSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
 
     type = serializers.CharField(default='comment', source='object_type')
-    post_id = serializers.UUIDField(source='post_id')
+    post_id = serializers.UUIDField()
     id = serializers.UUIDField(source='comment_id')
     author = AuthorSerializer()
     comment = serializers.CharField(source='content')
@@ -130,7 +130,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['type', 'post_id', 'id' 'author', 'comment', 'contentType', 'published']
+        fields = ['type', 'post_id', 'id', 'author', 'comment', 'contentType', 'published']
 
 
     def get_author(self, author_uid):
