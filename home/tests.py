@@ -82,24 +82,6 @@ class PostTesting(TestCase):
                 is_unlisted = False
                 )
 
-        # # not valid author id (doesn't exist)
-        # self.post3 = Post.objects.create(
-        #         object_type = "post",
-        #         title = "example post 3",
-        #         post_id = "6dc729f9-fb06-49a7-a23d-ccea129a24e8",
-        #         post_source = "http://lastplaceigotthisfrom.com/posts/yyyyy",
-        #         post_origin = "http://whereitcamefrom.com/posts/zzzzz",
-        #         description = "This post is an example",
-        #         content_type = "text/plain, image/png;base64",
-        #         content = "testing... 1,2,3",
-        #         image = ContentFile(base64.b64decode(image_data_png), name='test_image_3'),
-        #         author = Author.objects.get(uid="7b8bdf38-8231-46b4-a629-1951bcc62b9c"),
-        #         comment_count = 5,
-        #         comments = "http://127.0.0.1:5454/authors/7b8bdf38-8231-46b4-a629-1951bcc62b9c/posts/6dc729f9-fb06-49a7-a23d-ccea129a24e8/comments",
-        #         visibility = "PUBLIC",
-        #         is_unlisted = False
-        #         )
-
 
     def test_post_model_is_valid_png(self):
         self.assertTrue(isinstance(self.post1, Post))

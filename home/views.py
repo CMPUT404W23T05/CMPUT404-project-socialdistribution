@@ -26,7 +26,7 @@ class CustomTokenCreateView(TokenCreateView):
         return response
 
 class CreatePost(APIView):
-    # @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])
     def post(self, request, author_id, format=None):
         serializer = PostDeSerializer(data=request.data)
         if serializer.is_valid():
@@ -71,7 +71,7 @@ class PostDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # FOR EDITING EXISTING POST
-    # @permission_classes([IsAuthenticated])
+    @permission_classes([IsAuthenticated])
     def post(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         serializer = PostDeSerializer(instance=post, data=request.data)
