@@ -135,18 +135,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
         return AuthorSerializer(author).data
 
 
-# class CustomUserSerializer2(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ('id', 'username', 'email')
-
-# class CustomUserDeSerializer2(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ('id', 'username', 'email')
-
-
-
 
 class CommentSerializer(serializers.ModelSerializer):
 
@@ -176,36 +164,6 @@ class CommentSerializer(serializers.ModelSerializer):
         validated_data['author'] = author
         return super().create(validated_data)
 
-
-# class CommentsSerializer(serializers.ModelSerializer):
-
-#     type = serializers.CharField(default='comments')
-#     id = serializers.URLField(source='comments_id')
-#     comments_list = CommentSerializer(many=True)
-
-#     class Meta:
-#         model = Comments
-#         fields = ['type', 'page', 'size', 'post', 'id', 'comments_list']
-
-
-#     def create(self, validated_data):
-#         comments_info = validated_data.pop('comments_list')
-#         create_comments = Comments.objects.create(**validated_data)
-#         for comment in comments_info:
-#             Comment.objects.create(associated_author = create_comments, **comment)
-#         return create_comments
-
-#     def to_representation(self, instance):
-#         data = super().to_representation(instance)
-#         return_data = {}
-#         return_data.update({
-#                 'type': data['type'],
-#                 'page': data['page'],
-#                 'size': data['size'],
-#                 'post': data['post'],
-#                 'id': data['id'],
-#                 'comments': data['comments_list']})
-#         return return_data
 
 class LikeSerializer(serializers.ModelSerializer):
     type = serializers.CharField(source='object_type')
