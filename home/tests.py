@@ -10,15 +10,12 @@ from django.core.files.base import ContentFile
 # ---------------------- testing author model ----------------------------------
 class AuthorTesting(TestCase):
     def setUp(self):
-        self.author = Author.objects.create(
-                object_type = "author",
-                uid = "5c38b0da-f7bb-4fda-9cb1-852da4ab6ece",
-                home_host = "http://127.0.0.1:5454/",
-                display_name = "Gandalf the Grey",
-                profile_url = "http://127.0.0.1:5454/authors/5c38b0da-f7bb-4fda-9cb1-852da4ab6ece",
-                author_github = "http://github.com/gandalfthegrey",
-                profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
+        self.user = User.objects.create(
+                username = "Test1",
+                password = "1234"
                 )
+
+        self.author = self.user.author
 
     def test_author_model_is_valid(self):
         d = self.author
@@ -26,7 +23,7 @@ class AuthorTesting(TestCase):
 
     def test_author_model_str(self):
         d = self.author
-        self.assertEqual(str(d), "Gandalf the Grey")
+        self.assertEqual(str(d), "Test1")
 
 
 # ---------------------- testing post model ----------------------------------
@@ -42,16 +39,12 @@ class PostTesting(TestCase):
             image_data = f.read()
             image_data_png = base64.b64encode(image_data)
 
-        # using json data as python dictionary
-        self.author = Author.objects.create(
-                object_type = "author",
-                uid = "26dfb518-6dde-4ccb-bfbf-b95ba26d4e88",
-                home_host = "http://127.0.0.1:5454/",
-                display_name = "Frodo Baggins",
-                profile_url = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88",
-                author_github = "http://github.com/frodobaggins",
-                profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
+        self.user2 = User.objects.create(
+                username = "Test2",
+                password = "1234"
                 )
+
+        self.author2 = self.user2.author
 
         # valid author, png image
         self.post1 = Post.objects.create(
@@ -64,7 +57,7 @@ class PostTesting(TestCase):
                 content_type = "text/plain, image/png;base64",
                 content = "testing... 1,2,3",
                 image = ContentFile(base64.b64decode(image_data_png), name='test_image_1'),
-                author = self.author,
+                author = self.author2,
                 comment_count = 5,
                 comments = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/decad856-d48d-4b2a-a100-b0734bcef0a7/comments",
                 visibility = "PUBLIC",
@@ -82,7 +75,7 @@ class PostTesting(TestCase):
                 content_type = "text/plain, image/jpeg;base64",
                 content = "testing... 1,2,3",
                 image = ContentFile(base64.b64decode(image_data_jpg), name='test_image_2'),
-                author = self.author,
+                author = self.author2,
                 comment_count = 5,
                 comments = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/218049ef-ac5b-4f4c-a853-f8b8bd8dcd68/comments",
                 visibility = "PUBLIC",
