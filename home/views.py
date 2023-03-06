@@ -36,7 +36,6 @@ class PostList(APIView, PageNumberPagination):
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
-        # return self.get_paginated_response(serializer.data    
         return Response(serializer.data)        
 
 

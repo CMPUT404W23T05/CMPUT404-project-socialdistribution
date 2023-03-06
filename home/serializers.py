@@ -105,11 +105,13 @@ class PostDeSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
+        # uncomment this line if and when you want to allow partial update() using partial=True in serializer call
+        # validated_data.setdefault('post_id', instance.post_id)
         author_obj = validated_data.pop('author')
         author_uid = author_obj['uid']
         author = self.get_author(author_uid)
         validated_data['author'] = author
-        return super().create(validated_data)
+        return super().update(instance, validated_data)
 
     def validate(self, attrs):
         if 'content' not in attrs and 'image' not in attrs:
