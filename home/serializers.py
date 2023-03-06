@@ -11,25 +11,25 @@ from django.contrib.auth import authenticate
 # To convert your queries to or from a JSON object (useful when connecting with groups)
 
 # Reference: https://stackoverflow.com/questions/31690991/uploading-base64-images-using-modelserializers-in-django-django-rest-framework
-class Base64ImageField(serializers.ImageField):
+# class Base64ImageField(serializers.ImageField):
 
-    def to_internal_value(self, data):
-        try:
-            decoded_file = base64.b64decode(data)
-        except TypeError:
-            self.fail('invalid_image')
+#     def to_internal_value(self, data):
+#         try:
+#             decoded_file = base64.b64decode(data)
+#         except TypeError:
+#             self.fail('invalid_image')
 
-        file_name = 'test_image' + str(uuid.uuid4())[:5] # change to 12 later
-        file_extension = self.get_file_extension(file_name, decoded_file)
-        complete_file_name = '%s.%s' % (file_name, file_extension)
-        img_file = ContentFile(decoded_file, name=complete_file_name)
+#         file_name = 'test_image' + str(uuid.uuid4())[:5] # change to 12 later
+#         file_extension = self.get_file_extension(file_name, decoded_file)
+#         complete_file_name = '%s.%s' % (file_name, file_extension)
+#         img_file = ContentFile(decoded_file, name=complete_file_name)
 
-        return super(Base64ImageField, self).to_internal_value(img_file)
+#         return super(Base64ImageField, self).to_internal_value(img_file)
 
-    def get_file_extension(self, file_name, decoded_file):
-        extension = imghdr.what(file_name, decoded_file)
-        extension = 'jpg' if extension == 'jpeg' else extension
-        return extension
+#     def get_file_extension(self, file_name, decoded_file):
+#         extension = imghdr.what(file_name, decoded_file)
+#         extension = 'jpg' if extension == 'jpeg' else extension
+#         return extension
 
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -56,7 +56,7 @@ class PostSerializer(serializers.ModelSerializer):
     source = serializers.URLField(source='post_source')
     origin = serializers.URLField(source='post_origin')
     contentType = serializers.CharField(source='content_type', required=False)
-    image = serializers.ImageField(max_length=None, use_url=True, required=False)
+    image = serializers.CharField(required=False)
     content = serializers.CharField(required=False)
     author = AuthorSerializer()
     count = serializers.IntegerField(source='comment_count')
@@ -77,7 +77,7 @@ class PostDeSerializer(serializers.ModelSerializer):
     source = serializers.URLField(source='post_source')
     origin = serializers.URLField(source='post_origin')
     contentType = serializers.CharField(source='content_type', required=False)
-    image = Base64ImageField(max_length=None, use_url=True, required=False, allow_null=True)
+    image = CharField(required=False, allow_blank=True, allow_null=True)
     content = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     author = AuthorSerializer() 
     count = serializers.IntegerField(source='comment_count')

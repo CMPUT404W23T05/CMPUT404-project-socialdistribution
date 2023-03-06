@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-from django.http import Http404
 from rest_framework.decorators import permission_classes
 from djoser.views import TokenCreateView
 
@@ -18,7 +17,8 @@ class CreatePost(APIView):
         try:
             Author.objects.get(uid=author_id)
         except Author.DoesNotExist:
-                raise Http404
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
         serializer = PostDeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -44,7 +44,7 @@ class PostDetail(APIView):
         try:
             return Post.objects.get(post_id=post_id)
         except Post.DoesNotExist:
-            raise Http404
+            return Response(status=status.HTTP_404_NOT_FOUND) 
 
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
@@ -80,6 +80,18 @@ class PostDetail(APIView):
 
 
 
+class ImageView(APIView):
+    def get(self, request, author_id, post_id, format=None):
+        post = Post.objects.get(post_id=post_id)
+        image, content_type = post.get_image()
+
+        if not image:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        return Response(image, content_type=content_type, status=status.HTTP_200_OK)
+
+
+
 class AuthorList(APIView, PageNumberPagination):
     def get(self, request, format=None):
         authors = Author.objects.all()
@@ -100,7 +112,7 @@ class AuthorDetail(APIView):
         try:
             return Author.objects.get(uid=author_id)
         except Author.DoesNotExist:
-            raise Http404
+            return Response(status=status.HTTP_404_NOT_FOUND) 
 
     def get(self, request, author_id, format=None):
         author = self.get_object(author_id)
@@ -151,7 +163,7 @@ class CommentDetail(APIView):
         try:
             return Comment.objects.get(comment_id=comment_id)
         except Comment.DoesNotExist:
-            raise Http404
+            return Response(status=status.HTTP_404_NOT_FOUND) 
 
     def get(self, request, post_id, author_id, comment_id, format=None):
         comment = self.get_object(comment_id)

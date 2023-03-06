@@ -83,7 +83,7 @@ class Post(models.Model):
     content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=True)
     content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True, blank=True)
     # image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
-    image = models.ImageField(upload_to ='images/', null=True)
+    image = models.TextField(null=True, blank=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='posts', null=False)
     # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField(null=True)
@@ -100,9 +100,18 @@ class Post(models.Model):
         return self.title
 
     def get_image(self):
-        if self.image:
-            return 'http://127.0.0.1:8000' + self.image.url
-        return ''
+        if not self.image:
+            return None
+        
+        image_data = base64.b64decode(self.image)
+        if 'image/png' in self.content_type:
+            content_type = "image/png"
+        elif 'image/jpeg' in self.content_type:
+            content_type = "image/jpeg"
+        elif 'image/jpg' in self.content_type:
+            content_type = "image/jpeg"
+
+        return image_data, content_type
 
 
 class Like(models.Model):
