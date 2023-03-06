@@ -69,20 +69,15 @@ class Authors(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
 
 
-# class Image(models.Model):
-#     image = models.ImageField(upload_to ='images/')
-
-
 class Post(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
     title =  models.CharField(max_length=BIG_MAX_LENGTH, null=True) # title of a post
     post_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False) # id of a post
-    post_source = models.URLField(max_length=URL_MAX_LENGTH, null=False) # where did you get this post from?
-    post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=False) # where is it actually from
+    post_source = models.URLField(max_length=URL_MAX_LENGTH, null=True) # where did you get this post from?
+    post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=True) # where is it actually from
     description = models.TextField(max_length=BIG_MAX_LENGTH, null=True, blank=True) # a brief description of the post
-    content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=True)
+    content_type = models.CharField(max_length=BIG_MAX_LENGTH, null=True)
     content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True, blank=True)
-    # image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
     image = models.TextField(null=True, blank=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='posts', null=False)
     # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
@@ -104,6 +99,7 @@ class Post(models.Model):
             return None
         
         image_data = base64.b64decode(self.image)
+
         if 'image/png' in self.content_type:
             content_type = "image/png"
         elif 'image/jpeg' in self.content_type:
