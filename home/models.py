@@ -57,8 +57,8 @@ class FollowManager(models.Manager):
         - author_followed: Author object as a dict
         """
         # create the summary statement by taking their first names
-        author_following_first_name = author_following['display_name'].split(' ')[0]
-        author_followed_first_name = author_followed['display_name'].split(' ')[0]
+        author_following_first_name = author_following['displayName'].split(' ')[0]
+        author_followed_first_name = author_followed['displayName'].split(' ')[0]
         summary = author_following_first_name + " wants to follow " + author_followed_first_name
 
         follow = self.create(object_type = "Follow",

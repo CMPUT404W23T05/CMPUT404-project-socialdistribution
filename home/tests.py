@@ -149,8 +149,18 @@ class FollowerTesting(TestCase):
         self.author.followers_items.create(author_info = author_2_info)
         self.assertEqual(len(self.author.followers_items.all()), 1)
 
-
+    def test_followers_manager(self):
+        author_serializer = AuthorSerializer(self.author)
+        author_json = JSONRenderer().render(author_serializer.data)
+        author1_info = author_json.decode("utf-8")
         
+        author2_serializer = AuthorSerializer(self.author2)
+        author2_json = JSONRenderer().render(author2_serializer.data)
+        author2_info = author2_json.decode("utf-8")
+
+        test_follow = Follow.objects.create_follow(json.loads(author1_info), json.loads(author2_info))
+        self.assertEqual(len(Follow.objects.all()), 1)
+
  ############################## View Testing #############################3333
 
 # class PostListViewTest(TestCase):
