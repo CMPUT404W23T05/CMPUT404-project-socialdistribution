@@ -174,15 +174,16 @@ class RequestsList(APIView):
     def get(self, request, author_id):
 
         current_author = Author.objects.filter(uid=author_id)[0]
-        author_info_to_dict = json.loads(json.dumps(model_to_dict(current_author), cls=DjangoJSONEncoder))
-        
-        if 'id' in author_info_to_dict:
-            del author_info_to_dict['id']
+        follows = Follow.objects.filter(author_object__id = "http://127.0.0.1:5454/authors/" + str(author_id))
+        serializer = FollowSerializer(follows, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-        # check if any of the Follow objects have the current author as the author that is "being followed"
-        follows = Follow.objects.filter(author_object = author_info_to_dict) 
-        serializer = FollowSerializer(follows, many = True)
-        return Response(serializer.data)
+    def delete(self, request, author_id, request_follower_id):
+         get_id_link = author_object__id = "http://127.0.0.1:5454/authors/" + str(author_id)
+         get_request_follower_link = author_object__id = "http://127.0.0.1:5454/authors/" + str(request_follower_id)
+         follow = Follow.objects.filter(author_object__id = get_id_link).filter(author_actor__id = get_request_follower_link)[0]
+         follow.delete()
+         return Response(status=status.HTTP_200_OK)
 
 class AuthorList(APIView, PageNumberPagination):
     def get(self, request, format=None):

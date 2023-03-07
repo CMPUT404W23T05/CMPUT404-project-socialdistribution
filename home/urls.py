@@ -17,4 +17,5 @@ urlpatterns = [
         path('authors/<uuid:author_id>/following/', views.FollowingList.as_view()),
         path('authors/<uuid:author_id>/friends/', views.FriendsList.as_view()),
         path('authors/<uuid:author_id>/requests/', views.RequestsList.as_view()),
+        path('authors/<uuid:author_id>/requests/<uuid:request_follower_id>', views.RequestsList.as_view()),
 ]

@@ -335,26 +335,6 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ['type', 'actor', 'object', 'summary']
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-
-        author_actor_dict = data['actor']
-        author_object_dict = data['object']
-   
-        get_author_actor = Author.objects.filter(uid=uuid.UUID(author_actor_dict['uid']))
-        get_author_object = Author.objects.filter(uid=uuid.UUID(author_object_dict['uid']))
-
-        author_actor_serializer = AuthorSerializer(get_author_actor)
-        author_object_serializer = AuthorSerializer(get_author_object)
-
-        return_data = {}
-        return_data.update({
-                'type': data['type'],
-                'actor': data['actor'],
-                'object': data['object'],
-                'summary': data['summary'],
-                })
-        return return_data
 
 # ---------------------- Followers Serializer ----------------------------------
 
