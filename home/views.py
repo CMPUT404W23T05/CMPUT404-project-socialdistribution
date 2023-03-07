@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-from django.http import Http404
 from rest_framework.decorators import permission_classes
+from django.http import HttpResponse, Http404
 from djoser.views import TokenCreateView
 
 
@@ -18,7 +18,8 @@ class CreatePost(APIView):
         try:
             Author.objects.get(uid=author_id)
         except Author.DoesNotExist:
-                raise Http404
+            raise Http404 
+
         serializer = PostDeSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -35,7 +36,6 @@ class PostList(APIView, PageNumberPagination):
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
-        # return self.get_paginated_response(serializer.data    
         return Response(serializer.data)        
 
 
@@ -44,7 +44,7 @@ class PostDetail(APIView):
         try:
             return Post.objects.get(post_id=post_id)
         except Post.DoesNotExist:
-            raise Http404
+            raise Http404 
 
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
@@ -80,6 +80,20 @@ class PostDetail(APIView):
 
 
 
+class ImageView(APIView):
+    def get(self, request, author_id, post_id, format=None):
+        post = Post.objects.get(post_id=post_id)
+        print("here 1")
+        image, content_type = post.get_image()
+        print("here 2")
+
+        if not image:
+            raise Http404
+
+        return HttpResponse(image, content_type=content_type)
+
+
+
 class AuthorList(APIView, PageNumberPagination):
     def get(self, request, format=None):
         authors = Author.objects.all()
@@ -100,7 +114,7 @@ class AuthorDetail(APIView):
         try:
             return Author.objects.get(uid=author_id)
         except Author.DoesNotExist:
-            raise Http404
+            raise Http404 
 
     def get(self, request, author_id, format=None):
         author = self.get_object(author_id)
@@ -151,7 +165,7 @@ class CommentDetail(APIView):
         try:
             return Comment.objects.get(comment_id=comment_id)
         except Comment.DoesNotExist:
-            raise Http404
+            raise Http404 
 
     def get(self, request, post_id, author_id, comment_id, format=None):
         comment = self.get_object(comment_id)
