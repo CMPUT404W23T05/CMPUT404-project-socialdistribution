@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import *
+from .serializers import AuthorSerializer
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
