@@ -4,7 +4,7 @@ from django.core.files.base import ContentFile
 import base64
 import uuid
 import imghdr
-
+from django.contrib.auth import authenticate
 from rest_framework.renderers import JSONRenderer
 
 
@@ -12,37 +12,37 @@ from rest_framework.renderers import JSONRenderer
 # To convert your queries to or from a JSON object (useful when connecting with groups)
 
 # Reference: https://stackoverflow.com/questions/31690991/uploading-base64-images-using-modelserializers-in-django-django-rest-framework
-class Base64ImageField(serializers.ImageField):
+# class Base64ImageField(serializers.ImageField):
 
-    def to_internal_value(self, data):
-        try:
-            decoded_file = base64.b64decode(data)
-        except TypeError:
-            self.fail('invalid_image')
+#     def to_internal_value(self, data):
+#         try:
+#             decoded_file = base64.b64decode(data)
+#         except TypeError:
+#             self.fail('invalid_image')
 
-        file_name = 'test_image' + str(uuid.uuid4())[:5] # change to 12 later
-        file_extension = self.get_file_extension(file_name, decoded_file)
-        complete_file_name = '%s.%s' % (file_name, file_extension)
-        img_file = ContentFile(decoded_file, name=complete_file_name)
+#         file_name = 'test_image' + str(uuid.uuid4())[:5] # change to 12 later
+#         file_extension = self.get_file_extension(file_name, decoded_file)
+#         complete_file_name = '%s.%s' % (file_name, file_extension)
+#         img_file = ContentFile(decoded_file, name=complete_file_name)
 
-        return super(Base64ImageField, self).to_internal_value(img_file)
+#         return super(Base64ImageField, self).to_internal_value(img_file)
 
-    def get_file_extension(self, file_name, decoded_file):
-        extension = imghdr.what(file_name, decoded_file)
-        extension = 'jpg' if extension == 'jpeg' else extension
-        return extension
-    
+#     def get_file_extension(self, file_name, decoded_file):
+#         extension = imghdr.what(file_name, decoded_file)
+#         extension = 'jpg' if extension == 'jpeg' else extension
+#         return extension
+
 
 class AuthorSerializer(serializers.ModelSerializer):
 
     # get the author's information
-    type = serializers.CharField(source = 'object_type')
-    id = serializers.UUIDField(source = 'uid')
-    url = serializers.URLField(source = 'profile_url')
-    host = serializers.URLField(source = 'home_host')
-    displayName = serializers.CharField(source = 'display_name')
-    github = serializers.URLField(source = 'author_github')
-    profileImage = serializers.URLField(source = 'profile_image')
+    type = serializers.CharField(source='object_type')
+    id = serializers.UUIDField(source='uid')
+    url = serializers.URLField(source='profile_url')
+    host = serializers.URLField(source='home_host')
+    displayName = serializers.CharField(source='display_name')
+    github = serializers.URLField(source='author_github', allow_null=True, allow_blank=True)
+    profileImage = serializers.URLField(source='profile_image')
 
     class Meta:
         model = Author
@@ -52,17 +52,17 @@ class AuthorSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
 
-    type = serializers.CharField(source = 'object_type')
-    id = serializers.UUIDField(source = 'post_id')
-    source = serializers.URLField(source = 'post_source')
-    origin = serializers.URLField(source = 'post_origin')
-    contentType = serializers.CharField(source = 'content_type', required = False)
-    image = serializers.ImageField(max_length = None, use_url = True, required = False)
-    content = serializers.CharField(required = False)
+    type = serializers.CharField(source='object_type')
+    id = serializers.UUIDField(source='post_id')
+    source = serializers.URLField(source='post_source', required=False)
+    origin = serializers.URLField(source='post_origin', required=False)
+    contentType = serializers.CharField(source='content_type', required=False)
+    image = serializers.CharField(required=False)
+    content = serializers.CharField(required=False)
     author = AuthorSerializer()
-    count = serializers.IntegerField(source = 'comment_count')
-    published = serializers.DateTimeField(source = 'pub_date')
-    unlisted = serializers.BooleanField(source = 'is_unlisted')
+    count = serializers.IntegerField(source='comment_count')
+    published = serializers.DateTimeField(source='pub_date')
+    unlisted = serializers.BooleanField(source='is_unlisted')
 
     class Meta:
         model = Post
@@ -73,17 +73,17 @@ class PostSerializer(serializers.ModelSerializer):
 
 class PostDeSerializer(serializers.ModelSerializer):
 
-    type = serializers.CharField(source = 'object_type')
-    id = serializers.UUIDField(source = 'post_id')
-    source = serializers.URLField(source = 'post_source')
-    origin = serializers.URLField(source = 'post_origin')
-    contentType = serializers.CharField(source = 'content_type', required = False)
-    image = Base64ImageField(max_length = None, use_url = True, required = False)
-    content = serializers.CharField(required = False)
-    author = serializers.UUIDField()
-    count = serializers.IntegerField(source = 'comment_count')
-    published = serializers.DateTimeField(source = 'pub_date', required = False)
-    unlisted = serializers.BooleanField(source = 'is_unlisted')
+    type = serializers.CharField(source='object_type')
+    id = serializers.UUIDField(source='post_id')
+    source = serializers.URLField(source='post_source', required=False)
+    origin = serializers.URLField(source='post_origin', required=False)
+    contentType = serializers.CharField(source='content_type', required=False)
+    image = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    content = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    author = AuthorSerializer() 
+    count = serializers.IntegerField(source='comment_count')
+    published = serializers.DateTimeField(source='pub_date', required=False)
+    unlisted = serializers.BooleanField(source='is_unlisted')
 
     class Meta:
         model = Post
@@ -99,13 +99,17 @@ class PostDeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Author not found, uid: ', author_uid)
 
     def create(self, validated_data):
-        author_uid = validated_data.pop('author')
+        author_obj = validated_data.pop('author')
+        author_uid = author_obj['uid']
         author = self.get_author(author_uid)
         validated_data['author'] = author
         return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        author_uid = validated_data.pop('author')
+        # uncomment this line if and when you want to allow partial update() using partial=True in serializer call
+        # validated_data.setdefault('post_id', instance.post_id)
+        author_obj = validated_data.pop('author')
+        author_uid = author_obj['uid']
         author = self.get_author(author_uid)
         validated_data['author'] = author
         return super().update(instance, validated_data)
@@ -187,53 +191,38 @@ class AuthorSerializer(serializers.ModelSerializer):
     
 class CommentSerializer(serializers.ModelSerializer):
 
-    type = serializers.CharField(default='comment')
-    author = serializers.JSONField(source = 'author_json')
-    comment = serializers.CharField(source = 'comment_content')
-    contentType = serializers.CharField(source = 'content_type')
-    published = serializers.DateTimeField(source='pub_date')
-    id = serializers.URLField(source='comment_id')
+    type = serializers.CharField(default='comment', source='object_type')
+    post_id = serializers.UUIDField()
+    id = serializers.UUIDField(source='comment_id')
+    author = AuthorSerializer()
+    comment = serializers.CharField(source='content')
+    contentType = serializers.CharField(source='content_type')
+    published = serializers.DateTimeField(source='pub_date', required=False)
 
     class Meta:
         model = Comment
-        fields = ['type', 'author', 'comment', 'contentType', 'published', 'id']
+        fields = ['type', 'post_id', 'id', 'author', 'comment', 'contentType', 'published']
 
 
-class CommentsSerializer(serializers.ModelSerializer):
-
-    type = serializers.CharField(default='comments')
-    id = serializers.URLField(source='comments_id')
-    comments_list = CommentSerializer(many=True)
-
-    class Meta:
-        model = Comments
-        fields = ['type', 'page', 'size', 'post', 'id', 'comments_list']
-
+    def get_author(self, author_uid):
+        try:
+            return Author.objects.get(uid=author_uid)
+        except Author.DoesNotExist:
+            raise serializers.ValidationError('Author not found, uid: ', author_uid)
 
     def create(self, validated_data):
-        comments_info = validated_data.pop('comments_list')
-        create_comments = Comments.objects.create(**validated_data)
-        for comment in comments_info:
-            Comment.objects.create(associated_author = create_comments, **comment)
-        return create_comments
+        author_obj = validated_data.pop('author')
+        author_uid = author_obj['uid']
+        author = self.get_author(author_uid)
+        validated_data['author'] = author
+        return super().create(validated_data)
 
-    def to_representation(self, instance):
-        data = super().to_representation(instance)
-        return_data = {}
-        return_data.update({
-                'type': data['type'],
-                'page': data['page'],
-                'size': data['size'],
-                'post': data['post'],
-                'id': data['id'],
-                'comments': data['comments_list']})
-        return return_data
 
 class LikeSerializer(serializers.ModelSerializer):
     type = serializers.CharField(source='object_type')
-    summary = serializers.CharField(source = 'like_summary')
-    author = serializers.JSONField(source = 'author_object') # the author who is the follower
-    object = serializers.URLField(source = 'obj') # the post/comment that was liked
+    summary = serializers.CharField(source='like_summary')
+    author = serializers.JSONField(source='author_object') # the author who is the follower
+    object = serializers.URLField(source='obj') # the post/comment that was liked
 
     class Meta:
         model = Like
@@ -349,13 +338,13 @@ class FollowersSerializer(serializers.ModelSerializer):
         author_dict = json.loads(data['author_info'])
         return_data = {}
         return_data.update({
-                'type': author_dict['object_type'],
-                'id': author_dict['profile_url'],
-                'host': author_dict['home_host'],
-                'displayName': author_dict['display_name'],
-                'url': author_dict['profile_url'],
-                'github':author_dict['author_github'],
-                'profileImage': author_dict['profile_image']
+                'type': author_dict['type'],
+                'id': author_dict['id'],
+                'host': author_dict['host'],
+                'displayName': author_dict['displayName'],
+                'url': author_dict['url'],
+                'github':author_dict['github'],
+                'profileImage': author_dict['profileImage']
                 })
         return return_data
 

@@ -18,15 +18,12 @@ import uuid
 # ---------------------- testing author model ----------------------------------
 class AuthorTesting(TestCase):
     def setUp(self):
-        self.author = Author.objects.create(
-                object_type = "author",
-                uid = "5c38b0da-f7bb-4fda-9cb1-852da4ab6ece",
-                home_host = "http://127.0.0.1:5454/",
-                display_name = "Gandalf the Grey",
-                profile_url = "http://127.0.0.1:5454/authors/5c38b0da-f7bb-4fda-9cb1-852da4ab6ece",
-                author_github = "http://github.com/gandalfthegrey",
-                profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
+        self.user = User.objects.create(
+                username = "Test1",
+                password = "1234"
                 )
+
+        self.author = self.user.author
 
     def test_author_model_is_valid(self):
         d = self.author
@@ -34,7 +31,7 @@ class AuthorTesting(TestCase):
 
     def test_author_model_str(self):
         d = self.author
-        self.assertEqual(str(d), "Gandalf the Grey")
+        self.assertEqual(str(d), "Test1")
 
 
 # ---------------------- testing post model ----------------------------------
@@ -50,16 +47,12 @@ class PostTesting(TestCase):
             image_data = f.read()
             image_data_png = base64.b64encode(image_data)
 
-        # using json data as python dictionary
-        self.author = Author.objects.create(
-                object_type = "author",
-                uid = "26dfb518-6dde-4ccb-bfbf-b95ba26d4e88",
-                home_host = "http://127.0.0.1:5454/",
-                display_name = "Frodo Baggins",
-                profile_url = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88",
-                author_github = "http://github.com/frodobaggins",
-                profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
+        self.user2 = User.objects.create(
+                username = "Test2",
+                password = "1234"
                 )
+
+        self.author2 = self.user2.author
 
         # valid author, png image
         self.post1 = Post.objects.create(
@@ -72,7 +65,7 @@ class PostTesting(TestCase):
                 content_type = "text/plain, image/png;base64",
                 content = "testing... 1,2,3",
                 image = ContentFile(base64.b64decode(image_data_png), name='test_image_1'),
-                author = self.author,
+                author = self.author2,
                 comment_count = 5,
                 comments = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/decad856-d48d-4b2a-a100-b0734bcef0a7/comments",
                 visibility = "PUBLIC",
@@ -90,30 +83,12 @@ class PostTesting(TestCase):
                 content_type = "text/plain, image/jpeg;base64",
                 content = "testing... 1,2,3",
                 image = ContentFile(base64.b64decode(image_data_jpg), name='test_image_2'),
-                author = self.author,
+                author = self.author2,
                 comment_count = 5,
                 comments = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/218049ef-ac5b-4f4c-a853-f8b8bd8dcd68/comments",
                 visibility = "PUBLIC",
                 is_unlisted = False
                 )
-
-        # # not valid author id (doesn't exist)
-        # self.post3 = Post.objects.create(
-        #         object_type = "post",
-        #         title = "example post 3",
-        #         post_id = "6dc729f9-fb06-49a7-a23d-ccea129a24e8",
-        #         post_source = "http://lastplaceigotthisfrom.com/posts/yyyyy",
-        #         post_origin = "http://whereitcamefrom.com/posts/zzzzz",
-        #         description = "This post is an example",
-        #         content_type = "text/plain, image/png;base64",
-        #         content = "testing... 1,2,3",
-        #         image = ContentFile(base64.b64decode(image_data_png), name='test_image_3'),
-        #         author = Author.objects.get(uid="7b8bdf38-8231-46b4-a629-1951bcc62b9c"),
-        #         comment_count = 5,
-        #         comments = "http://127.0.0.1:5454/authors/7b8bdf38-8231-46b4-a629-1951bcc62b9c/posts/6dc729f9-fb06-49a7-a23d-ccea129a24e8/comments",
-        #         visibility = "PUBLIC",
-        #         is_unlisted = False
-        #         )
 
 
     def test_post_model_is_valid_png(self):
@@ -167,8 +142,11 @@ class FollowerTesting(TestCase):
         
 
     def test_followers_get(self):
-        self.author.followers_items.create(author_info = json.dumps(model_to_dict(self.author2)))
-        self.author2.followers_items.create(author_info = json.dumps(model_to_dict(self.author)))
+        serializer = AuthorSerializer(self.author2)
+        json = JSONRenderer().render(serializer.data)
+        author_2_info = json.decode("utf-8")
+        
+        self.author.followers_items.create(author_info = author_2_info)
         self.assertEqual(len(self.author.followers_items.all()), 1)
 
 
