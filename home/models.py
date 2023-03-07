@@ -5,6 +5,7 @@ from django.core.files import File
 from io import BytesIO
 from PIL import Image
 import base64
+from django.contrib.auth.models import User
 
 CONTENT_MAX_LENGTH = 10000  # for content field
 URL_MAX_LENGTH = 2000       # for urls
@@ -55,8 +56,9 @@ class Author(models.Model):
     home_host = models.URLField(max_length=URL_MAX_LENGTH) # the home host
     display_name = models.CharField(max_length=SMALL_MAX_LENGTH) # the display name
     profile_url = models.URLField(max_length=URL_MAX_LENGTH) # url to the author's profile
-    author_github = models.URLField(max_length=URL_MAX_LENGTH) # HATEOS url for Github API
+    author_github = models.URLField(max_length=URL_MAX_LENGTH, blank=True, null=True) # HATEOS url for Github API
     profile_image = models.URLField(max_length=URL_MAX_LENGTH) # Image from a public domain (or ImageField?)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='author', null=True, blank=False) # this is for user/author creation
 
     def __str__(self):
         # clearer description of object itself rather than Author(1) in admin interface
@@ -67,24 +69,17 @@ class Authors(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
 
 
-# class Image(models.Model):
-#     image = models.ImageField(upload_to ='images/')
-
-
 class Post(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=False)
     title =  models.CharField(max_length=BIG_MAX_LENGTH, null=True) # title of a post
     post_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False) # id of a post
-    post_source = models.URLField(max_length=URL_MAX_LENGTH, null=False) # where did you get this post from?
-    post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=False) # where is it actually from
-    description = models.TextField(max_length=BIG_MAX_LENGTH, null=True) # a brief description of the post
-    content_type = models.CharField(max_length=SMALL_MAX_LENGTH, null=True, blank=True)
-    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True)
-    # image = models.OneToOneField(Image, on_delete=models.CASCADE, related_name='post', null=True)
-    image = models.ImageField(upload_to ='images/', blank=True, null=True)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid',
-                               related_name='posts', null=False)
-    # put in categories here i.e. tags): a list of string
+    post_source = models.URLField(max_length=URL_MAX_LENGTH, null=True) # where did you get this post from?
+    post_origin =  models.URLField(max_length=URL_MAX_LENGTH, null=True) # where is it actually from
+    description = models.TextField(max_length=BIG_MAX_LENGTH, null=True, blank=True) # a brief description of the post
+    content_type = models.CharField(max_length=BIG_MAX_LENGTH, null=True)
+    content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True, blank=True)
+    image = models.TextField(null=True, blank=True)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='posts', null=False)
     # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField(null=True)
     comments = models.URLField(max_length=URL_MAX_LENGTH, null=True)
@@ -100,9 +95,19 @@ class Post(models.Model):
         return self.title
 
     def get_image(self):
-        if self.image:
-            return 'http://127.0.0.1:8000' + self.image.url
-        return ''
+        if not self.image:
+            return None
+        
+        image_data = base64.b64decode(self.image)
+
+        if 'image/png' in self.content_type:
+            content_type = "image/png"
+        elif 'image/jpeg' in self.content_type:
+            content_type = "image/jpeg"
+        elif 'image/jpg' in self.content_type:
+            content_type = "image/jpeg"
+
+        return image_data, content_type
 
 
 class Like(models.Model):
@@ -185,33 +190,14 @@ class Follow(models.Model):
     objects = FollowManager()
 
 
-class Comments(models.Model):
-    object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    page =  models.IntegerField()
-    size = models.IntegerField()
-    post = models.URLField(max_length=URL_MAX_LENGTH)
-    comments_id = models.URLField(max_length=URL_MAX_LENGTH)
-
-
 class Comment(models.Model):
-    """
-    The last two variables describe the relationships.
-    1. Comments can contain many Comment
-        - Example of adding a comment:
-        - c = Comments.objects.create(...page=...size=...)
-        - c.comments_list.create(...comment_content=...content_type=...)
-
-    2. An author can be associated with many Comment
-        - Example of adding a comment:
-        - a = Author.objects.create(...)
-        - a.comment_items.create(...comment_content=...content_type=...)
-    """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    author_json = models.JSONField(null=True, blank=True)
-    comment_content = models.TextField(max_length=COMMENT_MAX_LENGTH)
+    post_id = models.UUIDField(max_length=ID_MAX_LENGTH, null=False, blank=False) 
+    comment_id = models.UUIDField(max_length=ID_MAX_LENGTH, unique=True, null=False, blank=False)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='uid', related_name='comments', null=False)
+    content = models.TextField(max_length=COMMENT_MAX_LENGTH, blank=True, null=True)
     content_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    pub_date = models.DateTimeField()
-    comment_id = models.URLField(max_length=ID_MAX_LENGTH, unique=True)
+    pub_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
-    comments = models.ForeignKey(Comments, on_delete=models.CASCADE, related_name = 'comments_list', null=True, blank=True)
-    associated_author =  models.ForeignKey(Author, on_delete=models.CASCADE, related_name = 'comment_items', null=True, blank=True)
+    class Meta:
+        ordering = ('-pub_date',)

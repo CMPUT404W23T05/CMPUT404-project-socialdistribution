@@ -28,6 +28,16 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+
+    ),
+}
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -45,10 +55,17 @@ INSTALLED_APPS = [
     'home',
 ]
 
-CORS_ALLOWED_ORIGINS =[
+CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',    # for testing
+    'http://127.0.0.1:8080'
     # add server ip here
 ]
+
+DJOSER = {
+        'SERIALIZERS': {
+            'current_user': 'home.djoser_serializers.CustomUserSerializer',
+        },
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
