@@ -29,7 +29,7 @@ class CreatePost(APIView):
 
 class PostList(APIView, PageNumberPagination):
     def get(self, request, author_id, format=None):
-        posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
+        posts = Post.objects.filter(visibility='PUBLIC', author__id=author_id)
 
         self.page = request.query_params.get('page', 1)
         self.page_size = request.query_params.get('size', 20)
@@ -168,6 +168,6 @@ class CommentDetail(APIView):
     def get(self, request, post_id, author_id, comment_id, format=None):
         comment = self.get_object(comment_id)
         serializer = CommentSerializer(comment)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
