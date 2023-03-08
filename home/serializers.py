@@ -1,10 +1,11 @@
-from rest_framework import serializers
+from rest_framework import routers,serializers,viewsets
 from .models import *
 from django.core.files.base import ContentFile
 import base64
 import uuid
 import imghdr
 from django.contrib.auth import authenticate
+from rest_framework.renderers import JSONRenderer
 
 
 # need to pip install rest_framework
@@ -119,7 +120,75 @@ class PostDeSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class AuthorSerializer(serializers.ModelSerializer):
 
+    # get the author's information
+    type = serializers.CharField(source = 'object_type')
+    id = serializers.UUIDField(source = 'profile_url')
+    url = serializers.URLField(source = 'profile_url')
+    host = serializers.URLField(source = 'home_host')
+    displayName = serializers.CharField(source = 'display_name')
+    github = serializers.URLField(source = 'author_github')
+    profileImage = serializers.URLField(source = 'profile_image')
+
+    class Meta:
+        model = Author
+        fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage']
+
+    def to_internal_value(self, data):
+        type = data.get('object_type')
+        id = data.get('uid')
+        url = data.get('home_host')
+        host = data.get('display_name')
+        displayName = data.get('profile_url')
+        github = data.get('author_github')
+        profileImage = data.get('profile_image')
+        
+        # data validation.
+        if not type:
+            raise serializers.ValidationError({
+                'type': 'This field is required.'
+            })
+        if not id:
+            raise serializers.ValidationError({
+                'id': 'This field is required.'
+            })
+        
+        if not url:
+            raise serializers.ValidationError({
+                'url': 'This field is required.'
+            })
+        
+        if not host:
+            raise serializers.ValidationError({
+                'host': 'This field is required.'
+            })
+        
+        if not displayName:
+            raise serializers.ValidationError({
+                'displayName': 'This field is required.'
+            })
+        
+        if not github:
+            raise serializers.ValidationError({
+                'github': 'This field is required.'
+            })
+
+        if not profileImage:
+            raise serializers.ValidationError({
+                'profileImage': 'This field is required.'
+            })
+        # returns the validated values
+        return {
+            'type': type,
+            'id': id,
+            'url': url,
+            'host': host,
+            'displayName': displayName,
+            'github': github,
+            'profileImage': profileImage
+        }
+    
 class CommentSerializer(serializers.ModelSerializer):
 
     type = serializers.CharField(default='comment', source='object_type')
@@ -246,19 +315,42 @@ class AuthorInboxSerializer(serializers.ModelSerializer):
 
 
 class FollowSerializer(serializers.ModelSerializer):
-    type = serializers.CharField(source='follow_type')
-    actor = serializers.JSONField(source='author_actor') # the author who is the follower
-    object = serializers.JSONField(source='author_object') # the author who is being followed
-    summary = serializers.CharField(source='following_summary')
+    type = serializers.CharField(source = 'object_type')
+    actor = serializers.JSONField(source = 'author_actor') # the author who is the follower
+    object = serializers.JSONField(source = 'author_object') # the author who is being followed
+    summary = serializers.CharField(source = 'following_summary')
 
     class Meta:
         model = Follow
         fields = ['type', 'actor', 'object', 'summary']
 
+
 # ---------------------- Followers Serializer ----------------------------------
+
+class FollowersSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Followers
+        fields = ['author_info']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        author_dict = json.loads(data['author_info'])
+        return_data = {}
+        return_data.update({
+                'type': author_dict['type'],
+                'id': author_dict['id'],
+                'host': author_dict['host'],
+                'displayName': author_dict['displayName'],
+                'url': author_dict['url'],
+                'github':author_dict['github'],
+                'profileImage': author_dict['profileImage']
+                })
+        return return_data
+
 class AuthorFollowersSerializer(serializers.ModelSerializer):
     type = serializers.CharField(default="followers")
-    followers_items = AuthorSerializer(many=True) # a list of the followers
+    followers_items = FollowersSerializer(many=True) # a list of the followers
 
     class Meta:
         model = Author
@@ -268,7 +360,7 @@ class AuthorFollowersSerializer(serializers.ModelSerializer):
         followers_info = validated_data.pop('followers_items')
         create_author = Author.objects.create(**validated_data)
         for follower in followers_info:
-            Followers.objects.create(follower_author = create_author,**follower)
+            Followers.objects.create(follower_author = create_author, author_info = json.dumps(follower.author_info))
         return create_author
 
     def to_representation(self, instance):

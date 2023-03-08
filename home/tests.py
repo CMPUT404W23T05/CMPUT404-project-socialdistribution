@@ -1,10 +1,18 @@
 from django.test import TestCase, RequestFactory
-from .models import Post, Author
+from .models import Post, Author, Followers
 from django.urls import reverse
 from django.http import HttpResponse
 import base64
 from django.contrib.auth.models import AnonymousUser, User
 from django.core.files.base import ContentFile
+
+
+from django.forms.models import model_to_dict
+from django.core.serializers.json import DjangoJSONEncoder
+import json
+from rest_framework.renderers import JSONRenderer
+from .views import *
+import uuid
 
 
 # ---------------------- testing author model ----------------------------------
@@ -96,6 +104,62 @@ class PostTesting(TestCase):
         self.assertEqual(str(self.post1), "example post 1")
         self.assertEqual(str(self.post2), "example post 2")
         # self.assertNotEqual(str(self.post3), "example post 3")
+
+# ---------------------- testing follower model ----------------------------------
+class FollowerTesting(TestCase):
+    def setUp(self):
+        
+        self.author = Author.objects.create(
+                object_type = "author",
+                uid = "a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
+                home_host = "http://127.0.0.1:5454/",
+                display_name = "Greg Johnson",
+                profile_url = "http://127.0.0.1:5454/authors/a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
+                author_github = "http://github.com/gjohnson",
+                profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
+                )
+        
+        self.author2 = Author.objects.create(**{
+                "object_type": "author",
+                "uid": "6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
+                "home_host":  "http://127.0.0.1:5454/",
+                "display_name": "Lara Croft",
+                "profile_url": "http://127.0.0.1:5454/authors/6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
+                "author_github": "http://github.com/laracroft",
+                "profile_image": "https://i.imgur.com/k7XVwpB.jpeg"
+            })
+
+        
+        self.author3 = Author.objects.create(**{
+                "object_type": "author",
+                "uid": "4318ba4e-6f8d-4f3e-985a-ea2fadb7cd87",
+                "home_host":  "http://127.0.0.1:5454/",
+                "display_name": "John Doe",
+                "profile_url": "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658ee",
+                "author_github": "http://github.com/jdoe",
+                "profile_image": "https://i.imgur.com/k7XVwpB.jpeg"
+            })
+        
+
+    def test_followers_get(self):
+        serializer = AuthorSerializer(self.author2)
+        json = JSONRenderer().render(serializer.data)
+        author_2_info = json.decode("utf-8")
+        
+        self.author.followers_items.create(author_info = author_2_info)
+        self.assertEqual(len(self.author.followers_items.all()), 1)
+
+    def test_followers_manager(self):
+        author_serializer = AuthorSerializer(self.author)
+        author_json = JSONRenderer().render(author_serializer.data)
+        author1_info = author_json.decode("utf-8")
+        
+        author2_serializer = AuthorSerializer(self.author2)
+        author2_json = JSONRenderer().render(author2_serializer.data)
+        author2_info = author2_json.decode("utf-8")
+
+        test_follow = Follow.objects.create_follow(json.loads(author1_info), json.loads(author2_info))
+        self.assertEqual(len(Follow.objects.all()), 1)
 
  ############################## View Testing #############################3333
 

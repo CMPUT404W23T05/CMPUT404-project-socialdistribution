@@ -11,6 +11,10 @@ from rest_framework.decorators import permission_classes
 from django.http import HttpResponse, Http404
 from djoser.views import TokenCreateView
 
+from django.forms.models import model_to_dict
+from django.core.serializers.json import DjangoJSONEncoder
+
+
 
 class CreatePost(APIView):
     # @permission_classes([IsAuthenticated])
@@ -78,6 +82,161 @@ class PostDetail(APIView):
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class FollowersList(APIView):
+    '''
+    URL: ://service/authors/{AUTHOR_ID}/followers
+    '''
+    def get(self, request, author_id):
+        try:
+            current_author = Author.objects.filter(uid=author_id)[0] # get the first match
+            serializer = AuthorFollowersSerializer(current_author) # get all the followers
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND) # author id does not exist
+        else:
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class FollowersDetails(APIView):
+    '''
+    URL: ://service/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+    '''
+    def get(self, request, author_id, follower_id):
+        try:
+            # get the first match
+            current_author = Author.objects.filter(uid=author_id)[0]
+            selected_follower = Author.objects.filter(uid=follower_id)[0]
+
+            serializer = AuthorSerializer(selected_follower)
+            json_info = JSONRenderer().render(serializer.data)
+            follower_info = json_info.decode("utf-8")
+        
+            # is this author a follower of the current author? Compare the information
+            check_follower = current_author.followers_items.filter(author_info = follower_info)[0]
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        else:
+            return Response(status=status.HTTP_200_OK)
+        
+    def delete(self, request, author_id, follower_id):
+        try:
+            current_author = Author.objects.filter(uid=author_id)[0]
+            selected_follower = Author.objects.filter(uid=follower_id)[0]
+            
+            serializer = AuthorSerializer(selected_follower)
+            json_info = JSONRenderer().render(serializer.data)
+            follower_info = json_info.decode("utf-8")
+        
+            selected_follower = current_author.followers_items.filter(author_info = follower_info)[0]
+        
+        except: 
+            return Response(status=status.HTTP_404_NOT_FOUND)  
+        else:
+            selected_follower.delete() 
+            return Response(status=status.HTTP_204_NO_CONTENT) 
+
+    def put(self, request, author_id, follower_id):
+        try:
+            current_author = Author.objects.filter(uid=author_id)[0]
+            selected_follower = Author.objects.filter(uid=follower_id)[0]
+            
+            serializer = AuthorSerializer(selected_follower)
+            json_info = JSONRenderer().render(serializer.data)
+            follower_info = json_info.decode("utf-8")
+        
+        except:
+            return Response(status=status.HTTP_404_NOT_FOUND)  
+        else:
+            current_author.followers_items.create(author_info = follower_info)
+            return Response(status=status.HTTP_201_CREATED) 
+    
+class FollowingList(APIView):
+    """
+    Get a list of authors that the current author is following
+
+    Returns a list [{"type":"author"...},..]
+    """
+    def get(self, request, author_id):
+        try:
+            current_author = Author.objects.filter(uid=author_id)[0]
+        
+            serializer = AuthorSerializer(current_author)
+            json_info = JSONRenderer().render(serializer.data)
+            current_author_info = json_info.decode("utf-8")
+
+            # check if the author is the followers_list of the authors
+            following_authors = Author.objects.filter(followers_items__author_info = current_author_info)
+        except:
+            raise Http404
+        else:
+            serializer = AuthorSerializer(following_authors, many=True)
+            return Response(serializer.data)
+
+class FriendsList(APIView):
+    """
+    Gets all the friends of the author (they each accepted each other's follow request)
+
+    Returns a list [{"type":"author"...},..]
+    """
+    def get(self, request, author_id):
+
+        current_author = Author.objects.filter(uid=author_id)[0]
+
+        serializer = AuthorSerializer(current_author)
+        json_info = JSONRenderer().render(serializer.data)
+        current_author_info = json_info.decode("utf-8")
+
+        following_list = Author.objects.filter(followers_items__author_info= current_author_info) 
+        follower_list = current_author.followers_items.all() # who is following them
+        list_of_friends = []  
+
+        for following in following_list:
+            for follower in follower_list:
+                following_id = following.profile_url # id of the author who is being followed by the current author
+                follower_id = (json.loads(follower.author_info))['url']
+                if following_id == follower_id: 
+                    list_of_friends.append(following)
+
+        serializer = AuthorSerializer(list_of_friends, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class RequestsList(APIView):
+    """
+    Get all the friend requests of an author
+    """
+    def get(self, request, author_id):
+
+        try:
+            # get the current author and set up its id url
+            current_author = Author.objects.filter(uid=author_id)[0]
+            get_id_url = current_author.home_host + 'authors/' + str(author_id)
+
+            # find requests with the author in it (as the person being "followed")
+            follows = Follow.objects.filter(author_object__url = get_id_url)
+        except:
+            raise Http404
+        else:
+            # returns a list of the follows
+            serializer = FollowSerializer(follows, many=True) 
+            return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class RequestsDetails(APIView):
+    """
+    Deletes a friend request when it gets accepted ordeclined
+    """
+    def delete(self, request, author_id, request_follower_id):
+        try:
+            current_author = Author.objects.filter(uid=author_id)[0]
+            request_author = Author.objects.filter(uid=request_follower_id)[0]
+
+            get_author_url = current_author.home_host + 'authors/' + str(author_id)
+            get_request_follower_url = request_author.home_host + 'authors/' + str(request_follower_id)
+
+            # find the appropiate follow object based on our authors from the two urls
+            follow = Follow.objects.filter(author_object__url = get_author_url).filter(author_actor__url = get_request_follower_url)[0]
+        except:
+            raise Http404
+        else:
+            follow.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class ImageView(APIView):

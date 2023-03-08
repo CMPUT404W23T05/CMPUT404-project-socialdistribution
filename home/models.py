@@ -7,6 +7,8 @@ from PIL import Image
 import base64
 from django.contrib.auth.models import User
 
+import json
+
 CONTENT_MAX_LENGTH = 10000  # for content field
 URL_MAX_LENGTH = 2000       # for urls
 COMMENT_MAX_LENGTH = 200    # for comment length
@@ -46,7 +48,25 @@ class LikeManager(models.Manager):
                             )
         return like
 
+class FollowManager(models.Manager):
 
+    def create_follow(self, author_following, author_followed):
+        """
+        Input:
+        - author_following: Author object as a dict
+        - author_followed: Author object as a dict
+        """
+        # create the summary statement by taking their first names
+        author_following_first_name = author_following['displayName'].split(' ')[0]
+        author_followed_first_name = author_followed['displayName'].split(' ')[0]
+        summary = author_following_first_name + " wants to follow " + author_followed_first_name
+
+        follow = self.create(object_type = "Follow",
+                            author_actor = author_following,
+                            author_object = author_followed,
+                            following_summary = summary
+                            )
+        return follow
 
 ####################### Models #################################################
 class Author(models.Model):
@@ -144,37 +164,20 @@ class Inbox(models.Model):
     associated_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='inbox_items', null=True, blank=True)
 
 
-class Followers(Author):
+class Followers(models.Model):
     """
-    A follower is an author.
-
     Example of adding a follower:
     - a = Author.objects.create(..display_name=...profile_url=...)
-    - a.followers_items.create(..display_name=...profile_url=...)
+
+    Make sure to json.dump(dict)
+    - a.followers_items.create(author_info = json.dump({display_name: ..., profile_url: ...}))
     """
+    author_info = models.JSONField(null=True)
     follower_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='followers_items', null=True, blank=True)
-
-
-class FollowManager(models.Manager):
-
-    def create_follow(self, author_following, author_followed):
-        """
-        Input:
-        - author_following: Author JSON object as a dict
-        - author_followed: Author JSON object as a dict
-        """
-        # create the summary statement by taking their first names
-        author_following_first_name = author_following['displayName'].split(' ')[0]
-        author_followed_first_name = author_followed['displayName'].split(' ')[0]
-        summary = author_following_first_name + " wants to follow " + author_followed_first_name
-
-        follow = self.create(follow_type = "Follow",
-                            author_actor = author_following,
-                            author_object = author_followed,
-                            following_summary = summary
-                            )
-        return follow
-
+    
+    def __str__(self):
+        author_dict = json.loads(self.author_info)
+        return author_dict['displayName']
 
 class Follow(models.Model):
     """
