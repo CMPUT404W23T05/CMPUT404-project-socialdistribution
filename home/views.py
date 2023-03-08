@@ -28,7 +28,7 @@ class CreatePost(APIView):
 
 
 class BrowsePosts(APIView, PageNumberPagination):
-    def get(self, request, author_id, format=None):
+    def get(self, request, format=None):
         posts = Post.objects.filter(visibility='PUBLIC')
 
         self.page = request.query_params.get('page', 1)
