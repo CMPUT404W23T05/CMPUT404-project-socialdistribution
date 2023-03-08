@@ -29,7 +29,7 @@ class CreatePost(APIView):
 
 class PostList(APIView, PageNumberPagination):
     def get(self, request, author_id, format=None):
-        posts = Post.objects.filter(visibility='PUBLIC')
+        posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
 
         self.page = request.query_params.get('page', 1)
         self.page_size = request.query_params.get('size', 20)
