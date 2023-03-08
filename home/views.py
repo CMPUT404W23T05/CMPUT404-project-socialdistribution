@@ -83,9 +83,7 @@ class PostDetail(APIView):
 class ImageView(APIView):
     def get(self, request, author_id, post_id, format=None):
         post = Post.objects.get(post_id=post_id)
-        print("here 1")
         image, content_type = post.get_image()
-        print("here 2")
 
         if not image:
             raise Http404
@@ -107,7 +105,7 @@ class AuthorList(APIView, PageNumberPagination):
                 "type": "authors",
                 "items": serializer.data
                 }
-        return Response(response)
+        return Response(response, status=status.HTTP_200_OK)
 
 class AuthorDetail(APIView):
     def get_object(self, author_id):
@@ -149,7 +147,7 @@ class CommentList(APIView, PageNumberPagination):
                 "comments": serializer.data
                 }
 
-        return Response(response)
+        return Response(response, status=status.HTTP_200_OK)
 
     # @permission_classes([IsAuthenticated])
     def post(self, request, post_id, author_id, format=None):

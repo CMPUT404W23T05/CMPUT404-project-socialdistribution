@@ -106,6 +106,8 @@ class Post(models.Model):
             content_type = "image/jpeg"
         elif 'image/jpg' in self.content_type:
             content_type = "image/jpeg"
+        else:
+            content_type = None
 
         return image_data, content_type
 
