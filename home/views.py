@@ -35,8 +35,8 @@ class BrowsePosts(APIView, PageNumberPagination):
     def get(self, request, format=None):
         posts = Post.objects.filter(visibility='PUBLIC')
 
-        self.page = request.query_params.get('page', 1)
-        self.page_size = request.query_params.get('size', 20)
+        self.page = int(request.query_params.get('page', 1))
+        self.page_size = int(request.query_params.get('size', 20))
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
@@ -47,8 +47,8 @@ class PostList(APIView, PageNumberPagination):
     def get(self, request, author_id, format=None):
         posts = Post.objects.filter(visibility='PUBLIC', author__uid=author_id)
 
-        self.page = request.query_params.get('page', 1)
-        self.page_size = request.query_params.get('size', 20)
+        self.page = int(request.query_params.get('page', 1))
+        self.page_size = int(request.query_params.get('size', 20))
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
@@ -267,8 +267,8 @@ class AuthorList(APIView, PageNumberPagination):
     def get(self, request, format=None):
         authors = Author.objects.all()
 
-        self.page = request.query_params.get('page', 1)
-        self.page_size = request.query_params.get('size', 20)
+        self.page = int(request.query_params.get('page', 1))
+        self.page_size = int(request.query_params.get('size', 20))
 
         results = self.paginate_queryset(authors, request, view=self)
         serializer = AuthorSerializer(results, many=True)
@@ -304,8 +304,8 @@ class CommentList(APIView, PageNumberPagination):
     def get(self, request, post_id, author_id, format=None):
         comments = Comment.objects.filter(post_id=post_id)
 
-        self.page = request.query_params.get('page', 1)
-        self.page_size = request.query_params.get('size', 5)
+        self.page = int(request.query_params.get('page', 1))
+        self.page_size = int(request.query_params.get('size', 5))
 
         results = self.paginate_queryset(comments, request, view=self)
         serializer = CommentSerializer(results, many=True)
