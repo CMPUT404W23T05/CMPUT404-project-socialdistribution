@@ -33,20 +33,20 @@ from rest_framework.renderers import JSONRenderer
 #         return extension
 
 
-class AuthorSerializer(serializers.ModelSerializer):
+# class AuthorSerializer(serializers.ModelSerializer):
 
-    # get the author's information
-    type = serializers.CharField(source='object_type')
-    id = serializers.UUIDField(source='uid')
-    url = serializers.URLField(source='profile_url')
-    host = serializers.URLField(source='home_host')
-    displayName = serializers.CharField(source='display_name')
-    github = serializers.URLField(source='author_github', allow_null=True, allow_blank=True)
-    profileImage = serializers.URLField(source='profile_image')
+#     # get the author's information
+#     type = serializers.CharField(source='object_type')
+#     id = serializers.UUIDField(source='uid')
+#     url = serializers.URLField(source='profile_url')
+#     host = serializers.URLField(source='home_host')
+#     displayName = serializers.CharField(source='display_name')
+#     github = serializers.URLField(source='author_github', allow_null=True, allow_blank=True)
+#     profileImage = serializers.URLField(source='profile_image')
 
-    class Meta:
-        model = Author
-        fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage']
+#     class Meta:
+#         model = Author
+#         fields = ['type', 'id', 'url', 'host', 'displayName', 'github', 'profileImage']
 
 
 
@@ -124,7 +124,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
     # get the author's information
     type = serializers.CharField(source = 'object_type')
-    id = serializers.UUIDField(source = 'profile_url')
+    id = serializers.UUIDField(source = 'uid')
     url = serializers.URLField(source = 'profile_url')
     host = serializers.URLField(source = 'home_host')
     displayName = serializers.CharField(source = 'display_name')
