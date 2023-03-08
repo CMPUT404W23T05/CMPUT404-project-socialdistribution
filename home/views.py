@@ -36,7 +36,7 @@ class BrowsePosts(APIView, PageNumberPagination):
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK))
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class PostList(APIView, PageNumberPagination):
@@ -48,7 +48,7 @@ class PostList(APIView, PageNumberPagination):
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK))        
+        return Response(serializer.data, status=status.HTTP_200_OK)        
 
 
 class PostDetail(APIView):
@@ -62,7 +62,7 @@ class PostDetail(APIView):
     def get(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         serializer = PostSerializer(post)
-        return Response(serializer.data, status=status.HTTP_200_OK))
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
         # PUT DOES NOT WORK CURRENTLY - for creating a post from another node in db
     def put(self, request, post_id, author_id, format=None):
@@ -129,7 +129,7 @@ class AuthorDetail(APIView):
     def get(self, request, author_id, format=None):
         author = self.get_object(author_id)
         serializer = AuthorSerializer(author)
-        return Response(serializer.data, status=status.HTTP_200_OK))
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, author_id, format=None):
         author = self.get_object(author_id)
