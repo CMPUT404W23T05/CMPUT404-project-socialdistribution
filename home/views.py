@@ -31,8 +31,8 @@ class CreatePost(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class PostList(APIView, PageNumberPagination):
-    def get(self, request, author_id, format=None):
+class BrowsePosts(APIView, PageNumberPagination):
+    def get(self, request, format=None):
         posts = Post.objects.filter(visibility='PUBLIC')
 
         self.page = request.query_params.get('page', 1)
@@ -40,7 +40,19 @@ class PostList(APIView, PageNumberPagination):
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
-        return Response(serializer.data)        
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class PostList(APIView, PageNumberPagination):
+    def get(self, request, author_id, format=None):
+        posts = Post.objects.filter(visibility='PUBLIC', author__uid=author_id)
+
+        self.page = request.query_params.get('page', 1)
+        self.page_size = request.query_params.get('size', 20)
+
+        results = self.paginate_queryset(posts, request, view=self)
+        serializer = PostSerializer(results, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)        
 
 
 class PostDetail(APIView):
@@ -54,7 +66,7 @@ class PostDetail(APIView):
     def get(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         serializer = PostSerializer(post)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
         # PUT DOES NOT WORK CURRENTLY - for creating a post from another node in db
     def put(self, request, post_id, author_id, format=None):
@@ -62,7 +74,7 @@ class PostDetail(APIView):
         serializer = PostDeSerializer(post, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # FOR EDITING EXISTING POST
@@ -242,9 +254,7 @@ class RequestsDetails(APIView):
 class ImageView(APIView):
     def get(self, request, author_id, post_id, format=None):
         post = Post.objects.get(post_id=post_id)
-        print("here 1")
         image, content_type = post.get_image()
-        print("here 2")
 
         if not image:
             raise Http404
@@ -266,7 +276,7 @@ class AuthorList(APIView, PageNumberPagination):
                 "type": "authors",
                 "items": serializer.data
                 }
-        return Response(response)
+        return Response(response, status=status.HTTP_200_OK)
 
 class AuthorDetail(APIView):
     def get_object(self, author_id):
@@ -278,7 +288,7 @@ class AuthorDetail(APIView):
     def get(self, request, author_id, format=None):
         author = self.get_object(author_id)
         serializer = AuthorSerializer(author)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request, author_id, format=None):
         author = self.get_object(author_id)
@@ -308,7 +318,7 @@ class CommentList(APIView, PageNumberPagination):
                 "comments": serializer.data
                 }
 
-        return Response(response)
+        return Response(response, status=status.HTTP_200_OK)
 
     # @permission_classes([IsAuthenticated])
     def post(self, request, post_id, author_id, format=None):
@@ -329,6 +339,6 @@ class CommentDetail(APIView):
     def get(self, request, post_id, author_id, comment_id, format=None):
         comment = self.get_object(comment_id)
         serializer = CommentSerializer(comment)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
