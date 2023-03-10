@@ -15,11 +15,13 @@ Send a pull request and be sure to update this file with your name.
 Contributors / Licensing
 ========================
 
-Generally everything is LICENSE'D under the 
-
+Generally everything is LICENSE'D under the MIT License.
 
 Contributors:
 
+    John Macdonald
+    Elena Xu
+    Geoffery Banh
 
 
 References
