@@ -33,6 +33,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 
 class CreatePost(APIView):
+    '''
+    URL: ://service/api/authors/{AUTHOR_ID}/posts/create-post
+    '''
     # @permission_classes([IsAuthenticated])
     def post(self, request, author_id, format=None):
         try:
@@ -48,6 +51,9 @@ class CreatePost(APIView):
 
 
 class BrowsePosts(APIView, PageNumberPagination):
+    '''
+    URL: ://service/api/posts/
+    '''
     def get(self, request, format=None):
         posts = Post.objects.filter(visibility='PUBLIC')
 
@@ -60,6 +66,9 @@ class BrowsePosts(APIView, PageNumberPagination):
 
 
 class PostList(APIView, PageNumberPagination):
+    '''
+    URL: ://service/api/authors/{AUTHOR_ID}/posts/
+    '''
     def get(self, request, author_id, format=None):
         posts = Post.objects.filter(visibility='PUBLIC', author__uid=author_id)
 
@@ -72,6 +81,9 @@ class PostList(APIView, PageNumberPagination):
 
 
 class PostDetail(APIView):
+    '''
+    URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/
+    '''
     def get_object(self, post_id):
         try:
             return Post.objects.get(post_id=post_id)
@@ -112,7 +124,7 @@ class PostDetail(APIView):
 
 class FollowersList(APIView):
     '''
-    URL: ://service/authors/{AUTHOR_ID}/followers
+    URL: ://service/api/authors/{AUTHOR_ID}/followers
     '''
     def get(self, request, author_id):
         try:
@@ -125,7 +137,7 @@ class FollowersList(APIView):
     
 class FollowersDetails(APIView):
     '''
-    URL: ://service/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+    URL: ://service/api/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
     '''
     def get(self, request, author_id, follower_id):
         try:
@@ -268,6 +280,10 @@ class RequestsDetails(APIView):
 
 
 class ImageView(APIView):
+    '''
+    URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/image
+    '''
+
     def get(self, request, author_id, post_id, format=None):
         post = Post.objects.get(post_id=post_id)
         image, content_type = post.get_image()
@@ -280,6 +296,10 @@ class ImageView(APIView):
 
 
 class AuthorList(APIView, PageNumberPagination):
+    '''
+    URL: ://service/api/authors/
+    '''
+
     def get(self, request, format=None):
         authors = Author.objects.all()
 
@@ -295,6 +315,10 @@ class AuthorList(APIView, PageNumberPagination):
         return Response(response, status=status.HTTP_200_OK)
 
 class AuthorDetail(APIView):
+    '''
+    URL: ://service/api/authors/{AUTHOR_ID}/
+    '''
+
     def get_object(self, author_id):
         try:
             return Author.objects.get(uid=author_id)
@@ -317,6 +341,10 @@ class AuthorDetail(APIView):
 
 
 class CommentList(APIView, PageNumberPagination):
+    '''
+    URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/comments
+    '''
+
     def get(self, request, post_id, author_id, format=None):
         comments = Comment.objects.filter(post_id=post_id)
 
@@ -346,6 +374,10 @@ class CommentList(APIView, PageNumberPagination):
 
 
 class CommentDetail(APIView):
+    '''
+    URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}
+    '''
+
     def get_object(self, comment_id):
         try:
             return Comment.objects.get(comment_id=comment_id)
