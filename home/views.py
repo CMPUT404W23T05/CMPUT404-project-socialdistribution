@@ -358,3 +358,48 @@ class CommentDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class InboxDetails(APIView, PageNumberPagination):
+    """
+    Get the inbox of the author
+    """
+    def get(self, request, author_id):
+        try:
+            # get the current author and set up its id url
+            current_author = Author.objects.filter(uid=author_id)[0]
+            inbox = AuthorInboxSerializer(current_author)
+            print(inbox.data)
+
+           # self.page = int(request.query_params.get('page',1))
+           # self.page_size = int(request.query_parms.get('size',20))
+
+        except:
+            raise Http404
+        else:
+            # returns a list of the follows
+            return Response(inbox.data, status=status.HTTP_200_OK)   
+             
+    def post(self, request, author_id):
+
+        try:
+            # get the current author and set up its id url
+            current_author = Author.objects.filter(uid=author_id)[0]
+            inbox = AuthorInboxSerializer(current_author)
+        except:
+            raise Http404
+        else:
+            # returns a list of the follows
+            current_author.inbox_items.create(inbox_item = request.data)
+            return Response(status=status.HTTP_201_CREATED)
+    
+    def delete(self, request, author_id):
+        try:
+            # get the current author and set up its id url
+            current_author = Author.objects.filter(uid=author_id)[0]
+            inbox = AuthorInboxSerializer(current_author)
+        except:
+            raise Http404
+        else:
+            # returns a list of the follows
+            all_items = current_author.inbox_items.all()
+            all_items.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)

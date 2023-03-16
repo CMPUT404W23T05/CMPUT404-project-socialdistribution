@@ -38,4 +38,5 @@ urlpatterns = [
         path('authors/<uuid:author_id>/requests/', views.RequestsList.as_view()),
         path('authors/<uuid:author_id>/requests/<uuid:request_follower_id>/', views.RequestsDetails.as_view()),
         
+        path('authors/<uuid:author_id>/inbox/', views.InboxDetails.as_view()),
 ]

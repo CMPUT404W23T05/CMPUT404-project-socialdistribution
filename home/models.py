@@ -79,6 +79,7 @@ class FollowManager(models.Manager):
         follow = self.create(object_type = "Follow",
                             author_actor = author_following,
                             author_object = author_followed,
+                            state = "Pending",
                             following_summary = summary
                             )
         return follow
@@ -207,6 +208,7 @@ class Follow(models.Model):
     author_actor = models.JSONField(null=True) # dict containing information about the author
     author_object = models.JSONField(null=True)
     following_summary = models.CharField(max_length=BIG_MAX_LENGTH, null=True)
+    state = models.CharField(max_length=SMALL_MAX_LENGTH)
     objects = FollowManager()
 
 

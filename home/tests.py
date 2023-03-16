@@ -175,7 +175,16 @@ class FollowerTesting(TestCase):
         author2_info = author2_json.decode("utf-8")
 
         test_follow = Follow.objects.create_follow(json.loads(author1_info), json.loads(author2_info))
+        follow = FollowSerializer(test_follow)
+        
+        self.author.inbox_items.create(inbox_item = follow.data)
+        
+        inbox = AuthorInboxSerializer(self.author)
+        print(inbox.data)
+        
         self.assertEqual(len(Follow.objects.all()), 1)
+
+
 
  ############################## View Testing #############################3333
 

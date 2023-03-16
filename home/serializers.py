@@ -322,7 +322,7 @@ class AuthorInboxSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         items_list = []
-        for item in instance.inbox.all():
+        for item in instance.inbox_items.all():
             items_list.append(item.inbox_item) # add all the "notifications"
         return {
             'type': 'inbox',
