@@ -50,13 +50,14 @@ class LikeManager(models.Manager):
 
 class FollowManager(models.Manager):
 
-    def create_follow(self, author_following, author_followed):
+    def create_follow(self, author_following, author_followed, state=None):
         """
         Input:
         - author_following: Author object as a dict
         - author_followed: Author object as a dict
         """
         # create the summary statement by taking their first names
+       
         author_following_first_name = author_following['displayName'].split(' ')[0]
         author_followed_first_name = author_followed['displayName'].split(' ')[0]
         summary = author_following_first_name + " wants to follow " + author_followed_first_name
@@ -64,9 +65,10 @@ class FollowManager(models.Manager):
         follow = self.create(object_type = "Follow",
                             author_actor = author_following,
                             author_object = author_followed,
-                            state = "Pending",
+                            state = "Pending" if not state else state,
                             following_summary = summary
                             )
+        follow.save()
         return follow
 
 ####################### Models #################################################
@@ -172,15 +174,18 @@ class Followers(models.Model):
     Example of adding a follower:
     - a = Author.objects.create(..display_name=...profile_url=...)
 
-    Make sure to json.dump(dict)
-    - a.followers_items.create(author_info = json.dump({display_name: ..., profile_url: ...}))
+    Make sure to json.dumps(dict)
+    - a.followers_items.create(author_info = json.dumps({display_name: ..., profile_url: ...}))
     """
-    author_info = models.JSONField(null=True)
+    author_info = models.JSONField(unique=True)
     follower_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='followers_items', null=True, blank=True)
     
     def __str__(self):
-        author_dict = json.loads(self.author_info)
-        return author_dict['displayName']
+        if isinstance(self.author_info, str):
+            author_dict = json.loads(self.author_info)
+            return author_dict["displayName"]
+        else:
+            return self.author_info["displayName"]
 
 class Follow(models.Model):
     """
