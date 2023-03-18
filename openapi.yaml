@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Social Distrubition Website API
+  title: Social Distribution Website API
   description: This is our API for our social distribution website
   version: 1.0.0
   contact:
@@ -534,7 +534,304 @@ paths:
                 $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
+  /authors/{AUTHOR_ID}/followers/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+    get:
+      description: Returns the followers of author with AUTHOR_ID
+      tags:
+        - Followers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    default: followers
+                    description: the type of object (followers)
+                  items:
+                    type: array
+                    description: list of objects (list of authors)
+                    items:
+                      $ref: '#/components/schemas/Author'
+                    example:
+                      - type: author
+                        id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        host: http://127.0.0.1:8080/
+                        displayName: Frodo Baggins
+                        github: http://github.com/frodobaggins
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      - type: author
+                        id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                        url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                        host: http://127.0.0.1:5454/
+                        displayName: Gandalf the Grey
+                        github: http://github.com/gandalfthegrey
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+        '5XX':
+          description: Unexpected error
+          
+  /authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: FOREIGN_AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+          
+    delete:
+      description: Removes FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID (local)
+      tags:
+        - Followers
+      responses:
+        '204':
+          description: No Content, The follower has been deleted
+        '404':
+          description: Not Found, Either the author or the follower does not exist
+        '5XX':
+          description: Unexpected error
+          
+    put:
+      description: Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID (local)
+      tags:
+        - Followers
+      responses:
+        '201':
+          description: Created, The follower has been added
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found, Either the author or the follower does not exist
+        '409':
+          description: Conflict, this author is already a follower
+        '5XX':
+          description: Unexpected error
+          
+    get:
+      description: Checks if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID by returning true or false (local, remote)
+      tags:
+        - Followers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example: 
+                exists: 'true'
+        '404':
+          description: Not Found, The author does not exist
+        '5XX':
+          description: Unexpected error
 
+  /authors/{AUTHOR_ID}/friends/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+
+    get:
+      description: Returns a list of the author's friends (extra, local)
+      tags:
+        - Friends
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "friends"
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Author'
+                    example:
+                      - type: author
+                        id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        host: http://127.0.0.1:8080/
+                        displayName: Frodo Baggins
+                        github: http://github.com/frodobaggins
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      - type: author
+                        id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                        url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                        host: http://127.0.0.1:5454/
+                        displayName: Gandalf the Grey
+                        github: http://github.com/gandalfthegrey
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+        '404':
+          description: Not Found, The author does not exist
+        '5XX':
+          description: Unexpected error
+          
+  /authors/{AUTHOR_ID}/following/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+
+    get:
+      description: Returns a list of the authors that the current author is following (extra, local)
+      tags:
+        - Following
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type: 
+                    type: string
+                    example: "following"
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Author'
+                    example:
+                      - type: author
+                        id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        host: http://127.0.0.1:8080/
+                        displayName: Frodo Baggins
+                        github: http://github.com/frodobaggins
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      - type: author
+                        id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                        url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                        host: http://127.0.0.1:5454/
+                        displayName: Gandalf the Grey
+                        github: http://github.com/gandalfthegrey
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+
+                    
+        '404':
+          description: Not Found, The author does not exist
+        '5XX':
+          description: Unexpected error
+          
+  /authors/{AUTHOR_ID}/inbox/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+
+    get:
+      description: 
+        If authenticated, get a list of posts sent to AUTHOR_ID (paginated not yet implemented) (local)
+      tags:
+        - Inbox
+      responses:
+        '200':
+          description: OK
+          
+          
+    post:
+      description:
+        Send an inbox_item ("post") to AUTHOR_ID. <br><br>
+        
+        **The following items can be sent:** post, Follow, Like, comment
+      requestBody:
+        description: 
+            For local or remote node use, if you want to **add a follow request**, having the "type", "actor", and "object" fields are required, but the summary field is optional (since the summary will be generated on the backend)<br><br>
+          
+          **For local node use**, if you want to **update a follow request's status**, you must add an extra field called "state" with a value of either "Accepted" or "Declined" (with "Pending" as the default, not required to put this in). This helps to distingish between which requests have been handled already. <br><br>
+          
+          Follow requests in the inbox that do not have the "state" field means that it is currently pending. Follow requests that do have the "state" field means that it has either been accepted or declined already. In other words, a "state" field will be added to the Follow item in the inbox if it has been "Accepted" or "Declined", in which case you don't have to display the follow request anymore. 
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: "Follow"
+                actor:
+                  type: object
+                  example:
+                      type: author
+                      id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                      url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                      host: http://127.0.0.1:8080/
+                      displayName: Frodo Baggins
+                      github: http://github.com/frodobaggins
+                      profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                object:
+                  type: object
+                  example:
+                      type: author
+                      id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                      url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                      host: http://127.0.0.1:5454/
+                      displayName: Gandalf the Grey
+                      github: http://github.com/gandalfthegrey
+                      profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                summary:
+                  type: string
+                  example: Frodo Baggins wants to follow Gandalf the Grey
+              required:
+                - type
+                - actor
+                - object
+      tags:
+        - Inbox
+      responses:
+        '200':
+          description: OK, The follow request now has a state of either "Accepted" or "Declined"
+        '201':
+          description: Created, The follow request has been created
+        '400':
+          description: Bad Request, One possible reason is that you might have sent a follow request that already exists and is currently pending (i.e. waiting to be accepted or declined) without a state field
+        '404':
+          description: The author does not exist
+        '5XX':
+          description: Unexpected error
+          
+    delete:
+      description:
+        Send an inbox_item ("post") to AUTHOR_ID. <br><br>
+        
+        **The following items can be sent:** post, Follow, Like, comment
+      tags:
+        - Inbox
+      responses:
+        '204':
+          description: No Content, The inbox has been cleared
+        '404':
+          description: The author does not exist
+        '5XX':
+          description: Unexpected error
 
 components:
   schemas:
