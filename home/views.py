@@ -229,6 +229,9 @@ class InboxDetails(APIView, PageNumberPagination):
 
         # get the current author and set up its id url
         current_author = self.get_object(author_id)
+        
+        if request.data["type"] in ["Like", "comment", "post"]:
+            current_author.inbox_items.create(inbox_item = request.data)
 
         if request.data["type"] == "Follow":
             does_follow_exist = Follow.objects.filter(author_object=request.data["object"]).filter(author_actor=request.data["actor"])
