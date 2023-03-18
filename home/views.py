@@ -257,22 +257,22 @@ class InboxDetails(APIView, PageNumberPagination):
                     # create a follower
                     current_author.followers_items.create(author_info = json.loads(json.dumps(request.data["actor"])))
 
-                    # don't need the follow request object anymore
-                    old_follow.delete_follow()
-
                     # earlier, had no state field, now has a state field of accepted
                     # (indicates that it has been handled)
-                    follow_from_inbox.state = "Accepted"
-                    follow_from_inbox.save(update_fields=['state'])
+                    follow_from_inbox.inbox_item["state"] = "Accepted"
+                    does_follow_exist[0].state = "Accepted"
+
+                    follow_from_inbox.save()
+                    does_follow_exist.save(update_fields=["state"])
 
                     return Response(status=status.HTTP_200_OK)
                 
                 elif request.data["state"] == "Declined":
-
-                    old_follow.delete_follow()
-
                     follow_from_inbox.inbox_item["state"] = "Declined"
+                    does_follow_exist[0].state = "Declined"
+
                     follow_from_inbox.save()
+                    does_follow_exist[0].save(update_fields=["state"])
 
                     return Response(status=status.HTTP_200_OK)
             else:

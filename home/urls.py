@@ -21,8 +21,6 @@ urlpatterns = [
 
         path('authors/<uuid:author_id>/following/', social_views.FollowingList.as_view()),
         path('authors/<uuid:author_id>/friends/', social_views.FriendsList.as_view()),
-        path('authors/<uuid:author_id>/requests/', social_views.RequestsList.as_view()),
-        path('authors/<uuid:author_id>/requests/<uuid:request_follower_id>/', social_views.RequestsDetails.as_view()),
-        
+
         path('authors/<uuid:author_id>/inbox/', views.InboxDetails.as_view()),
 ]

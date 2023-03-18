@@ -170,24 +170,21 @@ class Inbox(models.Model):
     inbox_item = models.JSONField(null=True, blank=True)
     associated_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='inbox_items', null=True, blank=True)
 
-
+    def __str__(self):
+        return self.associated_author.display_name + ": " + self.inbox_item["type"]
+    
 class Followers(models.Model):
     """
     Example of adding a follower:
     - a = Author.objects.create(..display_name=...profile_url=...)
 
-    Make sure to json.dumps(dict)
-    - a.followers_items.create(author_info = json.dumps({display_name: ..., profile_url: ...}))
+    - a.followers_items.create(author_info = {display_name: ..., profile_url: ...})
     """
-    author_info = models.JSONField(unique=True)
+    author_info = models.JSONField(null=True, blank=True)
     follower_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='followers_items', null=True, blank=True)
     
     def __str__(self):
-        if isinstance(self.author_info, str):
-            author_dict = json.loads(self.author_info)
-            return author_dict["displayName"]
-        else:
-            return self.author_info["displayName"]
+        return self.author_info["displayName"] + "  is following  " + self.follower_author.display_name
 
 class Follow(models.Model):
     """
@@ -197,11 +194,15 @@ class Follow(models.Model):
     - Follow.objects.create_follow(author_following, author_followed)
     """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    author_actor = models.JSONField(null=True) # dict containing information about the author
-    author_object = models.JSONField(null=True)
-    following_summary = models.CharField(max_length=BIG_MAX_LENGTH, null=True)
+    author_actor = models.JSONField() # dict containing information about the author
+    author_object = models.JSONField()
+    following_summary = models.CharField(max_length=BIG_MAX_LENGTH)
     state = models.CharField(max_length=SMALL_MAX_LENGTH)
     objects = FollowManager()
+
+    def __str__(self):
+        return self.following_summary
+    
 
 
 class Comment(models.Model):

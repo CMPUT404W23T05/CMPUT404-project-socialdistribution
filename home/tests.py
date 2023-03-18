@@ -143,28 +143,28 @@ class FollowerTesting(TestCase):
 
     def test_followers_get(self):
         serializer = AuthorSerializer(self.author2)
-        json = JSONRenderer().render(serializer.data)
-        author_2_info = json.decode("utf-8")
+        author_data = json.dumps(serializer.data)
+        author_data_dict = json.loads(author_data)
         
-        self.author.followers_items.create(author_info = author_2_info)
+        self.author.followers_items.create(author_info = author_data_dict)
         self.assertEqual(len(self.author.followers_items.all()), 1)
 
     def test_followers_manager(self):
         author_serializer = AuthorSerializer(self.author)
-        author_json = JSONRenderer().render(author_serializer.data)
-        author1_info = author_json.decode("utf-8")
+        author_data = json.dumps(author_serializer.data)
+        author_data_dict = json.loads(author_data)
         
         author2_serializer = AuthorSerializer(self.author2)
-        author2_json = JSONRenderer().render(author2_serializer.data)
-        author2_info = author2_json.decode("utf-8")
+        author2_data = json.dumps(author2_serializer.data)
+        author2_data_dict = json.loads(author2_data)
+        
 
-        test_follow = Follow.objects.create_follow(json.loads(author1_info), json.loads(author2_info))
+        test_follow = Follow.objects.create_follow(author_data_dict, author2_data_dict)
         follow = FollowSerializer(test_follow)
         
         self.author.inbox_items.create(inbox_item = follow.data)
         
         inbox = AuthorInboxSerializer(self.author)
-        print(inbox.data)
         
         self.assertEqual(len(Follow.objects.all()), 1)
 
