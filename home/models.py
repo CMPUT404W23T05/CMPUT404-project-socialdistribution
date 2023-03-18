@@ -71,6 +71,8 @@ class FollowManager(models.Manager):
         follow.save()
         return follow
 
+    def delete_follow(self):
+        self.delete()
 ####################### Models #################################################
 class Author(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)

@@ -141,7 +141,7 @@ class FollowersDetails(APIView):
         json_info = JSONRenderer().render(serializer.data)
         follower_info = json_info.decode("utf-8")
         
-        current_author.followers_items.create(author_info = follower_info)
+        current_author.followers_items.create(author_info = json.loads(json.dumps(serializer.data)))
         return Response(status=status.HTTP_201_CREATED) 
     
 class FollowingList(APIView):
@@ -173,7 +173,12 @@ class FollowingList(APIView):
  
         # returns a list of Author objects that the current author is following
         serializer = AuthorSerializer(following_authors, many=True)
-        return Response(serializer.data)
+        
+        # convert serializer return list to string, then string to regular dict
+        following_data = json.dumps(serializer.data)
+        following_list = json.loads(following_data)
+        following_json = {"items": following_list}
+        return Response(following_json)
 
 class FriendsList(APIView):
     '''
@@ -218,6 +223,13 @@ class FriendsList(APIView):
                     list_of_friends.append(following)
 
         serializer = AuthorSerializer(list_of_friends, many=True)
+
+       # convert serializer return list to string, then string to regular dict
+        friends_data = json.dumps(serializer.data)
+        friends_list = json.loads(friends_data)
+        friends_json = {"items": friends_list}
+        return Response(friends_json)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class RequestsList(APIView):

@@ -336,7 +336,10 @@ class FollowersSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        author_dict = json.loads(data['author_info'])
+        if not isinstance(data['author_info'], dict):
+            author_dict = json.loads(data['author_info'])
+        else:
+            author_dict = data['author_info']
         return_data = {}
         return_data.update({
                 'type': author_dict['type'],

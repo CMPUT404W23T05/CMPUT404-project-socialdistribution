@@ -217,7 +217,7 @@ class InboxDetails(APIView, PageNumberPagination):
         # get the current author and set up its id url
         current_author = self.get_object(author_id)
         inbox = AuthorInboxSerializer(current_author)
-        print(inbox.data)
+        # print(inbox.data)
 
         # self.page = int(request.query_params.get('page',1))
         # self.page_size = int(request.query_parms.get('size',20))
@@ -229,38 +229,59 @@ class InboxDetails(APIView, PageNumberPagination):
 
         # get the current author and set up its id url
         current_author = self.get_object(author_id)
-        inbox = AuthorInboxSerializer(current_author)
-        
+
         if request.data["type"] == "Follow":
             does_follow_exist = Follow.objects.filter(author_object=request.data["object"]).filter(author_actor=request.data["actor"])
 
-            # the follow does not exist
+            # the follow does not exist (first time we're making a follow request)
             if len(does_follow_exist) == 0:
-                Follow.objects.create_follow(request.data["actor"], request.data["object"])
-            else: # the follow request existed before, now it either got accepted or denied
+                new_follow = Follow.objects.create_follow(request.data["actor"], request.data["object"])
+                serializer = FollowSerializer(new_follow)
+
+                new_follow_data = json.loads(json.dumps(serializer.data))
+
+                current_author.inbox_items.create(inbox_item = new_follow_data)
+                return Response(new_follow_data, status=status.HTTP_201_CREATED)
+
+            # updating the follow request (since it has been either accepted or declined)
+            elif len(does_follow_exist) > 0 and "state" in request.data.keys(): # the follow request existed before, now it either got accepted or denied
                 old_follow = does_follow_exist[0]
-   
+                serializer = FollowSerializer(old_follow)
+                old_follow_data = json.loads(json.dumps(serializer.data)) # changing it to JSON dict
+
+                # get the specific follow request from the inbox
+                follow_from_inbox = current_author.inbox_items.filter(inbox_item = old_follow_data)[0]
+
                 if request.data["state"] == "Accepted":
-                    current_author.followers_items.create(author_info = json.dumps(request.data["actor"]))
-                    old_follow.delete()
+
+                    # create a follower
+                    current_author.followers_items.create(author_info = json.loads(json.dumps(request.data["actor"])))
+
+                    # don't need the follow request object anymore
+                    old_follow.delete_follow()
+
+                    # earlier, had no state field, now has a state field of accepted
+                    # (indicates that it has been handled)
+                    follow_from_inbox.state = "Accepted"
+                    follow_from_inbox.save(update_fields=['state'])
+
                     return Response(status=status.HTTP_200_OK)
+                
                 elif request.data["state"] == "Declined":
-                    old_follow.delete()
+
+                    old_follow.delete_follow()
+
+                    follow_from_inbox.inbox_item["state"] = "Declined"
+                    follow_from_inbox.save()
+
                     return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
   
-        # returns a list of the follows
-        #current_author.inbox_items.create(inbox_item = request.data)
-        return Response(status=status.HTTP_201_CREATED)
-    
     def delete(self, request, author_id):
-        try:
-            # get the current author and set up its id url
-            current_author = Author.objects.filter(uid=author_id)[0]
-            inbox = AuthorInboxSerializer(current_author)
-        except:
-            raise Http404
-        else:
-            # returns a list of the follows
-            all_items = current_author.inbox_items.all()
-            all_items.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        current_author = self.get_object(author_id)
+
+        all_items = current_author.inbox_items.all()
+        all_items.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
