@@ -184,7 +184,7 @@ class FollowingList(APIView):
         '''
         current_author = self.get_object(author_id)
 
-        # turning our data into bytes, to a string, then to a regular dict
+        # turning our data into bytes, to a string, then to a dict
         author_serializer = AuthorSerializer(current_author)
         author_data = json.dumps(author_serializer.data)
         author_data_dict = json.loads(author_data)
@@ -195,7 +195,7 @@ class FollowingList(APIView):
         # returns a list of Author objects that the current author is following
         serializer = AuthorSerializer(following_authors, many=True)
         
-        # convert serializer return list to string, then string to regular dict
+        # convert serializer return list to string, then string to a dict
         following_data = json.dumps(serializer.data)
         following_list = json.loads(following_data)
         following_json = {"type": "following", "items": following_list}

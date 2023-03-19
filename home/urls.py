@@ -22,5 +22,9 @@ urlpatterns = [
         path('authors/<uuid:author_id>/following/', social_views.FollowingList.as_view()),
         path('authors/<uuid:author_id>/friends/', social_views.FriendsList.as_view()),
 
+        path('authors/<uuid:author_id>/posts/<uuid:post_id>/likes/', views.PostLikes.as_view()),
+        path('authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes/', views.CommentLikes.as_view()),
+        path('authors/<uuid:author_id>/liked/', views.LikedList.as_view()),
+
         path('authors/<uuid:author_id>/inbox/', views.InboxDetails.as_view()),
 ]

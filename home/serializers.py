@@ -227,14 +227,15 @@ class LikeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Like
-        fields = ['context', 'type', 'summary', 'author', 'object']
+        fields = ['type', 'summary', 'author', 'object']
+
 
     # Reference: https://stackoverflow.com/questions/51583756/django-rest-framework-modelserializer-fields-whose-names-are-invalid-python-iden
     def to_representation(self, instance):
         data = super().to_representation(instance)
         return_data = {} # update how it's displayed after being serialized
         return_data.update({
-                '@context': data['context'],
+                '@context': data['@context'],
                 'type': data['type'],
                 'summary': data['summary'],
                 'author': data['author'],
@@ -272,11 +273,11 @@ class AuthorLikesSerializer(serializers.ModelSerializer):
         # data validation.
         if not type:
             raise serializers.ValidationError({
-                'score': 'This field is required.'
+                'type': 'This field is required.'
             })
         if not liked_items:
             raise serializers.ValidationError({
-                'player_name': 'This field is required.'
+                'liked_items': 'This field is required.'
             })
 
         # returns the validated values

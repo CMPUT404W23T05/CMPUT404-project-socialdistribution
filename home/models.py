@@ -31,7 +31,8 @@ class LikeManager(models.Manager):
         - object_url: the link of what was liked (could be a post or comment) as a string
         """
         # create the summary statement by taking the first name of the author giving a like
-        author_liking_name = author_liking['displayName']
+        author_liking_name = author_liking["displayName"]
+        author = Author.objects.filter(profile_url = author_liking["url"])
 
         # an author can like posts and comments
         if "comments" in object_url:
@@ -44,9 +45,18 @@ class LikeManager(models.Manager):
                             like_summary = summary,
                             object_type = "Like",
                             author_object = author_liking,
-                            obj = object_url
+                            obj = object_url,
+                            associated_author = author
                             )
-        return like
+        like.save()
+
+        representation =  {"@context": context_url, "summary": summary, "type": "Like", 
+                           "author": author_liking, "object": object_url}
+        return [like, representation]
+    
+    def delete_like(self):
+        self.delete()
+    
 
 class FollowManager(models.Manager):
 
@@ -153,7 +163,12 @@ class Like(models.Model):
     associated_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name = 'liked_items', null=True, blank=True)
 
     objects = LikeManager() # creates the object and adds a summary along with it
-
+    
+    def __str__(self):
+        if not self.associated_author.display_name:
+            return self.author_object["displayName"] + " liked something of " + self.associated_author.display_name
+        else:
+            return self.author_object["displayName"] + " liked something"
 
 class Liked(models.Model): # may not need to be used?
     context = models.URLField(max_length=URL_MAX_LENGTH)

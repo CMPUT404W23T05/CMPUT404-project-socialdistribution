@@ -201,6 +201,59 @@ class CommentDetail(APIView):
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class PostLikes(APIView):
+    def get_object(self, author_id):
+        try:
+            return Author.objects.get(uid=author_id)
+        except Author.DoesNotExist:
+            raise Http404 
+        
+    def get(self, author_id, post_id):
+        author = self.get_object(uid=author_id)
+        filter_post_likes = Like.objects.filter(object=author.url + "/posts/" + post_id)
+        
+        # turning the data into a list
+        serializer = LikeSerializer(filter_post_likes, many=True)
+        likes_data = json.dumps(serializer.data)
+        likes_data_list = json.loads(likes_data)
+
+        likes_json = {"type": "post_likes", "items": likes_data_list}
+        return Response(likes_json, status=status.HTTP_200_OK)
+
+class CommentLikes(APIView):
+    def get_object(self, author_id):
+        try:
+            return Author.objects.get(uid=author_id)
+        except Author.DoesNotExist:
+            raise Http404 
+        
+    def get(self, author_id, post_id, comment_id):
+        author = self.get_object(uid=author_id)
+
+        # URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}
+        filter_comment_likes = Like.objects.filter(object=author.url + "/posts/" + post_id + "/comments/" + comment_id)
+        
+        # turning the data into a list
+        serializer = LikeSerializer(filter_comment_likes, many=True)
+        comments_data = json.dumps(serializer.data)
+        comments_data_list = json.loads(comments_data)
+
+        comments_json = {"type": "comment_likes", "items": comments_data_list}
+        return Response(comments_json, status=status.HTTP_200_OK)
+    
+class LikedList(APIView):
+    def get_object(self, author_id):
+        try:
+            return Author.objects.get(uid=author_id)
+        except Author.DoesNotExist:
+            raise Http404 
+        
+    def get(self, request, author_id):
+        current_author = self.get_object(author_id)
+        author_serializer = AuthorLikesSerializer(current_author)
+
+        return Response(author_serializer.data, status=status.HTTP_200_OK)
+
 
 class InboxDetails(APIView, PageNumberPagination):
     """
@@ -229,11 +282,44 @@ class InboxDetails(APIView, PageNumberPagination):
 
         # get the current author and set up its id url
         current_author = self.get_object(author_id)
-        
-        if request.data["type"] in ["Like", "comment", "post"]:
-            current_author.inbox_items.create(inbox_item = request.data)
 
-        if request.data["type"] == "Follow":
+        if request.data["type"] == "post":
+            new_post = PostSerializer(request.data)
+            new_post_dict = json.loads(json.dumps(new_post.data))
+
+            # checking that we're not adding duplicates in the inbox
+            check_for_post = current_author.inbox_items.filter(inbox_item = new_post_dict)
+            if len(check_for_post) > 0:
+                return Response(status=status.HTTP_400_BAD_REQUEST)  
+            else:
+                current_author.inbox_items.create(inbox_item = new_post_dict)
+                return Response(new_post.data, status=status.HTTP_201_CREATED)  
+        
+        elif request.data["type"] == "comment":
+            new_comment = CommentSerializer(request.data)
+            new_comment_dict = json.loads(json.dumps(new_comment.data))
+
+            # checking that we're not adding duplicates in the inbox
+            check_for_comment = current_author.inbox_items.filter(inbox_item = new_comment_dict)
+            if len(check_for_comment) > 0:
+                return Response(status=status.HTTP_400_BAD_REQUEST)  
+            else:
+                current_author.inbox_items.create(inbox_item = new_comment_dict)
+                return Response(new_comment.data, status=status.HTTP_201_CREATED)  
+    
+        elif request.data["type"] == "Like":
+            # checking that we're not adding duplicates in the inbox
+            # serializer = LikeSerializer(request.data)
+
+            check_for_like = current_author.inbox_items.filter(inbox_item = request.data)
+            if len(check_for_like) > 0:
+                return Response(status=status.HTTP_400_BAD_REQUEST)  
+            else:
+                new_like = Like.objects.create_like(request.data["@context"], request.data["author"], request.data["object"])[0]
+                current_author.inbox_items.create(inbox_item = request.data)
+                return Response(request.data, status=status.HTTP_201_CREATED)  
+
+        elif request.data["type"] == "Follow":
             does_follow_exist = Follow.objects.filter(author_object=request.data["object"]).filter(author_actor=request.data["actor"])
 
             # the follow does not exist (first time we're making a follow request)
@@ -244,7 +330,7 @@ class InboxDetails(APIView, PageNumberPagination):
                 new_follow_data = json.loads(json.dumps(serializer.data))
 
                 current_author.inbox_items.create(inbox_item = new_follow_data)
-                return Response(new_follow_data, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
 
             # updating the follow request (since it has been either accepted or declined)
             elif len(does_follow_exist) > 0 and "state" in request.data.keys(): # the follow request existed before, now it either got accepted or denied
