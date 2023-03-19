@@ -15,25 +15,6 @@ from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 
 
-
-class CreatePost(APIView):
-    '''
-    URL: ://service/api/authors/{AUTHOR_ID}/posts/create-post
-    '''
-    # @permission_classes([IsAuthenticated])
-    def post(self, request, author_id, format=None):
-        try:
-            Author.objects.get(uid=author_id)
-        except Author.DoesNotExist:
-            raise Http404 
-
-        serializer = PostDeSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class BrowsePosts(APIView, PageNumberPagination):
     '''
     URL: ://service/api/posts/
@@ -62,6 +43,19 @@ class PostList(APIView, PageNumberPagination):
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)        
+
+    @permission_classes([IsAuthenticated])
+    def post(self, request, author_id, format=None):
+        try:
+            Author.objects.get(uid=author_id)
+        except Author.DoesNotExist:
+            raise Http404 
+
+        serializer = PostDeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PostDetail(APIView):
