@@ -352,7 +352,7 @@ class InboxDetails(APIView, PageNumberPagination):
                     does_follow_exist[0].state = "Accepted"
 
                     follow_from_inbox.save()
-                    does_follow_exist.save(update_fields=["state"])
+                    does_follow_exist[0].save(update_fields=["state"])
 
                     return Response(status=status.HTTP_200_OK)
                 
