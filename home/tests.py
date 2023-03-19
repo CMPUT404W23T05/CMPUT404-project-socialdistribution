@@ -58,6 +58,7 @@ class PostTesting(TestCase):
         self.post1 = Post.objects.create(
                 object_type = "post",
                 title = "example post 1",
+                url_id = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/decad856-d48d-4b2a-a100-b0734bcef0a7",
                 post_id = "decad856-d48d-4b2a-a100-b0734bcef0a7",
                 post_source = "http://lastplaceigotthisfrom.com/posts/yyyyy",
                 post_origin = "http://whereitcamefrom.com/posts/zzzzz",
@@ -76,6 +77,7 @@ class PostTesting(TestCase):
         self.post2 = Post.objects.create(
                 object_type = "post",
                 title = "example post 2",
+                url_id = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/218049ef-ac5b-4f4c-a853-f8b8bd8dcd68",
                 post_id = "218049ef-ac5b-4f4c-a853-f8b8bd8dcd68",
                 post_source = "http://lastplaceigotthisfrom.com/posts/yyyyy",
                 post_origin = "http://whereitcamefrom.com/posts/zzzzz",
@@ -111,7 +113,8 @@ class FollowerTesting(TestCase):
         
         self.author = Author.objects.create(
                 object_type = "author",
-                uid = "a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
+                url_id = "http://127.0.0.1:5454/authors/a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
+                author_id = "a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
                 home_host = "http://127.0.0.1:5454/",
                 display_name = "Greg Johnson",
                 profile_url = "http://127.0.0.1:5454/authors/a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
@@ -121,7 +124,8 @@ class FollowerTesting(TestCase):
         
         self.author2 = Author.objects.create(**{
                 "object_type": "author",
-                "uid": "6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
+                "url_id": "http://127.0.0.1:5454/authors/6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
+                "author_id": "6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
                 "home_host":  "http://127.0.0.1:5454/",
                 "display_name": "Lara Croft",
                 "profile_url": "http://127.0.0.1:5454/authors/6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
@@ -132,7 +136,8 @@ class FollowerTesting(TestCase):
         
         self.author3 = Author.objects.create(**{
                 "object_type": "author",
-                "uid": "4318ba4e-6f8d-4f3e-985a-ea2fadb7cd87",
+                "url_id": "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658ee",
+                "author_id": "4318ba4e-6f8d-4f3e-985a-ea2fadb7cd87",
                 "home_host":  "http://127.0.0.1:5454/",
                 "display_name": "John Doe",
                 "profile_url": "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658ee",
