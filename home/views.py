@@ -186,12 +186,12 @@ class CommentDetail(APIView):
 class PostLikes(APIView):
     def get_object(self, author_id):
         try:
-            return Author.objects.get(uid=author_id)
+            return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
         
     def get(self, author_id, post_id):
-        author = self.get_object(uid=author_id)
+        author = self.get_object(author_id=author_id)
         filter_post_likes = Like.objects.filter(object=author.url + "/posts/" + post_id)
         
         # turning the data into a list
@@ -205,12 +205,12 @@ class PostLikes(APIView):
 class CommentLikes(APIView):
     def get_object(self, author_id):
         try:
-            return Author.objects.get(uid=author_id)
+            return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
         
     def get(self, author_id, post_id, comment_id):
-        author = self.get_object(uid=author_id)
+        author = self.get_object(author_id=author_id)
 
         # URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}
         filter_comment_likes = Like.objects.filter(object=author.url + "/posts/" + post_id + "/comments/" + comment_id)
@@ -226,7 +226,7 @@ class CommentLikes(APIView):
 class LikedList(APIView):
     def get_object(self, author_id):
         try:
-            return Author.objects.get(uid=author_id)
+            return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
         
@@ -243,7 +243,7 @@ class InboxDetails(APIView, PageNumberPagination):
     """
     def get_object(self, author_id):
         try:
-            return Author.objects.get(uid = author_id)
+            return Author.objects.get(author_id = author_id)
         except Author.DoesNotExist:
             raise Http404 
 
