@@ -192,7 +192,7 @@ class PostLikes(APIView):
         
     def get(self, author_id, post_id):
         author = self.get_object(author_id=author_id)
-        filter_post_likes = Like.objects.filter(object=author.url + "/posts/" + post_id)
+        filter_post_likes = Like.objects.filter(object=author.profile_url + "/posts/" + post_id)
         
         # turning the data into a list
         serializer = LikeSerializer(filter_post_likes, many=True)
@@ -213,7 +213,7 @@ class CommentLikes(APIView):
         author = self.get_object(author_id=author_id)
 
         # URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}
-        filter_comment_likes = Like.objects.filter(object=author.url + "/posts/" + post_id + "/comments/" + comment_id)
+        filter_comment_likes = Like.objects.filter(object=author.profile_url + "/posts/" + post_id + "/comments/" + comment_id)
         
         # turning the data into a list
         serializer = LikeSerializer(filter_comment_likes, many=True)
