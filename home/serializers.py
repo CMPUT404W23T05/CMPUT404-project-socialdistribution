@@ -196,7 +196,7 @@ class LikeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Like
-        fields = ['type', 'summary', 'author', 'object']
+        fields = ['context', 'type', 'summary', 'author', 'object']
 
 
     # Reference: https://stackoverflow.com/questions/51583756/django-rest-framework-modelserializer-fields-whose-names-are-invalid-python-iden
@@ -204,7 +204,7 @@ class LikeSerializer(serializers.ModelSerializer):
         data = super().to_representation(instance)
         return_data = {} # update how it's displayed after being serialized
         return_data.update({
-                '@context': data['@context'],
+                '@context': data['context'],
                 'type': data['type'],
                 'summary': data['summary'],
                 'author': data['author'],

@@ -34,25 +34,34 @@ class LikeManager(models.Manager):
         author_liking_name = author_liking["displayName"]
         author = Author.objects.filter(profile_url = author_liking["url"])
 
+
         # an author can like posts and comments
         if "comments" in object_url:
             summary = author_liking_name + " Likes your comment"
         else:
             summary = author_liking_name + " Likes your post"
 
-        like = self.create(
+        if len(author) > 0: # we're working with a local author who gave a like
+            like = self.create(
                             context = context_url,
                             like_summary = summary,
                             object_type = "Like",
                             author_object = author_liking,
                             obj = object_url,
-                            associated_author = author
+                            associated_author = author[0]
                             )
-        like.save()
+            
+        else: # we're working with a remote author who gave a like
+            like = self.create(
+                            context = context_url,
+                            like_summary = summary,
+                            object_type = "Like",
+                            author_object = author_liking,
+                            obj = object_url,
+                            )
 
-        representation =  {"@context": context_url, "summary": summary, "type": "Like", 
-                           "author": author_liking, "object": object_url}
-        return [like, representation]
+        like.save()
+        return like
     
     def delete_like(self):
         self.delete()
@@ -161,10 +170,7 @@ class Like(models.Model):
     objects = LikeManager() # creates the object and adds a summary along with it
     
     def __str__(self):
-        if not self.associated_author.display_name:
-            return self.author_object["displayName"] + " liked something of " + self.associated_author.display_name
-        else:
-            return self.author_object["displayName"] + " liked something"
+        return self.author_object["displayName"] + " liked something"
 
 class Liked(models.Model): # may not need to be used?
     context = models.URLField(max_length=URL_MAX_LENGTH)

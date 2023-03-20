@@ -15,7 +15,7 @@ from djoser.views import TokenCreateView
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 import json
-
+from urllib.parse import urlparse
 
 class BrowsePosts(APIView, PageNumberPagination):
     def get(self, request, format=None):
@@ -251,14 +251,20 @@ class InboxDetails(APIView, PageNumberPagination):
 
         # get the current author and set up its id url
         current_author = self.get_object(author_id)
-        inbox = AuthorInboxSerializer(current_author)
-        # print(inbox.data)
+        # inbox = AuthorInboxSerializer(current_author)
 
-        # self.page = int(request.query_params.get('page',1))
-        # self.page_size = int(request.query_parms.get('size',20))
+        inbox_items = Inbox.objects.filter(associated_author__author_id = author_id)
 
-        # returns a list of the follows
-        return Response(inbox.data, status=status.HTTP_200_OK)   
+        self.page = int(request.query_params.get('page',1))
+        self.page_size = int(request.query_params.get('size',20))
+
+        inbox = self.paginate_queryset(inbox_items, request, view=self)
+        serializer = InboxItemSerializer(inbox, many = True)
+        inbox_data = json.dumps(serializer.data)
+        inbox_list = json.loads(inbox_data)
+        inbox_json = {"type": "following", "author": current_author.profile_url, "items": inbox_list}
+
+        return Response(inbox_json, status=status.HTTP_200_OK)   
              
     def post(self, request, author_id):
 
@@ -291,13 +297,13 @@ class InboxDetails(APIView, PageNumberPagination):
     
         elif request.data["type"] == "Like":
             # checking that we're not adding duplicates in the inbox
-            # serializer = LikeSerializer(request.data)
 
             check_for_like = current_author.inbox_items.filter(inbox_item = request.data)
             if len(check_for_like) > 0:
                 return Response(status=status.HTTP_400_BAD_REQUEST)  
-            else:
-                new_like = Like.objects.create_like(request.data["@context"], request.data["author"], request.data["object"])[0]
+            else: # we haven't seen this like "post" before yet
+                Like.objects.create_like(request.data["@context"], request.data["author"], request.data["object"])
+
                 current_author.inbox_items.create(inbox_item = request.data)
                 return Response(request.data, status=status.HTTP_201_CREATED)  
 
