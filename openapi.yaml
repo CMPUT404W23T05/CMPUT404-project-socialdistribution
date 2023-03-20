@@ -942,6 +942,49 @@ components:
         published:
           type: string
 
+    Follow:
+      type: object
+      description: follow object
+      required:
+        - type
+        - actor
+        - object
+      properties:
+        type:
+          type: string
+          example: Follow
+        actor:
+          $ref: '#/components/schemas/Author'
+        object:
+          $ref: '#/components/schemas/Author'
+        summary:
+          type: string
+        state:
+          type: string
+          
+    Like:
+      type: object
+      description: like object
+      required:
+        - context (by passing it in as @context) 
+        - author
+        - object
+      properties:
+        context:
+          type: string
+          example: https://www.w3.org/ns/activitystreams
+        summary:
+          type: string
+          example: Lara Croft Likes your post
+        type:
+          type: string
+          example: Like
+        author:
+          $ref: '#/components/schemas/Author'
+        object:
+          type: string
+          example: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e
+          
     NotFound:
       type: object
       properties:
