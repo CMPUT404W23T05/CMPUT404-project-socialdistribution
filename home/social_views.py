@@ -22,7 +22,7 @@ class FollowersList(APIView):
     '''
     def get_object(self, author_id):
         try:
-            return Author.objects.get(uid=author_id)
+            return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
         
@@ -43,7 +43,7 @@ class FollowersDetails(APIView):
     '''
     def get_object(self, author_id):
         try:
-            return Author.objects.get(uid=author_id)
+            return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
         
@@ -156,7 +156,7 @@ class FollowingList(APIView):
     '''
     def get_object(self, author_id):
         try:
-            return Author.objects.get(uid=author_id)
+            return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
         
@@ -192,7 +192,7 @@ class FriendsList(APIView):
     '''
     def get_object(self, author_id):
         try:
-            return Author.objects.get(uid=author_id)
+            return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
         
