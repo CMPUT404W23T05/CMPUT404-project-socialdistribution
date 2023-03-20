@@ -251,7 +251,6 @@ class InboxDetails(APIView, PageNumberPagination):
 
         # get the current author and set up its id url
         current_author = self.get_object(author_id)
-        # inbox = AuthorInboxSerializer(current_author)
 
         inbox_items = Inbox.objects.filter(associated_author__author_id = author_id)
 
@@ -272,7 +271,10 @@ class InboxDetails(APIView, PageNumberPagination):
         current_author = self.get_object(author_id)
 
         if request.data["type"] == "post":
-            new_post = PostSerializer(request.data)
+            new_post = PostDeSerializer(data=request.data)
+            new_post.is_valid()
+            new_post.save()
+
             new_post_dict = json.loads(json.dumps(new_post.data))
 
             # checking that we're not adding duplicates in the inbox
@@ -284,7 +286,11 @@ class InboxDetails(APIView, PageNumberPagination):
                 return Response(new_post.data, status=status.HTTP_201_CREATED)  
         
         elif request.data["type"] == "comment":
-            new_comment = CommentSerializer(request.data)
+            new_comment = CommentSerializer(data=request.data)
+            new_comment.is_valid()
+
+            new_comment.save()
+
             new_comment_dict = json.loads(json.dumps(new_comment.data))
 
             # checking that we're not adding duplicates in the inbox
