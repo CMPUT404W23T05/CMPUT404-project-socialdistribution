@@ -1,5 +1,5 @@
 from django.test import TestCase, RequestFactory
-from .models import Post, Author, Followers
+from .models import Post, Author
 from django.urls import reverse
 from django.http import HttpResponse
 import base64
