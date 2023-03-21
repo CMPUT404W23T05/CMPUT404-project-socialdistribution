@@ -308,7 +308,7 @@ class InboxDetails(APIView, PageNumberPagination):
     def post(self, request, author_id):
 
         # get the current author and set up its id url
-        current_author = self.get_object(author_id)
+        current_author = self.get_author_object(author_id)
 
         # POST
         if request.data["type"] == "post":
@@ -409,7 +409,7 @@ class InboxDetails(APIView, PageNumberPagination):
     def delete(self, request, author_id):
 
         # get the author and clear out the inbox
-        current_author = self.get_object(author_id)
+        current_author = self.get_author_object(author_id)
 
         all_items = current_author.inbox_items.all()
         all_items.delete()
