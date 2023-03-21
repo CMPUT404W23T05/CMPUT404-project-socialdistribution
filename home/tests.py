@@ -15,6 +15,8 @@ from .views import *
 import uuid
 
 
+
+
 # ---------------------- testing author model ----------------------------------
 class AuthorTesting(TestCase):
     def setUp(self):
@@ -176,10 +178,13 @@ class FollowerTesting(TestCase):
         serializer = AuthorSerializer(self.author)
         author_dict = json.loads(json.dumps(serializer.data))
 
-        Like.objects.create_like(context, author_dict, object_link)
+        new_like = Like.objects.create_like(context, author_dict, object_link)
+        like_serializer = LikeSerializer(new_like)
+        like_dict = author_dict = json.loads(json.dumps(like_serializer.data))
         self.assertTrue(len(Like.objects.all()), 1)
-        
 
+        self.author.liked_items.create_like(like_dict["@context"], like_dict["author"], like_dict["object"])
+        self.assertTrue(len(self.author.liked_items.all()), 1)
 
  ############################## View Testing #############################3333
 

@@ -268,7 +268,7 @@ class LikedList(APIView):
         
     def get(self, request, author_id):
         current_author = self.get_author_object(author_id)
-        author_serializer = AuthorLikesSerializer(current_author)
+        author_serializer = AuthorPublicLikesSerializer(current_author)
         return Response(author_serializer.data, status=status.HTTP_200_OK)
 
 

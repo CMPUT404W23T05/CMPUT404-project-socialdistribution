@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from rest_framework.renderers import JSONRenderer
 from rest_framework.pagination import PageNumberPagination
 from urllib.parse import urlparse
+import re
 
 
 # need to pip install rest_framework
@@ -227,7 +228,7 @@ class LikeSerializer(serializers.ModelSerializer):
                 'object': data['object']})
         return return_data
 
-class AuthorLikesSerializer(serializers.ModelSerializer):
+class AuthorPublicLikesSerializer(serializers.ModelSerializer):
     type = serializers.CharField(default="Liked")
     liked_items = LikeSerializer(many=True)
 
@@ -242,12 +243,19 @@ class AuthorLikesSerializer(serializers.ModelSerializer):
             Like.objects.create_like(like.context, like.author_object, like.obj)
         return create_author
 
+    def check_if_public(self, item):
+        # checks if we're dealing wit a PUBLIC post or not
+        get_post_id = re.split(r'/posts/|/comments/', item['object'])[1]
+        post = Post.objects.get(post_id=get_post_id)
+        return True if post.visibility == 'PUBLIC' else False 
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         return_data = {}
         return_data.update({
                 'type': data['type'],
-                'items': data['liked_items']})
+                'items': [item for item in data['liked_items'] if self.check_if_public(item)]
+                })
         return return_data
 
 
