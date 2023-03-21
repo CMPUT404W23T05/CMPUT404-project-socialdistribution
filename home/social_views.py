@@ -18,7 +18,9 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 class FollowersList(APIView):
     '''
-    URL: ://service/authors/{AUTHOR_ID}/followers
+    Get a list of authors who are AUTHOR_ID’s followers (local, remote)
+
+    Returns a 200 OK, otherwise returns 404 Not Found if the author does not exist
     '''
     def get_object(self, author_id):
         try:
@@ -27,12 +29,6 @@ class FollowersList(APIView):
             raise Http404 
         
     def get(self, request, author_id):
-        '''
-        Gets a list of authors who are author_id's followers (local, remote)
-
-        If author_id does not exist, then status code = 404 Not Found,
-        else 200 OK
-        '''
         current_author =  author = self.get_object(author_id) # get the first match
         serializer = AuthorFollowersSerializer(current_author) # get all the followers
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -66,7 +62,7 @@ class FollowersDetails(APIView):
         OR
         {"exists": "false"}
 
-        Else. it returns a status code of 404
+        Else, it returns a status code of 404
         '''
         # get the first match
         current_author = self.get_object(author_id)
@@ -120,6 +116,8 @@ class FollowersDetails(APIView):
         selected_follower.delete() 
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
+    
+    @permission_classes([IsAuthenticated])
     def put(self, request, author_id, follower_id):
         '''
         Add follower_id as a follower of author_id (must be authenticated, local)

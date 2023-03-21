@@ -543,6 +543,7 @@ paths:
         schema:
           type: string
     get:
+      summary: LOCAL, REMOTE
       description: Returns the followers of author with AUTHOR_ID
       tags:
         - Followers
@@ -597,7 +598,8 @@ paths:
           type: string
           
     delete:
-      description: Removes FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID (local)
+      summary: LOCAL
+      description: Removes FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID 
       tags:
         - Followers
       responses:
@@ -609,7 +611,8 @@ paths:
           description: Unexpected error
           
     put:
-      description: Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID (local)
+      summary: LOCAL (AUTHENTICATED)
+      description: Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID 
       tags:
         - Followers
       responses:
@@ -625,7 +628,8 @@ paths:
           description: Unexpected error
           
     get:
-      description: Checks if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID by returning true or false (local, remote)
+      summary: LOCAL 
+      description: Checks if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID by returning true or false 
       tags:
         - Followers
       responses:
@@ -650,6 +654,7 @@ paths:
           type: string
 
     get:
+      summary: LOCAL (EXTRA)
       description: Returns a list of the author's friends (extra, local)
       tags:
         - Friends
@@ -698,7 +703,8 @@ paths:
           type: string
 
     get:
-      description: Returns a list of the authors that the current author is following (extra, local)
+      summary: LOCAL (EXTRA)
+      description: Returns a list of the authors that the current author is following 
       tags:
         - Following
       responses:
@@ -737,6 +743,169 @@ paths:
           description: Not Found, The author does not exist
         '5XX':
           description: Unexpected error
+  
+
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/likes:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: POST_ID
+        in: path
+        required: true
+        description: The ID of the post
+        schema:
+          type: string
+    get:
+      summary: LOCAL, REMOTE
+      description: Get a list of likes from other authors on AUTHOR_ID’s post POST_ID
+      tags:
+      - Likes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "post_likes"
+                  items:
+                    type: array
+                    description: list of post or comments that the author has liked 
+                    items:
+                      $ref: '#/components/schemas/Like'
+                    example:
+                      - context: "https://www.w3.org/ns/activitystreams"
+                        author:
+                          type: author
+                          id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                          url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          host: http://127.0.0.1:5454/
+                          displayName: Gandalf the Grey
+                          github: http://github.com/gandalfthegrey
+                          profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                        summary: Lara Croft Likes your post
+                        object: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e
+        '404':
+          description: Not Found, Either the author or the post does not exist
+        '5XX':
+          description: Unexpected error
+          
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}/likes:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: POST_ID
+        in: path
+        required: true
+        description: The ID of the post
+        schema:
+          type: string
+      - name: COMMENT_ID
+        in: path
+        required: true
+        description: The ID of the comment
+        schema:
+          type: string
+    get:
+      summary: LOCAL, REMOTE
+      description: Get a list of likes from other authors on AUTHOR_ID’s post POST_ID comment COMMENT_ID
+      tags:
+      - Likes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "comment_likes"
+                  items:
+                    type: array
+                    description: list of post or comments that the author has liked 
+                    items:
+                      $ref: '#/components/schemas/Like'
+                    example:
+                      - context: "https://www.w3.org/ns/activitystreams"
+                        author:
+                          type: author
+                          id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                          url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          host: http://127.0.0.1:5454/
+                          displayName: Gandalf the Grey
+                          github: http://github.com/gandalfthegrey
+                          profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                        summary: Gandalf the Grey Likes your comment
+                        object: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
+
+        '404':
+          description: Not Found, Either the author or the comment does not exist
+        '5XX':
+          description: Unexpected error
+          
+          
+  /authors/{AUTHOR_ID}/liked/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+
+    get:
+      summary: LOCAL, REMOTE
+      description: 
+        Get a list of the public things that AUTHOR_ID liked
+      tags:
+        - Liked
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "liked"
+                  items:
+                    type: array
+                    description: list of post or comments that the author has liked 
+                    items:
+                      $ref: '#/components/schemas/Like'
+                    example:
+                      - context: "https://www.w3.org/ns/activitystreams"
+                        author:
+                          type: author
+                          id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                          url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          host: http://127.0.0.1:5454/
+                          displayName: Gandalf the Grey
+                          github: http://github.com/gandalfthegrey
+                          profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                        summary: Gandalf the Grey Likes your post
+                        object: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
+
+        '404':
+          description: Not Found, The author does not exist
+        '5XX':
+          description: Unexpected error
+          
           
   /authors/{AUTHOR_ID}/inbox/:
     parameters:
@@ -748,8 +917,9 @@ paths:
           type: string
 
     get:
+      summary: LOCAL (AUTHENTICATED)
       description: 
-        If authenticated, get a list of posts sent to AUTHOR_ID (paginated not yet implemented) (local)
+        If authenticated, get a list of posts sent to AUTHOR_ID
       tags:
         - Inbox
       responses:
@@ -758,6 +928,7 @@ paths:
           
           
     post:
+      summary: LOCAL, REMOTE
       description:
         Send an inbox_item ("post") to AUTHOR_ID. <br><br>
         
@@ -812,17 +983,17 @@ paths:
         '201':
           description: Created, The follow request has been created
         '400':
-          description: Bad Request, One possible reason is that you might have sent a follow request that already exists and is currently pending (i.e. waiting to be accepted or declined) without a state field
+          description: Bad Request, Either the format is not the correct or you're sending a duplicate "post"
         '404':
           description: The author does not exist
         '5XX':
           description: Unexpected error
           
     delete:
+      summary: LOCAL
       description:
-        Send an inbox_item ("post") to AUTHOR_ID. <br><br>
+        Delete all inbox_items ("posts") in AUTHOR_ID's inbox. <br><br>
         
-        **The following items can be sent:** post, Follow, Like, comment
       tags:
         - Inbox
       responses:
@@ -966,7 +1137,7 @@ components:
       type: object
       description: like object
       required:
-        - context (by passing it in as @context) 
+        - context (by passing it in as @context or context) 
         - author
         - object
       properties:

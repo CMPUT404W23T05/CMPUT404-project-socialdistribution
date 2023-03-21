@@ -184,14 +184,30 @@ class CommentDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class PostLikes(APIView):
-    def get_object(self, author_id):
+    """
+    Get a list of likes from other authors on AUTHOR_ID’s post POST_ID
+
+    Returns a status code of 200 OK, otherwise 404 Not Found if the author or the post
+    does not exist
+    """
+    def get_author_object(self, author_id):
         try:
             return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
-        
+    
+    def does_post_exist(self, post_id):
+        try:
+            Post.objects.get(post_id=post_id)
+        except:
+            raise Http404
+
     def get(self, author_id, post_id):
-        author = self.get_object(author_id=author_id)
+
+        # check if the author and post exist
+        author = self.get_author_object(author_id=author_id)
+        self.does_post_exist(post_id=post_id)
+
         filter_post_likes = Like.objects.filter(object=author.profile_url + "/posts/" + post_id)
         
         # turning the data into a list
@@ -203,73 +219,96 @@ class PostLikes(APIView):
         return Response(likes_json, status=status.HTTP_200_OK)
 
 class CommentLikes(APIView):
-    def get_object(self, author_id):
+    """
+    Get a list of likes from other authors on AUTHOR_ID’s post POST_ID comment COMMENT_ID
+
+    Returns a status code of 200 OK, otherwise 404 Not Found if the author or the 
+    comment does not exist
+    """
+    def get_author_object(self, author_id):
         try:
             return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
-        
+
+    def does_comment_exist(self, comment_id):
+        try:
+            Comment.objects.get(comment_id=comment_id)
+        except:
+            raise Http404
+
     def get(self, author_id, post_id, comment_id):
-        author = self.get_object(author_id=author_id)
+        
+        # check if the author and the comment exists
+        author = self.get_author_object(author_id=author_id)
+        self.does_comment_exist(comment_id)
 
         # URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}
         filter_comment_likes = Like.objects.filter(object=author.profile_url + "/posts/" + post_id + "/comments/" + comment_id)
         
         # turning the data into a list
         serializer = LikeSerializer(filter_comment_likes, many=True)
-        comments_data = json.dumps(serializer.data)
-        comments_data_list = json.loads(comments_data)
+        likes_data = json.dumps(serializer.data)
+        likes_data_list = json.loads(likes_data)
 
-        comments_json = {"type": "comment_likes", "items": comments_data_list}
-        return Response(comments_json, status=status.HTTP_200_OK)
+        likes_json = {"type": "comment_likes", "items": likes_data_list}
+        return Response(likes_json, status=status.HTTP_200_OK)
     
 class LikedList(APIView):
-    def get_object(self, author_id):
+    """
+    Get a list public things that the author AUTHOR_ID has liked
+    """
+    def get_author_object(self, author_id):
         try:
             return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
         
     def get(self, request, author_id):
-        current_author = self.get_object(author_id)
+        current_author = self.get_author_object(author_id)
         author_serializer = AuthorLikesSerializer(current_author)
-
         return Response(author_serializer.data, status=status.HTTP_200_OK)
 
 
 class InboxDetails(APIView, PageNumberPagination):
     """
     Get the inbox of the author
+
+    Returns a status code of 200 OK, otherwise returns a 404 Not Found if the author 
+    does not exist
     """
-    def get_object(self, author_id):
+    def get_author_object(self, author_id):
         try:
             return Author.objects.get(author_id = author_id)
         except Author.DoesNotExist:
             raise Http404 
 
+    @permission_classes([IsAuthenticated])
     def get(self, request, author_id):
 
         # get the current author and set up its id url
-        current_author = self.get_object(author_id)
+        current_author = self.get_author_object(author_id)
 
         inbox_items = Inbox.objects.filter(associated_author__author_id = author_id)
 
+        # pagination
         self.page = int(request.query_params.get('page',1))
         self.page_size = int(request.query_params.get('size',20))
-
         inbox = self.paginate_queryset(inbox_items, request, view=self)
+
         serializer = InboxItemSerializer(inbox, many = True)
         inbox_data = json.dumps(serializer.data)
         inbox_list = json.loads(inbox_data)
-        inbox_json = {"type": "following", "author": current_author.profile_url, "items": inbox_list}
+        inbox_json = {"type": "inbox", "author": current_author.profile_url, "items": inbox_list}
 
         return Response(inbox_json, status=status.HTTP_200_OK)   
-             
+    
     def post(self, request, author_id):
 
         # get the current author and set up its id url
         current_author = self.get_object(author_id)
 
+        # POST
         if request.data["type"] == "post":
             new_post = PostDeSerializer(data=request.data)
             new_post.is_valid()
@@ -285,6 +324,7 @@ class InboxDetails(APIView, PageNumberPagination):
                 current_author.inbox_items.create(inbox_item = new_post_dict)
                 return Response(new_post.data, status=status.HTTP_201_CREATED)  
         
+        # COMMENT
         elif request.data["type"] == "comment":
             new_comment = CommentSerializer(data=request.data)
             new_comment.is_valid()
@@ -300,19 +340,22 @@ class InboxDetails(APIView, PageNumberPagination):
             else:
                 current_author.inbox_items.create(inbox_item = new_comment_dict)
                 return Response(new_comment.data, status=status.HTTP_201_CREATED)  
-    
-        elif request.data["type"] == "Like":
-            # checking that we're not adding duplicates in the inbox
 
+        # LIKE
+        elif request.data["type"] == "Like":
+
+            # checking that we're not adding duplicates in the inbox
             check_for_like = current_author.inbox_items.filter(inbox_item = request.data)
             if len(check_for_like) > 0:
                 return Response(status=status.HTTP_400_BAD_REQUEST)  
             else: # we haven't seen this like "post" before yet
-                Like.objects.create_like(request.data["@context"], request.data["author"], request.data["object"])
+                context_url = request.data["@context"] if "@context" in request.data.keys() else request.data["context"] 
+                Like.objects.create_like(context_url, request.data["author"], request.data["object"])
 
                 current_author.inbox_items.create(inbox_item = request.data)
                 return Response(request.data, status=status.HTTP_201_CREATED)  
 
+        # FOLLOW
         elif request.data["type"] == "Follow":
             does_follow_exist = Follow.objects.filter(author_object=request.data["object"]).filter(author_actor=request.data["actor"])
 
@@ -363,6 +406,7 @@ class InboxDetails(APIView, PageNumberPagination):
   
     def delete(self, request, author_id):
 
+        # get the author and clear out the inbox
         current_author = self.get_object(author_id)
 
         all_items = current_author.inbox_items.all()
