@@ -29,7 +29,7 @@ class FollowersList(APIView):
             raise Http404 
         
     def get(self, request, author_id):
-        current_author =  author = self.get_object(author_id) # get the first match
+        current_author = self.get_object(author_id) # get the first match
         serializer = AuthorFollowersSerializer(current_author) # get all the followers
         return Response(serializer.data, status=status.HTTP_200_OK)
     

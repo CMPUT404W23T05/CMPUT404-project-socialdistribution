@@ -308,7 +308,31 @@ class InboxDetails(APIView, PageNumberPagination):
             return Author.objects.get(author_id = author_id)
         except Author.DoesNotExist:
             raise Http404 
+        
+    def handle_local_or_remote_post(self, request):
 
+        new_post = PostDeSerializer(data=request.data)
+        
+        # if its a remote post, create a new post object
+        is_local_post = len(Post.objects.filter(url_id=request.data['id']))
+        if new_post.is_valid():
+            new_post_dict = json.loads(json.dumps(new_post.data))
+            if not is_local_post:
+                new_post.save()
+        return (new_post, new_post_dict)
+
+    def handle_local_or_remote_comment(self, request):
+
+        new_comment = CommentSerializer(data=request.data)
+
+        # if its a remote comment, create a nwq comment object
+        is_local_comment = len(Comment.objects.filter(url_id=request.data['id']))
+        if new_comment.is_valid():
+            new_comment_dict = json.loads(json.dumps(new_comment.data))
+            if not is_local_comment:
+                new_comment.save()
+        return (new_comment, new_comment_dict)
+    
     @permission_classes([IsAuthenticated])
     def get(self, request, author_id):
 
@@ -337,11 +361,8 @@ class InboxDetails(APIView, PageNumberPagination):
 
         # POST
         if request.data["type"] == "post":
-            new_post = PostDeSerializer(data=request.data)
-            new_post.is_valid()
-            new_post.save()
 
-            new_post_dict = json.loads(json.dumps(new_post.data))
+            new_post, new_post_dict = self.handle_local_or_remote_post(request)
 
             # checking that we're not adding duplicates in the inbox
             check_for_post = current_author.inbox_items.filter(inbox_item = new_post_dict)
@@ -353,12 +374,8 @@ class InboxDetails(APIView, PageNumberPagination):
         
         # COMMENT
         elif request.data["type"] == "comment":
-            new_comment = CommentSerializer(data=request.data)
-            new_comment.is_valid()
 
-            new_comment.save()
-
-            new_comment_dict = json.loads(json.dumps(new_comment.data))
+            new_comment, new_comment_dict = self.handle_local_or_remote_comment(request)
 
             # checking that we're not adding duplicates in the inbox
             check_for_comment = current_author.inbox_items.filter(inbox_item = new_comment_dict)
