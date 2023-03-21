@@ -292,15 +292,16 @@ class InboxDetails(APIView, PageNumberPagination):
         current_author = self.get_author_object(author_id)
 
         inbox_items = Inbox.objects.filter(associated_author__author_id = author_id)
-
+      
         # pagination
         self.page = int(request.query_params.get('page',1))
         self.page_size = int(request.query_params.get('size',20))
         inbox = self.paginate_queryset(inbox_items, request, view=self)
-
+       
         serializer = InboxItemSerializer(inbox, many = True)
         inbox_data = json.dumps(serializer.data)
         inbox_list = json.loads(inbox_data)
+   
         inbox_json = {"type": "inbox", "author": current_author.profile_url, "items": inbox_list}
 
         return Response(inbox_json, status=status.HTTP_200_OK)   
@@ -359,6 +360,7 @@ class InboxDetails(APIView, PageNumberPagination):
 
         # FOLLOW
         elif request.data["type"] == "Follow":
+
             does_follow_exist = Follow.objects.filter(author_object=request.data["object"]).filter(author_actor=request.data["actor"])
 
             # the follow does not exist (first time we're making a follow request)

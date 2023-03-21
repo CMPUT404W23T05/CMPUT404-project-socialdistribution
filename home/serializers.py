@@ -276,6 +276,11 @@ class InboxItemSerializer(serializers.ModelSerializer):
         model = Inbox
         fields = ['inbox_item']
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return data["inbox_item"]
+
+
 class AuthorInboxSerializer(serializers.ModelSerializer):
     inbox_items = InboxItemSerializer(many=True)
 

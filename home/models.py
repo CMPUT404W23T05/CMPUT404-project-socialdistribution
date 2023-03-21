@@ -183,6 +183,9 @@ class Inbox(models.Model):
     inbox_item = models.JSONField(null=True, blank=True)
     associated_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='inbox_items', null=True, blank=True)
 
+    class Meta:
+        ordering = ("pk",)
+
     def __str__(self):
         return self.associated_author.display_name + ": " + self.inbox_item["type"]
     
