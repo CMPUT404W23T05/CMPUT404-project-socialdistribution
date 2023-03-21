@@ -15,25 +15,6 @@ from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 
 
-
-class CreatePost(APIView):
-    '''
-    URL: ://service/api/authors/{AUTHOR_ID}/posts/create-post
-    '''
-    # @permission_classes([IsAuthenticated])
-    def post(self, request, author_id, format=None):
-        try:
-            Author.objects.get(uid=author_id)
-        except Author.DoesNotExist:
-            raise Http404 
-
-        serializer = PostDeSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class BrowsePosts(APIView, PageNumberPagination):
     '''
     URL: ://service/api/posts/
@@ -54,7 +35,7 @@ class PostList(APIView, PageNumberPagination):
     URL: ://service/api/authors/{AUTHOR_ID}/posts/
     '''
     def get(self, request, author_id, format=None):
-        posts = Post.objects.filter(visibility='PUBLIC', author__uid=author_id)
+        posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
 
         self.page = int(request.query_params.get('page', 1))
         self.page_size = int(request.query_params.get('size', 20))
@@ -62,6 +43,19 @@ class PostList(APIView, PageNumberPagination):
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)        
+
+    @permission_classes([IsAuthenticated])
+    def post(self, request, author_id, format=None):
+        try:
+            Author.objects.get(author_id=author_id)
+        except Author.DoesNotExist:
+            raise Http404 
+
+        serializer = PostDeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PostDetail(APIView):
@@ -126,8 +120,8 @@ class FollowersDetails(APIView):
     def get(self, request, author_id, follower_id):
         try:
             # get the first match
-            current_author = Author.objects.filter(uid=author_id)[0]
-            selected_follower = Author.objects.filter(uid=follower_id)[0]
+            current_author = Author.objects.filter(author_id=author_id)[0]
+            selected_follower = Author.objects.filter(author_id=follower_id)[0]
 
             serializer = AuthorSerializer(selected_follower)
             json_info = JSONRenderer().render(serializer.data)
@@ -142,8 +136,8 @@ class FollowersDetails(APIView):
         
     def delete(self, request, author_id, follower_id):
         try:
-            current_author = Author.objects.filter(uid=author_id)[0]
-            selected_follower = Author.objects.filter(uid=follower_id)[0]
+            current_author = Author.objects.filter(author_id=author_id)[0]
+            selected_follower = Author.objects.filter(author_id=follower_id)[0]
             
             serializer = AuthorSerializer(selected_follower)
             json_info = JSONRenderer().render(serializer.data)
@@ -159,8 +153,8 @@ class FollowersDetails(APIView):
 
     def put(self, request, author_id, follower_id):
         try:
-            current_author = Author.objects.filter(uid=author_id)[0]
-            selected_follower = Author.objects.filter(uid=follower_id)[0]
+            current_author = Author.objects.filter(author_id=author_id)[0]
+            selected_follower = Author.objects.filter(author_id=follower_id)[0]
             
             serializer = AuthorSerializer(selected_follower)
             json_info = JSONRenderer().render(serializer.data)
@@ -180,7 +174,7 @@ class FollowingList(APIView):
     """
     def get(self, request, author_id):
         try:
-            current_author = Author.objects.filter(uid=author_id)[0]
+            current_author = Author.objects.filter(author_id=author_id)[0]
         
             serializer = AuthorSerializer(current_author)
             json_info = JSONRenderer().render(serializer.data)
@@ -202,7 +196,7 @@ class FriendsList(APIView):
     """
     def get(self, request, author_id):
 
-        current_author = Author.objects.filter(uid=author_id)[0]
+        current_author = Author.objects.filter(author_id=author_id)[0]
 
         serializer = AuthorSerializer(current_author)
         json_info = JSONRenderer().render(serializer.data)
@@ -230,7 +224,7 @@ class RequestsList(APIView):
 
         try:
             # get the current author and set up its id url
-            current_author = Author.objects.filter(uid=author_id)[0]
+            current_author = Author.objects.filter(author_id=author_id)[0]
             get_id_url = current_author.home_host + 'authors/' + str(author_id)
 
             # find requests with the author in it (as the person being "followed")
@@ -248,8 +242,8 @@ class RequestsDetails(APIView):
     """
     def delete(self, request, author_id, request_follower_id):
         try:
-            current_author = Author.objects.filter(uid=author_id)[0]
-            request_author = Author.objects.filter(uid=request_follower_id)[0]
+            current_author = Author.objects.filter(author_id=author_id)[0]
+            request_author = Author.objects.filter(author_id=request_follower_id)[0]
 
             get_author_url = current_author.home_host + 'authors/' + str(author_id)
             get_request_follower_url = request_author.home_host + 'authors/' + str(request_follower_id)
@@ -305,7 +299,7 @@ class AuthorDetail(APIView):
 
     def get_object(self, author_id):
         try:
-            return Author.objects.get(uid=author_id)
+            return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
 
@@ -314,6 +308,7 @@ class AuthorDetail(APIView):
         serializer = AuthorSerializer(author)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @permission_classes([IsAuthenticated])
     def post(self, request, author_id, format=None):
         author = self.get_object(author_id)
         serializer = AuthorSerializer(instance=author, data=request.data)
@@ -348,7 +343,6 @@ class CommentList(APIView, PageNumberPagination):
 
         return Response(response, status=status.HTTP_200_OK)
 
-    # @permission_classes([IsAuthenticated])
     def post(self, request, post_id, author_id, format=None):
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
