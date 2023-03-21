@@ -6,6 +6,7 @@ import uuid
 import imghdr
 from django.contrib.auth import authenticate
 from rest_framework.renderers import JSONRenderer
+from rest_framework.pagination import PageNumberPagination
 from urllib.parse import urlparse
 
 
@@ -46,7 +47,7 @@ class AuthorSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-
+    
     type = serializers.CharField(source='object_type')
     id = serializers.URLField(source='url_id')
     _id = serializers.UUIDField(source='post_id')
@@ -56,7 +57,7 @@ class PostSerializer(serializers.ModelSerializer):
     image = serializers.CharField(required=False)
     content = serializers.CharField(required=False)
     author = AuthorSerializer()
-    count = serializers.IntegerField(source='comment_count')
+    count = serializers.IntegerField(source='comment_count')    
     published = serializers.DateTimeField(source='pub_date')
     unlisted = serializers.BooleanField(source='is_unlisted')
 
@@ -66,6 +67,21 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ['type', 'title', 'id', '_id', 'source', 'origin', 'description', 'contentType',
                   'image', 'content', 'author', 'count', 'comments', 'published',
                   'visibility', 'unlisted']
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        comments = Comment.objects.filter(post_id=representation['_id'])[:5]
+        serializer = CommentSerializer(comments, many=True)
+        comment_src_object = {
+                "type": "comments",
+                "page": 1,
+                "size": 5,
+                "post": representation['id'],
+                "id": representation['id'] + '/comments',
+                "comments": serializer.data
+                }
+        representation['commentSrc'] = comment_src_object
+        return representation
 
 
 class PostDeSerializer(serializers.ModelSerializer):
