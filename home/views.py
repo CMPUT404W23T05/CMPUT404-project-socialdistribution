@@ -202,14 +202,15 @@ class PostLikes(APIView):
         except:
             raise Http404
 
-    def get(self, author_id, post_id):
+    def get(self, request, author_id, post_id):
 
         # check if the author and post exist
-        author = self.get_author_object(author_id=author_id)
-        self.does_post_exist(post_id=post_id)
+        author = self.get_author_object(author_id)
+        self.does_post_exist(post_id)
 
-        filter_post_likes = Like.objects.filter(object=author.profile_url + "/posts/" + post_id)
-        
+        object_url = author.profile_url + "/posts/" + str(post_id) 
+        filter_post_likes = Like.objects.filter(obj=object_url)
+  
         # turning the data into a list
         serializer = LikeSerializer(filter_post_likes, many=True)
         likes_data = json.dumps(serializer.data)
@@ -237,15 +238,16 @@ class CommentLikes(APIView):
         except:
             raise Http404
 
-    def get(self, author_id, post_id, comment_id):
+    def get(self, request, author_id, post_id, comment_id):
         
         # check if the author and the comment exists
-        author = self.get_author_object(author_id=author_id)
+        author = self.get_author_object(author_id)
         self.does_comment_exist(comment_id)
 
         # URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}
-        filter_comment_likes = Like.objects.filter(object=author.profile_url + "/posts/" + post_id + "/comments/" + comment_id)
-        
+        object_url = author.profile_url + "/posts/" + str(post_id) + "/comments/" + str(comment_id)
+        filter_comment_likes = Like.objects.filter(obj=object_url)
+
         # turning the data into a list
         serializer = LikeSerializer(filter_comment_likes, many=True)
         likes_data = json.dumps(serializer.data)

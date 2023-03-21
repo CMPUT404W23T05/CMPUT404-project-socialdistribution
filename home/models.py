@@ -172,10 +172,6 @@ class Like(models.Model):
     def __str__(self):
         return self.author_object["displayName"] + " liked something"
 
-class Liked(models.Model): # may not need to be used?
-    context = models.URLField(max_length=URL_MAX_LENGTH)
-
-
 class Inbox(models.Model):
     """
     An author will have many items in their inbox.
@@ -190,7 +186,7 @@ class Inbox(models.Model):
     def __str__(self):
         return self.associated_author.display_name + ": " + self.inbox_item["type"]
     
-class Followers(models.Model):
+class Follower(models.Model):
     """
     Example of adding a follower:
     - a = Author.objects.create(..display_name=...profile_url=...)

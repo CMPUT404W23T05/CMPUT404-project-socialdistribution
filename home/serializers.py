@@ -301,7 +301,7 @@ class FollowSerializer(serializers.ModelSerializer):
 class FollowersSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Followers
+        model = Follower
         fields = ['author_info']
 
     def to_representation(self, instance):
@@ -334,7 +334,7 @@ class AuthorFollowersSerializer(serializers.ModelSerializer):
         followers_info = validated_data.pop('followers_items')
         create_author = Author.objects.create(**validated_data)
         for follower in followers_info:
-            Followers.objects.create(follower_author = create_author, author_info = json.dumps(follower.author_info))
+            Follower.objects.create(follower_author = create_author, author_info = json.dumps(follower.author_info))
         return create_author
 
     def to_representation(self, instance):
