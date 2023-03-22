@@ -11,11 +11,11 @@ def create_author(sender, instance, created, **kwargs):
         uid = str(uuid.uuid4())
         Author.objects.create(
                 object_type = 'author',
-                url_id = "http://127.0.0.1:8000/authors/" + uid,
+                url_id = "/api/http://127.0.0.1:8000/authors/" + uid,
                 author_id = uid,
                 home_host = "http://127.0.0.1:8000/",
                 display_name = instance.username,
-                profile_url = "http://127.0.0.1:8000/authors/" + uid,
+                profile_url = "/api/http://127.0.0.1:8000/authors/" + uid,
                 author_github = "",
                 profile_image = "https://i.imgur.com/k7XVwpB.jpeg",
                 user = instance
