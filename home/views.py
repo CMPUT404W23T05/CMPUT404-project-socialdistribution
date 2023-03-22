@@ -311,26 +311,57 @@ class InboxDetails(APIView, PageNumberPagination):
         
     def handle_local_or_remote_post(self, request):
 
+        if 'commentCount' in request.data.keys():
+           request.data['count'] = request.data.pop('commentCount')
+
         new_post = PostDeSerializer(data=request.data)
-        
+  
         # if its a remote post, create a new post object
-        is_local_post = len(Post.objects.filter(url_id=request.data['id']))
+        url_id = request.data['id'] # get the url
+        is_local_post = len(Post.objects.filter(url_id=url_id))
         if new_post.is_valid():
-            new_post_dict = json.loads(json.dumps(new_post.data))
             if not is_local_post:
-                new_post.save()
+                author_id = new_post.validated_data['author']['author_id']
+                does_author_exist = len(Author.objects.filter(author_id=author_id))
+                
+                # associate the post with an author
+                Author.objects.create(**new_post.validated_data['author']) if not does_author_exist else False
+                new_post.validated_data['author'] = Author.objects.get(author_id= author_id)
+                access_post = Post.objects.create(**new_post.validated_data)
+            else:
+                # a local author has created a new post, we can retrieve that post
+                access_post = Post.objects.get(url_id=url_id)
+            
+            serializer = PostSerializer(access_post)
+            new_post_dict = json.loads(json.dumps(serializer.data))
+
+            
         return (new_post, new_post_dict)
 
     def handle_local_or_remote_comment(self, request):
 
         new_comment = CommentSerializer(data=request.data)
 
-        # if its a remote comment, create a nwq comment object
+        # if its a remote comment, create a new comment object
+        url_id = request.data['id']
         is_local_comment = len(Comment.objects.filter(url_id=request.data['id']))
+
         if new_comment.is_valid():
-            new_comment_dict = json.loads(json.dumps(new_comment.data))
             if not is_local_comment:
-                new_comment.save()
+                author_id = new_comment.validated_data['author']['author_id']
+                does_author_exist = len(Author.objects.filter(author_id=author_id))
+
+                # associate the comment with an author
+                Author.objects.create(**new_comment.validated_data['author']) if not does_author_exist else False
+                new_comment.validated_data['author'] = Author.objects.get(author_id= author_id)
+                access_comment = Comment.objects.create(**new_comment.validated_data)
+            else:
+                # a local author has created a new comment, we can retrieve that comment
+                access_comment = Comment.objects.get(url_id=url_id)
+            
+            serializer = CommentSerializer(access_comment)
+            new_comment_dict = json.loads(json.dumps(serializer.data))
+
         return (new_comment, new_comment_dict)
     
     @permission_classes([IsAuthenticated])
@@ -363,14 +394,15 @@ class InboxDetails(APIView, PageNumberPagination):
         if request.data["type"] == "post":
 
             new_post, new_post_dict = self.handle_local_or_remote_post(request)
-
+            #return Response(status=status.HTTP_400_BAD_REQUEST)  
+ 
             # checking that we're not adding duplicates in the inbox
             check_for_post = current_author.inbox_items.filter(inbox_item = new_post_dict)
             if len(check_for_post) > 0:
                 return Response(status=status.HTTP_400_BAD_REQUEST)  
             else:
                 current_author.inbox_items.create(inbox_item = new_post_dict)
-                return Response(new_post.data, status=status.HTTP_201_CREATED)  
+                return Response(status=status.HTTP_201_CREATED)  
         
         # COMMENT
         elif request.data["type"] == "comment":
@@ -383,7 +415,7 @@ class InboxDetails(APIView, PageNumberPagination):
                 return Response(status=status.HTTP_400_BAD_REQUEST)  
             else:
                 current_author.inbox_items.create(inbox_item = new_comment_dict)
-                return Response(new_comment.data, status=status.HTTP_201_CREATED)  
+                return Response(status=status.HTTP_201_CREATED)  
 
         # LIKE
         elif request.data["type"] == "Like":
@@ -397,7 +429,7 @@ class InboxDetails(APIView, PageNumberPagination):
                 Like.objects.create_like(context_url, request.data["author"], request.data["object"])
 
                 current_author.inbox_items.create(inbox_item = request.data)
-                return Response(request.data, status=status.HTTP_201_CREATED)  
+                return Response(status=status.HTTP_201_CREATED)  
 
         # FOLLOW
         elif request.data["type"] == "Follow":
@@ -412,7 +444,7 @@ class InboxDetails(APIView, PageNumberPagination):
                 new_follow_data = json.loads(json.dumps(serializer.data))
 
                 current_author.inbox_items.create(inbox_item = new_follow_data)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_201_CREATED)
 
             # updating the follow request (since it has been either accepted or declined)
             elif len(does_follow_exist) > 0 and "state" in request.data.keys(): # the follow request existed before, now it either got accepted or denied

@@ -130,6 +130,7 @@ class PostDeSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def validate(self, attrs):
+ 
         if 'content' not in attrs and 'image' not in attrs:
             raise serializers.ValidationError("field missing. at least one of 'body' or 'image' is required.")
 
