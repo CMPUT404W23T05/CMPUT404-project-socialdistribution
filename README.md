@@ -3,9 +3,10 @@ CMPUT404-project-socialdistribution
 
 CMPUT404-project-socialdistribution
 
-The frontend repo for this project can be found [here](https://github.com/CMPUT404W23T05/Social-Distribution-Front-End).
-
 Make a distributed social network!
+
+* Frontend repo: [CMPUT404W23T05/Social-Distribution-Front-End](https://github.com/CMPUT404W23T05/Social-Distribution-Front-End)
+* OpenAPI documentation: [View openapi.yaml](https://editor.swagger.io/?url=https://raw.githubusercontent.com/CMPUT404W23T05/CMPUT404-project-socialdistribution/master/openapi.yaml) in Swagger Editor
 
 Contributing
 ============
