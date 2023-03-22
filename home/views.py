@@ -462,19 +462,23 @@ class InboxDetails(APIView, PageNumberPagination):
 
                     # earlier, had no state field, now has a state field of accepted
                     # (indicates that it has been handled)
-                    follow_from_inbox.inbox_item["state"] = "Accepted"
                     does_follow_exist[0].state = "Accepted"
+                    serializer = FollowStateSerializer(does_follow_exist[0])
+                    old_follow_data = json.loads(json.dumps(serializer.data)) # changing it to JSON dict
+                    current_author.inbox_items.create(inbox_item = old_follow_data)
 
-                    follow_from_inbox.save()
                     does_follow_exist[0].save(update_fields=["state"])
 
                     return Response(status=status.HTTP_200_OK)
                 
                 elif request.data["state"] == "Declined":
-                    follow_from_inbox.inbox_item["state"] = "Declined"
-                    does_follow_exist[0].state = "Declined"
 
-                    follow_from_inbox.save()
+                    does_follow_exist[0].state = "Declined"
+                    serializer = FollowStateSerializer(does_follow_exist[0])
+                    old_follow_data = json.loads(json.dumps(serializer.data)) # changing it to JSON dict
+                    current_author.inbox_items.create(inbox_item = old_follow_data)
+
+
                     does_follow_exist[0].save(update_fields=["state"])
 
                     return Response(status=status.HTTP_200_OK)

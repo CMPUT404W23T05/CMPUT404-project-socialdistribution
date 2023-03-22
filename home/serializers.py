@@ -326,6 +326,16 @@ class FollowSerializer(serializers.ModelSerializer):
         fields = ['type', 'actor', 'object', 'summary']
 
 
+class FollowStateSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(source = 'object_type')
+    actor = serializers.JSONField(source = 'author_actor') # the author who is the follower
+    object = serializers.JSONField(source = 'author_object') # the author who is being followed
+    summary = serializers.CharField(source = 'following_summary')
+
+    class Meta:
+        model = Follow
+        fields = ['type', 'actor', 'object', 'summary', 'state']
+
 # ---------------------- Followers Serializer ----------------------------------
 
 class FollowersSerializer(serializers.ModelSerializer):
