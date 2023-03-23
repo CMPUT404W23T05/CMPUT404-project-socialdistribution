@@ -5,10 +5,9 @@ from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import permission_classes
-# from rest_framework_api_key.permissions import HasAPIKey
 from django.http import HttpResponse, Http404
 from djoser.views import TokenCreateView
 
@@ -17,9 +16,10 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 
 class BrowsePosts(APIView, PageNumberPagination):
-    '''
+    """
     URL: ://service/api/posts/
-    '''
+    """
+
     def get(self, request, format=None):
         posts = Post.objects.filter(visibility='PUBLIC')
 
@@ -32,20 +32,32 @@ class BrowsePosts(APIView, PageNumberPagination):
 
 
 class PostList(APIView, PageNumberPagination):
-    '''
+    """
     URL: ://service/api/authors/{AUTHOR_ID}/posts/
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def get(self, request, author_id, format=None):
-        posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
+        try:
+            uid = request.user.author.author_id
+            if (uid == author_id):
+                posts = Post.objects.filter(author__author_id=author_id)
+        except AttributeError:
+            posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
 
         self.page = int(request.query_params.get('page', 1))
         self.page_size = int(request.query_params.get('size', 20))
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)        
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @permission_classes([IsAuthenticated])
+   
     def post(self, request, author_id, format=None):
         try:
             Author.objects.get(author_id=author_id)
@@ -60,9 +72,16 @@ class PostList(APIView, PageNumberPagination):
 
 
 class PostDetail(APIView):
-    '''
+    """
     URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def get_object(self, post_id):
         try:
             return Post.objects.get(post_id=post_id)
@@ -76,7 +95,6 @@ class PostDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
         # PUT DOES NOT WORK CURRENTLY - for creating a post from another node in db
-    @permission_classes([IsAuthenticated])
     def put(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         serializer = PostDeSerializer(post, data=request.data)
@@ -86,7 +104,6 @@ class PostDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # FOR EDITING EXISTING POST
-    @permission_classes([IsAuthenticated])
     def post(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         serializer = PostDeSerializer(instance=post, data=request.data)
@@ -96,16 +113,22 @@ class PostDetail(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # FOR DELETING EXISITING POST
-    @permission_classes([IsAuthenticated])
     def delete(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 class FollowersList(APIView):
-    '''
+    """
     URL: ://service/api/authors/{AUTHOR_ID}/followers
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def get(self, request, author_id):
         try:
             current_author = Author.objects.filter(uid=author_id)[0] # get the first match
@@ -116,9 +139,16 @@ class FollowersList(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
     
 class FollowersDetails(APIView):
-    '''
+    """
     URL: ://service/api/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def get(self, request, author_id, follower_id):
         try:
             # get the first match
@@ -136,7 +166,6 @@ class FollowersDetails(APIView):
         else:
             return Response(status=status.HTTP_200_OK)
         
-    @permission_classes([IsAuthenticated])
     def delete(self, request, author_id, follower_id):
         try:
             current_author = Author.objects.filter(author_id=author_id)[0]
@@ -154,7 +183,6 @@ class FollowersDetails(APIView):
             selected_follower.delete() 
             return Response(status=status.HTTP_204_NO_CONTENT) 
 
-    @permission_classes([IsAuthenticated])
     def put(self, request, author_id, follower_id):
         try:
             current_author = Author.objects.filter(author_id=author_id)[0]
@@ -176,6 +204,13 @@ class FollowingList(APIView):
 
     Returns a list [{"type":"author"...},..]
     """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def get(self, request, author_id):
         try:
             current_author = Author.objects.filter(author_id=author_id)[0]
@@ -198,6 +233,13 @@ class FriendsList(APIView):
 
     Returns a list [{"type":"author"...},..]
     """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def get(self, request, author_id):
 
         current_author = Author.objects.filter(author_id=author_id)[0]
@@ -224,6 +266,13 @@ class RequestsList(APIView):
     """
     Get all the friend requests of an author
     """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def get(self, request, author_id):
 
         try:
@@ -244,6 +293,13 @@ class RequestsDetails(APIView):
     """
     Deletes a friend request when it gets accepted ordeclined
     """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def delete(self, request, author_id, request_follower_id):
         try:
             current_author = Author.objects.filter(author_id=author_id)[0]
@@ -262,9 +318,16 @@ class RequestsDetails(APIView):
 
 
 class ImageView(APIView):
-    '''
+    """
     URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/image
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
 
     def get(self, request, author_id, post_id, format=None):
         post = Post.objects.get(post_id=post_id)
@@ -278,9 +341,16 @@ class ImageView(APIView):
 
 
 class AuthorList(APIView, PageNumberPagination):
-    '''
+    """
     URL: ://service/api/authors/
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
 
     def get(self, request, format=None):
         authors = Author.objects.all()
@@ -297,9 +367,15 @@ class AuthorList(APIView, PageNumberPagination):
         return Response(response, status=status.HTTP_200_OK)
 
 class AuthorDetail(APIView):
-    '''
+    """
     URL: ://service/api/authors/{AUTHOR_ID}/
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def get_object(self, author_id):
         try:
@@ -312,7 +388,6 @@ class AuthorDetail(APIView):
         serializer = AuthorSerializer(author)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @permission_classes([IsAuthenticated])
     def post(self, request, author_id, format=None):
         author = self.get_object(author_id)
         serializer = AuthorSerializer(instance=author, data=request.data)
@@ -324,9 +399,15 @@ class AuthorDetail(APIView):
 
 
 class CommentList(APIView, PageNumberPagination):
-    '''
+    """
     URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/comments
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def get(self, request, post_id, author_id, format=None):
         comments = Comment.objects.filter(post_id=post_id)
@@ -347,7 +428,6 @@ class CommentList(APIView, PageNumberPagination):
 
         return Response(response, status=status.HTTP_200_OK)
 
-    @permission_classes([IsAuthenticated])
     def post(self, request, post_id, author_id, format=None):
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
@@ -357,9 +437,15 @@ class CommentList(APIView, PageNumberPagination):
 
 
 class CommentDetail(APIView):
-    '''
+    """
     URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def get_object(self, comment_id):
         try:

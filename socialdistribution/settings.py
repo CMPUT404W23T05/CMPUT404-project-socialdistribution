@@ -33,8 +33,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
-        # 'rest_framework_api_key.permissions.HasAPIKey',
+        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
@@ -49,14 +48,12 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_api_key',
     'corsheaders',
     'djoser',
 
     'home',
 ]
 
-# API_KEY_CUSTOM_HEADER = "HTTP_X_API_KEY"
 
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',    # for testing
@@ -67,8 +64,8 @@ CORS_ALLOWED_ORIGINS = [
 
 DJOSER = {
         'SERIALIZERS': {
-            'current_user': 'home.djoser_serializers.CustomUserSerializer',
-        },
+            'current_user': 'home.djoser_serializers.CustomUserSerializer'
+        }
 }
 
 MIDDLEWARE = [
