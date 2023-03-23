@@ -36,7 +36,7 @@ jobs:
         python-version: ${{ matrix.python-version 
     - name: Run Postgres commands
       run: |
-        psql -h postgres -U myuser -c "GRANT ALL ON SCHEMA my_custom_schema TO my_user;"
+        psql -h postgres -U myuser -c "GRANT ALL ON SCHEMA public TO myuser;"
         
     - name: Install Dependencies
       run: |
