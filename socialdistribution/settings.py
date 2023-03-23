@@ -33,8 +33,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.AllowAny',
-
+        'rest_framework.permissions.IsAuthenticated',
     ),
 }
 
@@ -55,16 +54,18 @@ INSTALLED_APPS = [
     'home',
 ]
 
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',    # for testing
-    'http://127.0.0.1:8080'
+    'http://127.0.0.1:8080',
+    'https://social-t30.herokuapp.com'
     # add server ip here
 ]
 
 DJOSER = {
         'SERIALIZERS': {
-            'current_user': 'home.djoser_serializers.CustomUserSerializer',
-        },
+            'current_user': 'home.djoser_serializers.CustomUserSerializer'
+        }
 }
 
 MIDDLEWARE = [
