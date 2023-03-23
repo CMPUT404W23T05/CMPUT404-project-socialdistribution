@@ -46,9 +46,14 @@ class PostList(APIView, PageNumberPagination):
         try:
             uid = request.user.author.author_id
             if (uid == author_id):
-                posts = Post.objects.filter(author__author_id=author_id)
+                visibility = request.query_params.get('type', None)
+                if visibility:
+                    posts = Post.objects.filter(visibility=visibility, author__author_id=author_id)
+                else:
+                    posts = Post.objects.filter(author__author_id=author_id)
         except AttributeError:
             posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
+
 
         self.page = int(request.query_params.get('page', 1))
         self.page_size = int(request.query_params.get('size', 20))
