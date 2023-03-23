@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 import django_on_heroku
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -63,9 +64,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 DJOSER = {
-        'SERIALIZERS': {
-            'current_user': 'home.djoser_serializers.CustomUserSerializer',
-        },
+    'SERIALIZERS': {
+        'current_user': 'home.djoser_serializers.CustomUserSerializer',
+    },
 }
 
 MIDDLEWARE = [
@@ -107,8 +108,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'OPTIONS': {
-                'options': '-c search_path=myschema'
-            },
+            'options': '-c search_path=myschema'
+        },
         'NAME': 'mydatabase',
         'USER': 'myuser',
         'PASSWORD': 'somepassword',
@@ -154,9 +155,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'dist'),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 django_on_heroku.settings(locals())
+
+# whitenoise
+WHITENOISE_INDEX_FILE = True
+WHITENOISE_ROOT = os.path.join(STATIC_URL, 'vue')
