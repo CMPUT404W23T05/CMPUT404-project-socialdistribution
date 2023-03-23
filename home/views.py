@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import permission_classes
+# from rest_framework_api_key.permissions import HasAPIKey
 from django.http import HttpResponse, Http404
 from djoser.views import TokenCreateView
 
@@ -75,6 +76,7 @@ class PostDetail(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
         # PUT DOES NOT WORK CURRENTLY - for creating a post from another node in db
+    @permission_classes([IsAuthenticated])
     def put(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id)
         serializer = PostDeSerializer(post, data=request.data)
@@ -134,6 +136,7 @@ class FollowersDetails(APIView):
         else:
             return Response(status=status.HTTP_200_OK)
         
+    @permission_classes([IsAuthenticated])
     def delete(self, request, author_id, follower_id):
         try:
             current_author = Author.objects.filter(author_id=author_id)[0]
@@ -151,6 +154,7 @@ class FollowersDetails(APIView):
             selected_follower.delete() 
             return Response(status=status.HTTP_204_NO_CONTENT) 
 
+    @permission_classes([IsAuthenticated])
     def put(self, request, author_id, follower_id):
         try:
             current_author = Author.objects.filter(author_id=author_id)[0]
@@ -343,6 +347,7 @@ class CommentList(APIView, PageNumberPagination):
 
         return Response(response, status=status.HTTP_200_OK)
 
+    @permission_classes([IsAuthenticated])
     def post(self, request, post_id, author_id, format=None):
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():

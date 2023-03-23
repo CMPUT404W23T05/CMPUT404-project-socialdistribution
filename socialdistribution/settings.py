@@ -34,7 +34,7 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.AllowAny',
-
+        # 'rest_framework_api_key.permissions.HasAPIKey',
     ),
 }
 
@@ -49,15 +49,19 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_api_key',
     'corsheaders',
     'djoser',
 
     'home',
 ]
 
+# API_KEY_CUSTOM_HEADER = "HTTP_X_API_KEY"
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:8080',    # for testing
-    'http://127.0.0.1:8080'
+    'http://127.0.0.1:8080',
+    'https://social-t30.herokuapp.com'
     # add server ip here
 ]
 
