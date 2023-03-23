@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'djoser',
 
     'home',
+    "whitenoise.runserver_nostatic",  # for heroku whitenoise
 ]
 
 CORS_ALLOWED_ORIGINS = [
@@ -71,6 +72,7 @@ DJOSER = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -99,6 +101,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'socialdistribution.wsgi.application'
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
 
 # Database
@@ -153,6 +161,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
 STATICFILES_DIRS = [
@@ -167,4 +176,4 @@ django_on_heroku.settings(locals())
 
 # whitenoise
 WHITENOISE_INDEX_FILE = True
-WHITENOISE_ROOT = os.path.join(STATIC_URL, 'vue')
+WHITENOISE_ROOT = os.path.join(STATIC_ROOT, 'vue')
