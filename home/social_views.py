@@ -6,7 +6,11 @@ from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+<<<<<<< HEAD
 from rest_framework.permissions import IsAuthenticated
+=======
+from rest_framework.permissions import IsAuthenticated, AllowAny
+>>>>>>> 70576d84300e515f361e1dca6aa08dc79507f1bd
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import permission_classes
 from django.http import HttpResponse, Http404
@@ -17,11 +21,16 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 
 class FollowersList(APIView):
-    '''
-    Get a list of authors who are AUTHOR_ID’s followers (local, remote)
+    """
+    URL: ://service/api/authors/{AUTHOR_ID}/followers
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
-    Returns a 200 OK, otherwise returns 404 Not Found if the author does not exist
-    '''
     def get_object(self, author_id):
         try:
             return Author.objects.get(author_id=author_id)
@@ -29,14 +38,26 @@ class FollowersList(APIView):
             raise Http404 
         
     def get(self, request, author_id):
+        """
+        Get a list of authors who are AUTHOR_ID’s followers (local, remote)
+
+        Returns a 200 OK, otherwise returns 404 Not Found if the author does not exist
+        """
         current_author = self.get_object(author_id) # get the first match
         serializer = AuthorFollowersSerializer(current_author) # get all the followers
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 class FollowersDetails(APIView):
-    '''
+    """
     URL: ://service/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
     def get_object(self, author_id):
         try:
             return Author.objects.get(author_id=author_id)
@@ -44,16 +65,16 @@ class FollowersDetails(APIView):
             raise Http404 
         
     def check_follower(self, current_author, follower_info):
-        '''
+        """
         Checks if a specific author is following the current author
-        '''
+        """
         try:
             return current_author.followers_items.filter(author_info = follower_info)[0]
         except: # follower does not exist (i.e. we get an IndexError)
             raise Http404 
         
     def get(self, request, author_id, follower_id):
-        '''
+        """
         Checks to see if follower_id is a follower of author_id (local, remote)
 
         Returns a status code of 200 OK with one of the following response body:
@@ -63,7 +84,7 @@ class FollowersDetails(APIView):
         {"exists": "false"}
 
         Else, it returns a status code of 404
-        '''
+        """
         # get the first match
         current_author = self.get_object(author_id)
         selected_follower = self.get_object(follower_id)
@@ -85,12 +106,12 @@ class FollowersDetails(APIView):
         return Response(response_body, status=status.HTTP_200_OK)
         
     def delete(self, request, author_id, follower_id):
-        '''
+        """
         Removes follower_id as a follower of author_id (local)
 
         If author_id or follower_id does not exist, then status code = 404 Not Found,
         else 204 No Content
-        '''
+        """
         # get the author and the follower
         current_author = self.get_object(author_id)
         selected_follower = self.get_object(follower_id)
@@ -117,15 +138,14 @@ class FollowersDetails(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
     
-    @permission_classes([IsAuthenticated])
     def put(self, request, author_id, follower_id):
-        '''
+        """
         Add follower_id as a follower of author_id (must be authenticated, local)
 
         If author_id or follower_id does not exist, then status code = 404 Not Found,
         else 200 OK (the follower has been added) or 409 Conflict (the follower already exists), or
         400 Bad Request (maybe you're making the author follow itself?)
-        '''
+        """
         if author_id == follower_id:
             return Response(status=status.HTTP_400_BAD_REQUEST)  
                  
@@ -149,9 +169,16 @@ class FollowersDetails(APIView):
             return Response(status=status.HTTP_201_CREATED) 
     
 class FollowingList(APIView):
-    '''
+    """
     URL: ://service/authors/{AUTHOR_ID}/following
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+    
     def get_object(self, author_id):
         try:
             return Author.objects.get(author_id=author_id)
@@ -159,12 +186,12 @@ class FollowingList(APIView):
             raise Http404 
         
     def get(self, request, author_id):
-        '''
+        """
         Get a list of authors that the current author is following (extra - not in spec, local)
 
         Returns a list of Author objects[{"type":"author"...},..] and a status code of 200 OK,
         else returns a status code of 404 Not Found
-        '''
+        """
         current_author = self.get_object(author_id)
 
         # turning our data into bytes, to a string, then to a dict
@@ -185,9 +212,16 @@ class FollowingList(APIView):
         return Response(following_json)
 
 class FriendsList(APIView):
-    '''
+    """
     URL: ://service/authors/{AUTHOR_ID}/friends
-    '''
+    """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+    
     def get_object(self, author_id):
         try:
             return Author.objects.get(author_id=author_id)
