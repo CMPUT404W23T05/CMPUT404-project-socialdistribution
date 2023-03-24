@@ -1,5 +1,5 @@
 from django.test import TestCase, RequestFactory
-from .models import Post, Author, Followers
+from .models import Post, Author
 from django.urls import reverse
 from django.http import HttpResponse
 import base64
@@ -13,6 +13,8 @@ import json
 from rest_framework.renderers import JSONRenderer
 from .views import *
 import uuid
+
+
 
 
 # ---------------------- testing author model ----------------------------------
@@ -148,23 +150,41 @@ class FollowerTesting(TestCase):
 
     def test_followers_get(self):
         serializer = AuthorSerializer(self.author2)
-        json = JSONRenderer().render(serializer.data)
-        author_2_info = json.decode("utf-8")
+        author_data = json.dumps(serializer.data)
+        author_data_dict = json.loads(author_data)
         
-        self.author.followers_items.create(author_info = author_2_info)
+        self.author.followers_items.create(author_info = author_data_dict)
         self.assertEqual(len(self.author.followers_items.all()), 1)
 
-    def test_followers_manager(self):
+    def test_follow_manager(self):
         author_serializer = AuthorSerializer(self.author)
-        author_json = JSONRenderer().render(author_serializer.data)
-        author1_info = author_json.decode("utf-8")
+        author_data = json.dumps(author_serializer.data)
+        author_data_dict = json.loads(author_data)
         
         author2_serializer = AuthorSerializer(self.author2)
-        author2_json = JSONRenderer().render(author2_serializer.data)
-        author2_info = author2_json.decode("utf-8")
+        author2_data = json.dumps(author2_serializer.data)
+        author2_data_dict = json.loads(author2_data)
+        
 
-        test_follow = Follow.objects.create_follow(json.loads(author1_info), json.loads(author2_info))
+        test_follow = Follow.objects.create_follow(author_data_dict, author2_data_dict)
+        follow = FollowSerializer(test_follow)
+        
         self.assertEqual(len(Follow.objects.all()), 1)
+
+    def test_likes(self):
+        context = "https://www.w3.org/ns/activitystreams"
+        object_link = "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e"
+
+        serializer = AuthorSerializer(self.author)
+        author_dict = json.loads(json.dumps(serializer.data))
+
+        new_like = Like.objects.create_like(context, author_dict, object_link)
+        like_serializer = LikeSerializer(new_like)
+        like_dict = author_dict = json.loads(json.dumps(like_serializer.data))
+        self.assertTrue(len(Like.objects.all()), 1)
+
+        self.author.liked_items.create_like(like_dict["@context"], like_dict["author"], like_dict["object"])
+        self.assertTrue(len(self.author.liked_items.all()), 1)
 
  ############################## View Testing #############################3333
 

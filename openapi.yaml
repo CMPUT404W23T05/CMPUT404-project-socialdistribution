@@ -1,20 +1,35 @@
 openapi: 3.0.1
 info:
-  title: Social Distrubition Website API
-  description: This is our API for our social distribution website
+  title: Social Distribution Website API
+  description: This is our API for our Social Distribution website (Team 5)
   version: 1.0.0
   contact:
     email: jmacdona@ualberta.ca
+
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
     
 servers:
-  - url: http://127.0.0.1:8000/api
+  - url: https://social-t30.herokuapp.com/api/
   
 paths: 
   /authors:
     get:
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: The page number of authors
+        - in: query
+          name: size
+          schema:
+            type: integer
+          description: The number of authors to display per page
+      tags:
+        - Authors
+      summary: LOCAL, REMOTE, PAGINATED
       description: Returns list of all authors on the server
       responses:
         '200':
@@ -26,6 +41,7 @@ paths:
                 properties:
                   type:
                     type: string
+                    example: authors
                     description: the type of object (authors object)
                   items:
                     type: array
@@ -34,18 +50,20 @@ paths:
                       $ref: '#/components/schemas/Author'
                     example:
                       - type: author
-                        id: f2b2b415-250b-43e6-8a5b-31834d12be0d
-                        url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
-                        host: http://127.0.0.1:8080/
-                        displayName: Frodo Baggins
-                        github: http://github.com/frodobaggins
+                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        host: https://social-t30.herokuapp.com/
+                        displayName: testuser1
+                        github: http://github.com/testuser1
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
                       - type: author
-                        id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                        url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
-                        host: http://127.0.0.1:5454/
-                        displayName: Gandalf the Grey
-                        github: http://github.com/gandalfthegrey
+                        id: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        url: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        host: https://social-t30.herokuapp.com/
+                        displayName: testuser12
+                        github: http://github.com/testuser2
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
         '5XX':
           description: Unexpected error
@@ -59,6 +77,9 @@ paths:
         schema:
           type: string
     get:
+      tags:
+        - Single Author
+      summary: LOCAL, REMOTE
       description: Returns profile of author with AUTHOR_ID
       responses:
         '200':
@@ -68,17 +89,21 @@ paths:
               schema:
                 $ref: '#/components/schemas/Author'
               example:
-                type: author
-                id: f2b2b415-250b-43e6-8a5b-31834d12be0d
-                url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
-                host: http://127.0.0.1:8080/
-                displayName: Frodo Baggins
-                github: http://github.com/frodobaggins
-                profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                  type: author
+                  id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                  _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
+                  url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                  host: https://social-t30.herokuapp.com/
+                  displayName: testuser1
+                  github: http://github.com/testuser1
+                  profileImage: https://i.imgur.com/k7XVwp
         '5XX':
           description: Unexpected error
 
     post:
+      tags:
+        - Single Author
+      summary: LOCAL
       description: Update the author's profile
       requestBody:
         required: true
@@ -130,6 +155,9 @@ paths:
         schema:
           type: string
     get:
+      tags:
+        - Post
+      summary: LOCAL, REMOTE, PAGINATED
       description: List of public posts authors by AUTHOR_ID (paginated)
       responses:
         '200':
@@ -144,7 +172,7 @@ paths:
                 example:
                   - type: post
                     title: Example Post 1
-                    id: b548683c-40f4-47da-86db-7f470d03443d
+                    id: http://127.0.0.1:8000/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
                     source: http://lastplaceigotthisfrom.com/posts/yyyyy
                     origin: http://whereitcamefrom.com/posts/zzzzz
                     description: This is an example post for testing. Includes image.
@@ -200,6 +228,9 @@ paths:
         schema:
           type: string
     get:
+      tags:
+        - Post
+      summary: LOCAL, REMOTE
       description: Get post object
       responses:
         '200':
@@ -239,6 +270,9 @@ paths:
         '5XX':
           description: Unexpected error
     post:
+      tags:
+        - Post
+      summary: LOCAL
       description: Update post whose id is POST_ID
       requestBody:
         required: true
@@ -309,6 +343,9 @@ paths:
       
 
     delete:
+      tags:
+        - Post
+      summary: LOCAL
       description: Delete the post whose id is POST_ID
 
       responses:
@@ -338,6 +375,9 @@ paths:
         schema:
           type: string
     get:
+      tags:
+        - Image
+      summary: LOCAL, REMOTE
       responses:
         '200':
           description: OK
@@ -355,7 +395,7 @@ paths:
         '5XX':
           description: Unexpected error
 
-  /author/{AUTHOR_ID}/posts/{POST_ID}/comments:
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/comments:
     parameters:
       - name: AUTHOR_ID
         in: path
@@ -370,6 +410,9 @@ paths:
         schema:
           type: string
     get:
+      tags:
+        - Comments
+      summary: LOCAL, REMOTE, PAGINATED
       responses:
         '200':
           description: OK
@@ -433,6 +476,9 @@ paths:
           description: Unexpected error
 
     post:
+      tags:
+        - Comments
+      summary: LOCAL
       description: Add comment to post whose id is POST_ID; create comment object
       requestBody:
         required: true
@@ -483,7 +529,7 @@ paths:
         '5XX':
           description: Unexpected error
 
-  /author/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}:
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}:
     parameters:
       - name: AUTHOR_ID
         in: path
@@ -504,6 +550,9 @@ paths:
         schema:
           type: string
     get:
+      tags:
+        - Comments
+      summary: LOCAL (EXTRA)
       responses:
         '200':
           description: OK
@@ -534,7 +583,481 @@ paths:
                 $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
+  /authors/{AUTHOR_ID}/followers/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+    get:
+      summary: LOCAL, REMOTE
+      description: Returns the followers of author with AUTHOR_ID
+      tags:
+        - Followers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    default: followers
+                    description: the type of object (followers)
+                  items:
+                    type: array
+                    description: list of objects (list of authors)
+                    items:
+                      $ref: '#/components/schemas/Author'
+                    example:
+                      - type: author
+                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        host: https://social-t30.herokuapp.com/
+                        displayName: testuser1
+                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        github: http://github.com/testuser1
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      - type: author
+                        id: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        host: https://social-t30.herokuapp.com/
+                        url: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        displayName: testuser12
+                        github: http://github.com/testuser2
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+        '5XX':
+          description: Unexpected error
+          
+  /authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: FOREIGN_AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+          
+    delete:
+      summary: LOCAL
+      description: Removes FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID 
+      tags:
+        - Followers
+      responses:
+        '204':
+          description: No Content, The follower has been deleted
+        '404':
+          description: Not Found, Either the author or the follower does not exist
+        '5XX':
+          description: Unexpected error
+          
+    put:
+      summary: LOCAL (AUTHENTICATED)
+      description: Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID 
+      tags:
+        - Followers
+      responses:
+        '201':
+          description: Created, The follower has been added
+        '400':
+          description: Bad Request
+        '404':
+          description: Not Found, Either the author or the follower does not exist
+        '409':
+          description: Conflict, this author is already a follower
+        '5XX':
+          description: Unexpected error
+          
+    get:
+      summary: LOCAL 
+      description: Checks if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID by returning true or false 
+      tags:
+        - Followers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              example: 
+                exists: 'true'
+        '404':
+          description: Not Found, The author does not exist
+        '5XX':
+          description: Unexpected error
 
+  /authors/{AUTHOR_ID}/friends/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+
+    get:
+      summary: LOCAL (EXTRA)
+      description: Returns a list of the author's friends (extra, local)
+      tags:
+        - Friends
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "friends"
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Author'
+                    example:
+                      - type: author
+                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        host: https://social-t30.herokuapp.com/
+                        displayName: testuser1
+                        github: http://github.com/testuser1
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      - type: author
+                        id: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        url: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        host: https://social-t30.herokuapp.com/
+                        displayName: testuser12
+                        github: http://github.com/testuser2
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+        '404':
+          description: Not Found, The author does not exist
+        '5XX':
+          description: Unexpected error
+          
+  /authors/{AUTHOR_ID}/following/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+
+    get:
+      summary: LOCAL (EXTRA)
+      description: Returns a list of the authors that the current author is following 
+      tags:
+        - Following
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type: 
+                    type: string
+                    example: "following"
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Author'
+                    example:
+                      - type: author
+                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        host: https://social-t30.herokuapp.com/
+                        displayName: testuser1
+                        github: http://github.com/testuser1
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      - type: author
+                        id: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        url: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        host: https://social-t30.herokuapp.com/
+                        displayName: testuser12
+                        github: http://github.com/testuser2
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+
+                    
+        '404':
+          description: Not Found, The author does not exist
+        '5XX':
+          description: Unexpected error
+  
+
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/likes:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: POST_ID
+        in: path
+        required: true
+        description: The ID of the post
+        schema:
+          type: string
+    get:
+      summary: LOCAL, REMOTE
+      description: Get a list of likes from other authors on AUTHOR_ID’s post POST_ID
+      tags:
+      - Likes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "post_likes"
+                  items:
+                    type: array
+                    description: list of post or comments that the author has liked 
+                    items:
+                      $ref: '#/components/schemas/Like'
+                    example:
+                      - type: Like
+                        context: "https://www.w3.org/ns/activitystreams"
+                        author:
+                          type: author
+                          id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                          url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          host: http://127.0.0.1:5454/
+                          displayName: Gandalf the Grey
+                          github: http://github.com/gandalfthegrey
+                          profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                        summary: Lara Croft Likes your post
+                        object: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e
+        '404':
+          description: Not Found, Either the author or the post does not exist
+        '5XX':
+          description: Unexpected error
+          
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}/likes:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: POST_ID
+        in: path
+        required: true
+        description: The ID of the post
+        schema:
+          type: string
+      - name: COMMENT_ID
+        in: path
+        required: true
+        description: The ID of the comment
+        schema:
+          type: string
+    get:
+      summary: LOCAL, REMOTE
+      description: Get a list of likes from other authors on AUTHOR_ID’s post POST_ID comment COMMENT_ID
+      tags:
+      - Likes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "comment_likes"
+                  items:
+                    type: array
+                    description: list of post or comments that the author has liked 
+                    items:
+                      $ref: '#/components/schemas/Like'
+                    example:
+                      - type: Like
+                        context: "https://www.w3.org/ns/activitystreams"
+                        author:
+                          type: author
+                          id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                          url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          host: http://127.0.0.1:5454/
+                          displayName: Gandalf the Grey
+                          github: http://github.com/gandalfthegrey
+                          profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                        summary: Gandalf the Grey Likes your comment
+                        object: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
+
+        '404':
+          description: Not Found, Either the author or the comment does not exist
+        '5XX':
+          description: Unexpected error
+          
+          
+  /authors/{AUTHOR_ID}/liked/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+
+    get:
+      summary: LOCAL, REMOTE
+      description: 
+        Get a list of the public things that AUTHOR_ID liked
+      tags:
+        - Liked
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: "liked"
+                  items:
+                    type: array
+                    description: list of post or comments that the author has liked 
+                    items:
+                      $ref: '#/components/schemas/Like'
+                    example:
+                      - context: "https://www.w3.org/ns/activitystreams"
+                        author:
+                          type: author
+                          id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                          url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          host: http://127.0.0.1:5454/
+                          displayName: Gandalf the Grey
+                          github: http://github.com/gandalfthegrey
+                          profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                        summary: Gandalf the Grey Likes your post
+                        object: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
+
+        '404':
+          description: Not Found, The author does not exist
+        '5XX':
+          description: Unexpected error
+          
+          
+  /authors/{AUTHOR_ID}/inbox/:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+
+    get:
+      summary: LOCAL, PAGINATED (AUTHENTICATED)
+      description: 
+        If authenticated, get a list of posts sent to AUTHOR_ID
+      tags:
+        - Inbox
+      responses:
+        '200':
+          description: OK
+          
+          
+    post:
+      summary: LOCAL, REMOTE
+      description:
+        Send an inbox_item ("post") to AUTHOR_ID. <br><br>
+        
+        **The following items can be sent:** post, Follow, Like, comment
+      requestBody:
+        description: 
+            For local or remote node use, if you want to **add a follow request**, having the "type", "actor", and "object" fields are required, but the summary field is optional (since the summary will be generated on the backend)<br><br>
+          
+          **For local node use**, if you want to **update a follow request's status**, you must add an extra field called "state" with a value of either "Accepted" or "Declined" (with "Pending" as the default, not required to put this in). This helps to distingish between which requests have been handled already. <br><br>
+          
+          Follow requests in the inbox that do not have the "state" field means that it is currently pending. Follow requests that do have the "state" field means that it has either been accepted or declined already. In other words, a "state" field will be added to the Follow item in the inbox if it has been "Accepted" or "Declined", in which case you don't have to display the follow request anymore. 
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                type:
+                  type: string
+                  example: "Follow"
+                actor:
+                  type: object
+                  example:
+                      type: author
+                      id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                      url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                      host: http://127.0.0.1:8080/
+                      displayName: Frodo Baggins
+                      github: http://github.com/frodobaggins
+                      profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                object:
+                  type: object
+                  example:
+                      type: author
+                      id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                      url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                      host: http://127.0.0.1:5454/
+                      displayName: Gandalf the Grey
+                      github: http://github.com/gandalfthegrey
+                      profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                summary:
+                  type: string
+                  example: Frodo Baggins wants to follow Gandalf the Grey
+              required:
+                - type
+                - actor
+                - object
+      tags:
+        - Inbox
+      responses:
+        '200':
+          description: OK, The follow request now has a state of either "Accepted" or "Declined"
+        '201':
+          description: Created, The follow request has been created
+        '400':
+          description: Bad Request, Either the format is not the correct or you're sending a duplicate "post"
+        '404':
+          description: The author does not exist
+        '5XX':
+          description: Unexpected error
+          
+    delete:
+      summary: LOCAL
+      description:
+        Delete all inbox_items ("posts") in AUTHOR_ID's inbox. <br><br>
+        
+      tags:
+        - Inbox
+      responses:
+        '204':
+          description: No Content, The inbox has been cleared
+        '404':
+          description: The author does not exist
+        '5XX':
+          description: Unexpected error
 
 components:
   schemas:
@@ -645,6 +1168,49 @@ components:
         published:
           type: string
 
+    Follow:
+      type: object
+      description: follow object
+      required:
+        - type
+        - actor
+        - object
+      properties:
+        type:
+          type: string
+          example: Follow
+        actor:
+          $ref: '#/components/schemas/Author'
+        object:
+          $ref: '#/components/schemas/Author'
+        summary:
+          type: string
+        state:
+          type: string
+          
+    Like:
+      type: object
+      description: like object
+      required:
+        - context (by passing it in as @context or context) 
+        - author
+        - object
+      properties:
+        context:
+          type: string
+          example: https://www.w3.org/ns/activitystreams
+        summary:
+          type: string
+          example: Lara Croft Likes your post
+        type:
+          type: string
+          example: Like
+        author:
+          $ref: '#/components/schemas/Author'
+        object:
+          type: string
+          example: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e
+          
     NotFound:
       type: object
       properties:

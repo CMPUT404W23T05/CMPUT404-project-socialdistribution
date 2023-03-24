@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate
 from rest_framework.renderers import JSONRenderer
 from rest_framework.pagination import PageNumberPagination
 from urllib.parse import urlparse
+import re
 
 
 # need to pip install rest_framework
@@ -129,6 +130,7 @@ class PostDeSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
     def validate(self, attrs):
+ 
         if 'content' not in attrs and 'image' not in attrs:
             raise serializers.ValidationError("field missing. at least one of 'body' or 'image' is required.")
 
@@ -212,7 +214,8 @@ class LikeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Like
-        fields = ['context', 'type', 'summary', 'author', 'object']
+        fields = ['context','type', 'summary', 'author', 'object']
+
 
     # Reference: https://stackoverflow.com/questions/51583756/django-rest-framework-modelserializer-fields-whose-names-are-invalid-python-iden
     def to_representation(self, instance):
@@ -226,7 +229,7 @@ class LikeSerializer(serializers.ModelSerializer):
                 'object': data['object']})
         return return_data
 
-class AuthorLikesSerializer(serializers.ModelSerializer):
+class AuthorPublicLikesSerializer(serializers.ModelSerializer):
     type = serializers.CharField(default="Liked")
     liked_items = LikeSerializer(many=True)
 
@@ -241,12 +244,19 @@ class AuthorLikesSerializer(serializers.ModelSerializer):
             Like.objects.create_like(like.context, like.author_object, like.obj)
         return create_author
 
+    def check_if_public(self, item):
+        # checks if we're dealing wit a PUBLIC post or not
+        get_post_id = re.split(r'/posts/|/comments/', item['object'])[1]
+        post = Post.objects.get(post_id=get_post_id)
+        return True if post.visibility == 'PUBLIC' else False 
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         return_data = {}
         return_data.update({
                 'type': data['type'],
-                'items': data['liked_items']})
+                'items': [item for item in data['liked_items'] if self.check_if_public(item)]
+                })
         return return_data
 
 
@@ -257,11 +267,11 @@ class AuthorLikesSerializer(serializers.ModelSerializer):
         # data validation.
         if not type:
             raise serializers.ValidationError({
-                'score': 'This field is required.'
+                'type': 'This field is required.'
             })
         if not liked_items:
             raise serializers.ValidationError({
-                'player_name': 'This field is required.'
+                'liked_items': 'This field is required.'
             })
 
         # returns the validated values
@@ -274,6 +284,11 @@ class InboxItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = Inbox
         fields = ['inbox_item']
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return data["inbox_item"]
+
 
 class AuthorInboxSerializer(serializers.ModelSerializer):
     inbox_items = InboxItemSerializer(many=True)
@@ -291,7 +306,7 @@ class AuthorInboxSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         items_list = []
-        for item in instance.inbox.all():
+        for item in instance.inbox_items.all():
             items_list.append(item.inbox_item) # add all the "notifications"
         return {
             'type': 'inbox',
@@ -311,21 +326,35 @@ class FollowSerializer(serializers.ModelSerializer):
         fields = ['type', 'actor', 'object', 'summary']
 
 
+class FollowStateSerializer(serializers.ModelSerializer):
+    type = serializers.CharField(source = 'object_type')
+    actor = serializers.JSONField(source = 'author_actor') # the author who is the follower
+    object = serializers.JSONField(source = 'author_object') # the author who is being followed
+    summary = serializers.CharField(source = 'following_summary')
+
+    class Meta:
+        model = Follow
+        fields = ['type', 'actor', 'object', 'summary', 'state']
+
 # ---------------------- Followers Serializer ----------------------------------
 
 class FollowersSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Followers
+        model = Follower
         fields = ['author_info']
 
     def to_representation(self, instance):
         data = super().to_representation(instance)
-        author_dict = json.loads(data['author_info'])
+        if not isinstance(data['author_info'], dict):
+            author_dict = json.loads(data['author_info'])
+        else:
+            author_dict = data['author_info']
         return_data = {}
         return_data.update({
                 'type': author_dict['type'],
                 'id': author_dict['id'],
+                '_id': author_dict['_id'],
                 'host': author_dict['host'],
                 'displayName': author_dict['displayName'],
                 'url': author_dict['url'],
@@ -346,7 +375,7 @@ class AuthorFollowersSerializer(serializers.ModelSerializer):
         followers_info = validated_data.pop('followers_items')
         create_author = Author.objects.create(**validated_data)
         for follower in followers_info:
-            Followers.objects.create(follower_author = create_author, author_info = json.dumps(follower.author_info))
+            Follower.objects.create(follower_author = create_author, author_info = json.dumps(follower.author_info))
         return create_author
 
     def to_representation(self, instance):

@@ -31,7 +31,9 @@ class LikeManager(models.Manager):
         - object_url: the link of what was liked (could be a post or comment) as a string
         """
         # create the summary statement by taking the first name of the author giving a like
-        author_liking_name = author_liking['displayName']
+        author_liking_name = author_liking["displayName"]
+        author = Author.objects.filter(profile_url = author_liking["url"])
+
 
         # an author can like posts and comments
         if "comments" in object_url:
@@ -39,24 +41,42 @@ class LikeManager(models.Manager):
         else:
             summary = author_liking_name + " Likes your post"
 
-        like = self.create(
+        if len(author) > 0: # we're working with a local author who gave a like
+            like = self.create(
                             context = context_url,
                             like_summary = summary,
                             object_type = "Like",
                             author_object = author_liking,
-                            obj = object_url
+                            obj = object_url,
+                            associated_author = author[0]
                             )
+            
+        else: # we're working with a remote author who gave a like
+            like = self.create(
+                            context = context_url,
+                            like_summary = summary,
+                            object_type = "Like",
+                            author_object = author_liking,
+                            obj = object_url,
+                            )
+
+        like.save()
         return like
+    
+    def delete_like(self):
+        self.delete()
+    
 
 class FollowManager(models.Manager):
 
-    def create_follow(self, author_following, author_followed):
+    def create_follow(self, author_following, author_followed, state=None):
         """
         Input:
         - author_following: Author object as a dict
         - author_followed: Author object as a dict
         """
         # create the summary statement by taking their first names
+       
         author_following_first_name = author_following['displayName'].split(' ')[0]
         author_followed_first_name = author_followed['displayName'].split(' ')[0]
         summary = author_following_first_name + " wants to follow " + author_followed_first_name
@@ -64,10 +84,14 @@ class FollowManager(models.Manager):
         follow = self.create(object_type = "Follow",
                             author_actor = author_following,
                             author_object = author_followed,
+                            state = "Pending" if not state else state,
                             following_summary = summary
                             )
+        follow.save()
         return follow
 
+    def delete_follow(self):
+        self.delete()
 ####################### Models #################################################
 class Author(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
@@ -144,11 +168,9 @@ class Like(models.Model):
     associated_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name = 'liked_items', null=True, blank=True)
 
     objects = LikeManager() # creates the object and adds a summary along with it
-
-
-class Liked(models.Model): # may not need to be used?
-    context = models.URLField(max_length=URL_MAX_LENGTH)
-
+    
+    def __str__(self):
+        return self.author_object["displayName"] + " liked something"
 
 class Inbox(models.Model):
     """
@@ -161,21 +183,24 @@ class Inbox(models.Model):
     inbox_item = models.JSONField(null=True, blank=True)
     associated_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='inbox_items', null=True, blank=True)
 
+    class Meta:
+        ordering = ("pk",)
 
-class Followers(models.Model):
+    def __str__(self):
+        return self.associated_author.display_name + ": " + self.inbox_item["type"]
+    
+class Follower(models.Model):
     """
     Example of adding a follower:
     - a = Author.objects.create(..display_name=...profile_url=...)
 
-    Make sure to json.dump(dict)
-    - a.followers_items.create(author_info = json.dump({display_name: ..., profile_url: ...}))
+    - a.followers_items.create(author_info = {display_name: ..., profile_url: ...})
     """
-    author_info = models.JSONField(null=True)
+    author_info = models.JSONField(null=True, blank=True)
     follower_author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='followers_items', null=True, blank=True)
     
     def __str__(self):
-        author_dict = json.loads(self.author_info)
-        return author_dict['displayName']
+        return self.author_info["displayName"] + "  is following  " + self.follower_author.display_name
 
 class Follow(models.Model):
     """
@@ -185,10 +210,15 @@ class Follow(models.Model):
     - Follow.objects.create_follow(author_following, author_followed)
     """
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
-    author_actor = models.JSONField(null=True) # dict containing information about the author
-    author_object = models.JSONField(null=True)
-    following_summary = models.CharField(max_length=BIG_MAX_LENGTH, null=True)
+    author_actor = models.JSONField() # dict containing information about the author
+    author_object = models.JSONField()
+    following_summary = models.CharField(max_length=BIG_MAX_LENGTH)
+    state = models.CharField(max_length=SMALL_MAX_LENGTH)
     objects = FollowManager()
+
+    def __str__(self):
+        return self.following_summary
+    
 
 
 class Comment(models.Model):
