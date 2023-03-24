@@ -27,7 +27,10 @@ SECRET_KEY = 'django-insecure-5%l_=vv@r$^wvu6w-fm89@&jeit1i@i!gm_g8df(0xd=%l$+xd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'https://socialdistcmput404.herokuapp.com',
+    'https://sd7-api.herokuapp.com'
+]
 
 
 REST_FRAMEWORK = {
@@ -50,7 +53,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders',
+#     'corsheaders',
     'djoser',
 
     'home',
@@ -58,13 +61,13 @@ INSTALLED_APPS = [
 ]
 
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8080',    # for testing
-    'http://127.0.0.1:8080',
-    'https://socialdistcmput404.herokuapp.com',
-    'https://sd7-api.herokuapp.com'
-    # add server ip here
-]
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:8080',    # for testing
+#     'http://127.0.0.1:8080',
+#     'https://socialdistcmput404.herokuapp.com',
+#     'https://sd7-api.herokuapp.com'
+#     # add server ip here
+# ]
 
 DJOSER = {
         'SERIALIZERS': {
