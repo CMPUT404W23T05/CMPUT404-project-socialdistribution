@@ -395,7 +395,7 @@ paths:
         '5XX':
           description: Unexpected error
 
-  /author/{AUTHOR_ID}/posts/{POST_ID}/comments:
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/comments:
     parameters:
       - name: AUTHOR_ID
         in: path
@@ -529,7 +529,7 @@ paths:
         '5XX':
           description: Unexpected error
 
-  /author/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}:
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}:
     parameters:
       - name: AUTHOR_ID
         in: path
