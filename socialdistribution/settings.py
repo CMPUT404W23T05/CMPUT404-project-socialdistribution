@@ -31,6 +31,7 @@ ALLOWED_HOSTS = [
     'https://socialdistcmput404.herokuapp.com',
     'https://sd7-api.herokuapp.com',
     'https://social-t30.herokuapp.com'
+    'localhost',
 ]
 
 
@@ -72,9 +73,9 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 DJOSER = {
-        'SERIALIZERS': {
-            'current_user': 'home.djoser_serializers.CustomUserSerializer'
-        }
+    'SERIALIZERS': {
+        'current_user': 'home.djoser_serializers.CustomUserSerializer'
+    }
 }
 
 MIDDLEWARE = [
