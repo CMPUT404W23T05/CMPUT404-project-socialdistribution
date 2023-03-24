@@ -21,6 +21,12 @@ class BrowsePosts(APIView, PageNumberPagination):
     """
     URL: ://service/api/posts/
     """
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
 
     def get(self, request, format=None):
         posts = Post.objects.filter(visibility='PUBLIC')
