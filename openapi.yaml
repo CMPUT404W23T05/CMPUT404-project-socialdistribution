@@ -1038,14 +1038,11 @@ components:
           description: ID of author (must be url format)
         _id:
           type: string
-          description: just the UUID portion of the author ID
+          format: uuid
+          description: the uuid of the author
         url:
           type: string
           description: url of author profile on server (same as id)
-        _id: 
-          type: string
-          format: uuid
-          description: the uuid of the author
         host:
           type: string
           description: hostname of this author
