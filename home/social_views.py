@@ -6,7 +6,11 @@ from .serializers import *
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+<<<<<<< HEAD
+from rest_framework.permissions import IsAuthenticated
+=======
 from rest_framework.permissions import IsAuthenticated, AllowAny
+>>>>>>> 70576d84300e515f361e1dca6aa08dc79507f1bd
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import permission_classes
 from django.http import HttpResponse, Http404
@@ -133,6 +137,7 @@ class FollowersDetails(APIView):
         selected_follower.delete() 
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
+    
     def put(self, request, author_id, follower_id):
         """
         Add follower_id as a follower of author_id (must be authenticated, local)
