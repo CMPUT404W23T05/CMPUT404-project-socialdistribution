@@ -386,10 +386,10 @@ paths:
                     example: 5
                   post:
                     type: string
-                    example: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d
+                    example: https://social-t30.herokuapp.com/api/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d
                   id:
                     type: string
-                    example: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
+                    example: https://social-t30.herokuapp.com/api/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
                   comments:
                     type: array
                     description: Array of comment objects
@@ -418,8 +418,8 @@ paths:
                         author:
                             type: author
                             id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                            url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
-                            host: http://127.0.0.1:5454/
+                            url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                            host: https://social-t30.herokuapp.com/
                             displayName: Gandalf the Grey
                             github: http://github.com/gandalfthegrey
                             profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -792,15 +792,15 @@ paths:
                         context: "https://www.w3.org/ns/activitystreams"
                         author:
                           type: author
-                          id: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          id: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                           _id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                          url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
-                          host: http://127.0.0.1:5454/
+                          url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          host: https://social-t30.herokuapp.com/
                           displayName: Lara Croft
                           github: http://github.com/laracroft
                           profileImage: https://i.imgur.com/k7XVwpB.jpeg
                         summary: Lara Croft Likes your post
-                        object: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012/posts/764efa883dda1e11db47671c4a3bbd9e
+                        object: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012/posts/764efa883dda1e11db47671c4a3bbd9e
         '404':
           description: Not Found, Either the author or the post does not exist
         '5XX':
@@ -852,15 +852,15 @@ paths:
                         context: "https://www.w3.org/ns/activitystreams"
                         author:
                           type: author
-                          id: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          id: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                           _id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                          url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
-                          host: http://127.0.0.1:5454/
+                          url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          host: https://social-t30.herokuapp.com/
                           displayName: Gandalf the Grey
                           github: http://github.com/gandalfthegrey
                           profileImage: https://i.imgur.com/k7XVwpB.jpeg
                         summary: Gandalf the Grey Likes your comment
-                        object: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
+                        object: https://social-t30.herokuapp.com/api/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
 
         '404':
           description: Not Found, Either the author or the comment does not exist
@@ -904,15 +904,15 @@ paths:
                         context: "https://www.w3.org/ns/activitystreams"
                         author:
                           type: author
-                          id: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          id: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                           _id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                          url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
-                          host: http://127.0.0.1:5454/
+                          url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          host: https://social-t30.herokuapp.com/
                           displayName: Gandalf the Grey
                           github: http://github.com/gandalfthegrey
                           profileImage: https://i.imgur.com/k7XVwpB.jpeg
                         summary: Gandalf the Grey Likes your post
-                        object: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
+                        object: https://social-t30.herokuapp.com/api/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
 
         '404':
           description: Not Found, The author does not exist
@@ -966,8 +966,8 @@ paths:
                   example:
                       type: author
                       id: f2b2b415-250b-43e6-8a5b-31834d12be0d
-                      url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
-                      host: http://127.0.0.1:8080/
+                      url: https://social-t30.herokuapp.com/api/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                      host: https://social-t30.herokuapp.com/
                       displayName: Frodo Baggins
                       github: http://github.com/frodobaggins
                       profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -976,8 +976,8 @@ paths:
                   example:
                       type: author
                       id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                      url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
-                      host: http://127.0.0.1:5454/
+                      url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                      host: https://social-t30.herokuapp.com/
                       displayName: Gandalf the Grey
                       github: http://github.com/gandalfthegrey
                       profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -1184,7 +1184,7 @@ components:
           $ref: '#/components/schemas/Author'
         object:
           type: string
-          example: http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e
+          example: https://social-t30.herokuapp.com/api/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e
           
     NotFound:
       type: object
