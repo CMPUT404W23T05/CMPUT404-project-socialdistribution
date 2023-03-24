@@ -10,7 +10,7 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
     
 servers:
-  - url: http://127.0.0.1:8000/api
+  - url: https://social-t30.herokuapp.com/api
   
 paths: 
   /authors:
@@ -154,8 +154,8 @@ paths:
                     author:
                         type: author
                         id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                        url: http://127.0.0.1:8000/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                        host: http://127.0.0.1:8000/
+                        url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                        host: https://social-t30.herokuapp.com/
                         displayName: Aragorn, Song of Arathorn
                         github: http://github.com/aragorn
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -175,7 +175,7 @@ paths:
                     author:
                         type: author
                         id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                        url: http://127.0.0.1:8000/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                        url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
                         host: http://127.0.0.1:800/
                         displayName: Aragorn, Sone of Arathorn
                         github: http://github.com/aragorn
@@ -221,8 +221,8 @@ paths:
                 author:
                     type: author
                     id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                    url: http://127.0.0.1:8000/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                    host: http://127.0.0.1:8000/
+                    url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                    host: https://social-t30.herokuapp.com/
                     displayName: Aragorn, Song of Arathorn
                     github: http://github.com/aragorn
                     profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -258,8 +258,8 @@ paths:
               author:
                   type: author
                   id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                  url: http://127.0.0.1:8000/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                  host: http://127.0.0.1:8000/
+                  url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                  host: https://social-t30.herokuapp.com/
                   displayName: Aragorn, Song of Arathorn
                   github: http://github.com/aragorn
                   profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -287,8 +287,8 @@ paths:
                 author:
                     type: author
                     id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                    url: http://127.0.0.1:8000/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                    host: http://127.0.0.1:8000/
+                    url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                    host: https://social-t30.herokuapp.com/
                     displayName: Aragorn, Song of Arathorn
                     github: http://github.com/aragorn
                     profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -390,10 +390,10 @@ paths:
                     example: 5
                   post:
                     type: string
-                    example: http://127.0.0.1:8000/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d
+                    example: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d
                   id:
                     type: string
-                    example: http://127.0.0.1:8000/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
+                    example: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
                   comments:
                     type: array
                     description: Array of comment objects
@@ -406,8 +406,8 @@ paths:
                         author:
                             type: author
                             id: f2b2b415-250b-43e6-8a5b-31834d12be0d
-                            url: http://127.0.0.1:8000/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
-                            host: http://127.0.0.1:8000/
+                            url: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                            host: https://social-t30.herokuapp.com/
                             displayName: Frodo Baggins
                             github: http://github.com/frodobaggins
                             profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -447,8 +447,8 @@ paths:
               author:
                   type: author
                   id: f2b2b415-250b-43e6-8a5b-31834d12be0d
-                  url: http://127.0.0.1:8000/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
-                  host: http://127.0.0.1:8000/
+                  url: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                  host: https://social-t30.herokuapp.com/
                   displayName: Frodo Baggins
                   github: http://github.com/frodobaggins
                   profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -470,8 +470,8 @@ paths:
                 author:
                     type: author
                     id: f2b2b415-250b-43e6-8a5b-31834d12be0d
-                    url: http://127.0.0.1:8000/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
-                    host: http://127.0.0.1:8000/
+                    url: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                    host: https://social-t30.herokuapp.com/
                     displayName: Frodo Baggins
                     github: http://github.com/frodobaggins
                     profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -518,8 +518,8 @@ paths:
                 author:
                     type: author
                     id: f2b2b415-250b-43e6-8a5b-31834d12be0d
-                    url: http://127.0.0.1:8000/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
-                    host: http://127.0.0.1:8000/
+                    url: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                    host: https://social-t30.herokuapp.com/
                     displayName: Frodo Baggins
                     github: http://github.com/frodobaggins
                     profileImage: https://i.imgur.com/k7XVwpB.jpeg
