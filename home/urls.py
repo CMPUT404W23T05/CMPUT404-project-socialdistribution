@@ -1,6 +1,6 @@
 from django.urls import path, include
 
-from home import views
+from home import views, social_views
 
 app_name = 'home'
 urlpatterns = [
@@ -15,12 +15,15 @@ urlpatterns = [
         path('authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>', views.CommentDetail.as_view()),
         
         
-        path('authors/<uuid:author_id>/followers/', views.FollowersList.as_view()),
-        path('authors/<uuid:author_id>/followers/<uuid:follower_id>/', views.FollowersDetails.as_view()),
+        path('authors/<uuid:author_id>/followers/', social_views.FollowersList.as_view()),
+        path('authors/<uuid:author_id>/followers/<uuid:follower_id>/', social_views.FollowersDetails.as_view()),
 
-        path('authors/<uuid:author_id>/following/', views.FollowingList.as_view()),
-        path('authors/<uuid:author_id>/friends/', views.FriendsList.as_view()),
-        path('authors/<uuid:author_id>/requests/', views.RequestsList.as_view()),
-        path('authors/<uuid:author_id>/requests/<uuid:request_follower_id>/', views.RequestsDetails.as_view()),
-        
+        path('authors/<uuid:author_id>/following/', social_views.FollowingList.as_view()),
+        path('authors/<uuid:author_id>/friends/', social_views.FriendsList.as_view()),
+
+        path('authors/<uuid:author_id>/posts/<uuid:post_id>/likes/', views.PostLikes.as_view()),
+        path('authors/<uuid:author_id>/posts/<uuid:post_id>/comments/<uuid:comment_id>/likes/', views.CommentLikes.as_view()),
+        path('authors/<uuid:author_id>/liked/', views.LikedList.as_view()),
+
+        path('authors/<uuid:author_id>/inbox/', views.InboxDetails.as_view()),
 ]
