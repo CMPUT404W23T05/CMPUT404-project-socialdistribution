@@ -1,0 +1,18 @@
+# Install using pip install -r requirements.txt
+
+# base requirements
+asgiref
+coverage
+Django
+sqlparse
+# additional requirements (add new ones under here)
+
+markdown-it-py
+django-rest-framework
+django-cors-headers
+djoser
+pillow
+stripe
+psycopg2-binary
+gunicorn 
+django-on-heroku

@@ -1,0 +1,654 @@
+openapi: 3.0.1
+info:
+  title: Social Distrubition Website API
+  description: This is our API for our social distribution website
+  version: 1.0.0
+  contact:
+    email: jmacdona@ualberta.ca
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+    
+servers:
+  - url: https://social-t30.herokuapp.com/api
+  
+paths: 
+  /authors:
+    get:
+      description: Returns list of all authors on the server
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: the type of object (authors object)
+                  items:
+                    type: array
+                    description: list of objects (list of authors, paginated 20 authors per page by default)
+                    items:
+                      $ref: '#/components/schemas/Author'
+                    example:
+                      - type: author
+                        id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                        host: http://127.0.0.1:8080/
+                        displayName: Frodo Baggins
+                        github: http://github.com/frodobaggins
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      - type: author
+                        id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                        url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                        host: http://127.0.0.1:5454/
+                        displayName: Gandalf the Grey
+                        github: http://github.com/gandalfthegrey
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+        '5XX':
+          description: Unexpected error
+                        
+  /authors/{AUTHOR_ID}:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+    get:
+      description: Returns profile of author with AUTHOR_ID
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+              example:
+                type: author
+                id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                host: http://127.0.0.1:8080/
+                displayName: Frodo Baggins
+                github: http://github.com/frodobaggins
+                profileImage: https://i.imgur.com/k7XVwpB.jpeg
+        '5XX':
+          description: Unexpected error
+
+    post:
+      description: Update the author's profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+            example:
+              type: author
+              id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+              url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+              host: http://127.0.0.1:8080/
+              displayName: Master Baggins
+              github: http://github.com/frodobaggins
+              profileImage: https://i.imgur.com/k7XVwpB.jpeg
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Author'
+              example:
+                type: author
+                id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                url: http://127.0.0.1:8080/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                host: http://127.0.0.1:8080/
+                displayName: Master Baggins
+                github: http://github.com/frodobaggins
+                profileImage: https://i.imgur.com/k7XVwpB.jpeg
+
+        '400':
+          description: Bad Request - error while serializing request body
+        '404':
+          description: Not Found - Author doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '5XX':
+          description: Unexpected error
+
+  /authors/{AUTHOR_ID}/posts:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+    get:
+      description: List of public posts authors by AUTHOR_ID (paginated)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: List of all public posts from author AUTHOR_ID
+                items:
+                  $ref: '#/components/schemas/Post'
+                example:
+                  - type: post
+                    title: Example Post 1
+                    id: b548683c-40f4-47da-86db-7f470d03443d
+                    source: http://lastplaceigotthisfrom.com/posts/yyyyy
+                    origin: http://whereitcamefrom.com/posts/zzzzz
+                    description: This is an example post for testing. Includes image.
+                    contentType: text/plain, image/png;base64
+                    content: This is the post body
+                    image: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
+                    author:
+                        type: author
+                        id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                        url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                        host: https://social-t30.herokuapp.com/
+                        displayName: Aragorn, Song of Arathorn
+                        github: http://github.com/aragorn
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                    count: 96
+                    comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
+                    visibility: PUBLIC
+                    unlisted: false
+                  - type: post
+                    title: Example Post 2
+                    id: b548683c-40f4-47da-86db-7f470d03443d
+                    source: http://lastplaceigotthisfrom.com/posts/yyyyy
+                    origin: http://whereitcamefrom.com/posts/zzzzz
+                    description: This is an example post for testing. Includes image.
+                    contentType: text/plain, image/png;base64
+                    content: This is the post body
+                    image: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
+                    author:
+                        type: author
+                        id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                        url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                        host: http://127.0.0.1:800/
+                        displayName: Aragorn, Sone of Arathorn
+                        github: http://github.com/aragorn
+                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                    count: 51
+                    comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
+                    visibility: PUBLIC
+                    unlisted: false
+
+  /authors/{AUTHOR_ID}/posts/{POST_ID}:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: POST_ID
+        in: path
+        required: true
+        description: The ID of the post
+        schema:
+          type: string
+    get:
+      description: Get post object
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+              example:
+                type: post
+                title: Example Post 3
+                id: c48683c-40f4-47da-86dt-7f470d03449d
+                source: http://lastplaceigotthisfrom.com/posts/yyyyy
+                origin: http://whereitcamefrom.com/posts/zzzzz
+                description: This is an example post for testing. Includes image.
+                contentType: text/plain, image/png;base64
+                content: This is the post body
+                image: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
+                author:
+                    type: author
+                    id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                    url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                    host: https://social-t30.herokuapp.com/
+                    displayName: Aragorn, Song of Arathorn
+                    github: http://github.com/aragorn
+                    profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                count: 108 
+                comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d/comments
+                visibility: PUBLIC
+                unlisted: false
+        '404':
+          description: Not Found - Post doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '5XX':
+          description: Unexpected error
+    post:
+      description: Update post whose id is POST_ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+            example:
+              type: post
+              title: Example Post 3 Modified
+              id: c48683c-40f4-47da-86dt-7f470d03449d
+              source: http://lastplaceigotthisfrom.com/posts/yyyyy
+              origin: http://whereitcamefrom.com/posts/zzzzz
+              description: This is an example post for testing. Includes image.
+              contentType: text/plain
+              content: This is the updated post body
+              author:
+                  type: author
+                  id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                  url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                  host: https://social-t30.herokuapp.com/
+                  displayName: Aragorn, Song of Arathorn
+                  github: http://github.com/aragorn
+                  profileImage: https://i.imgur.com/k7XVwpB.jpeg
+              count: 108 
+              comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d/comments
+              visibility: PUBLIC
+              unlisted: false
+
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+              example:
+                type: post
+                title: Example Post 3 Modified
+                id: c48683c-40f4-47da-86dt-7f470d03449d
+                source: http://lastplaceigotthisfrom.com/posts/yyyyy
+                origin: http://whereitcamefrom.com/posts/zzzzz
+                description: This is an example post for testing. Includes image.
+                contentType: text/plain
+                content: This is the updated post body
+                author:
+                    type: author
+                    id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                    url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                    host: https://social-t30.herokuapp.com/
+                    displayName: Aragorn, Song of Arathorn
+                    github: http://github.com/aragorn
+                    profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                count: 108 
+                comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d/comments
+                visibility: PUBLIC
+                unlisted: false
+        '400':
+          description: Bad Request - error while serializing request body
+        '404':
+          description: Not Found - Post doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '5XX':
+          description: Unexpected error
+      
+
+    delete:
+      description: Delete the post whose id is POST_ID
+
+      responses:
+        '204':
+          description: No Content, Post successfully deleted
+        '404':
+          description: Not Found - Post doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '5XX':
+          description: Unexpected error
+
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/image:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: POST_ID
+        in: path
+        required: true
+        description: The ID of the post
+        schema:
+          type: string
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Not Found - Post doesn't have an image
+        '5XX':
+          description: Unexpected error
+
+  /author/{AUTHOR_ID}/posts/{POST_ID}/comments:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: POST_ID
+        in: path
+        required: true
+        description: The ID of the post
+        schema:
+          type: string
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                description: List of comments on post whose id is POST_ID (paginated)
+                properties:
+                  type:
+                    type: string
+                    example: comments
+                  page:
+                    type: integer
+                    example: 1
+                  size:
+                    type: integer
+                    example: 5
+                  post:
+                    type: string
+                    example: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d
+                  id:
+                    type: string
+                    example: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
+                  comments:
+                    type: array
+                    description: Array of comment objects
+                    items:
+                      $ref: '#/components/schemas/Comment'
+                    example:
+                      - type: comment
+                        post_id: b548683c-40f4-47da-86db-7f470d03443d
+                        id: 7b8bdf38-8231-46b4-a629-1951bcc62b9c
+                        author:
+                            type: author
+                            id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                            url: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                            host: https://social-t30.herokuapp.com/
+                            displayName: Frodo Baggins
+                            github: http://github.com/frodobaggins
+                            profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                        comment: Nothing ever dampens your spirits
+                        contentType: text/plain
+                        published: 2018-02-10T16:07:04+00:00
+                      - type: comment
+                        post_id: b548683c-40f4-47da-86db-7f470d03443d 
+                        id: eb994077-3c95-47be-9d8b-207ef187443e
+                        author:
+                            type: author
+                            id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                            url: http://127.0.0.1:5454/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                            host: http://127.0.0.1:5454/
+                            displayName: Gandalf the Grey
+                            github: http://github.com/gandalfthegrey
+                            profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                        comment: Shadowfax goes brrrr
+                        contentType: text/markdown
+                        published: 2020-05-08T10:08:04+00:00
+
+        '5XX':
+          description: Unexpected error
+
+    post:
+      description: Add comment to post whose id is POST_ID; create comment object
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+            example:
+              type: comment
+              post_id: b548683c-40f4-47da-86db-7f470d03443d
+              id: 7b8bdf38-8231-46b4-a629-1951bcc62b9c
+              author:
+                  type: author
+                  id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                  url: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                  host: https://social-t30.herokuapp.com/
+                  displayName: Frodo Baggins
+                  github: http://github.com/frodobaggins
+                  profileImage: https://i.imgur.com/k7XVwpB.jpeg
+              comment: This is Sting, you've seen it before!
+              contentType: text/plain
+              published: 2018-02-10T16:07:04+00:00
+
+      responses:
+        '201':
+          description: Created 
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+              example:
+                type: comment
+                post_id: b548683c-40f4-47da-86db-7f470d03443d
+                id: 7b8bdf38-8231-46b4-a629-1951bcc62b9c
+                author:
+                    type: author
+                    id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                    url: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                    host: https://social-t30.herokuapp.com/
+                    displayName: Frodo Baggins
+                    github: http://github.com/frodobaggins
+                    profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                comment: This is Sting, you've seen it before!
+                contentType: text/plain
+                published: 2018-02-10T16:07:04+00:00
+        '400':
+          description: Bad Request - error while serializing request body
+        '5XX':
+          description: Unexpected error
+
+  /author/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}:
+    parameters:
+      - name: AUTHOR_ID
+        in: path
+        required: true
+        description: The ID of the author
+        schema:
+          type: string
+      - name: POST_ID
+        in: path
+        required: true
+        description: The ID of the post
+        schema:
+          type: string
+      - name: COMMENT_ID
+        in: path
+        required: true
+        description: The ID of the comment
+        schema:
+          type: string
+    get:
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+              example:
+                type: comment
+                post_id: b548683c-40f4-47da-86db-7f470d03443d
+                id: 7b8bdf38-8231-46b4-a629-1951bcc62b9c
+                author:
+                    type: author
+                    id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                    url: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                    host: https://social-t30.herokuapp.com/
+                    displayName: Frodo Baggins
+                    github: http://github.com/frodobaggins
+                    profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                comment: Nothing ever dampens your spirits
+                contentType: text/plain
+                published: 2018-02-10T16:07:04+00:00
+        '404':
+          description: Not Found - Comment doesn't exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+        '5XX':
+          description: Unexpected error
+
+
+components:
+  schemas:
+    Author:
+      type: object
+      description: author object
+      required:
+        - type
+        - id
+        - url
+        - host
+        - displayName
+        - github
+        - profileImage
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          description: ID of author (must be url format)
+        url:
+          type: string
+          description: url of author profile on server (same as id)
+        host:
+          type: string
+          description: hostname of this author
+        displayName:
+          type: string
+        github:
+          type: string
+          description: url to this authors github
+        profileImage:
+          type: string
+          description: url to profile image of author
+
+    Post:
+      type: object
+      description: post object
+      required:
+        - type
+        - title
+        - id
+        - source
+        - origin
+        - description
+        - contentType
+        - author
+        - count
+        - comments
+        - published
+        - unlisted
+        - visibility
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        id:
+          type: string
+        source:
+          type: string
+        origin: 
+          type: string
+        description:
+          type: string
+        contentType:
+          type: string
+        content:
+          type: string
+        image:
+          type: string
+        author:
+          $ref: '#/components/schemas/Author'
+        count:
+          type: integer 
+        comments:
+          type: string
+        published:
+          type: string
+        unlisted:
+          type: boolean
+        visibility:
+          type: string
+
+    Comment:
+      type: object
+      description: comment object
+      required:
+        - type
+        - post_id
+        - id
+        - author
+        - comment
+        - contentType
+      properties:
+        type:
+          type: string
+        post_id:
+          type: string
+        id:
+          type: string
+        author:
+          $ref: '#/components/schemas/Author'
+        comment:
+          type: string
+        contentType:
+          type: string
+        published:
+          type: string
+
+    NotFound:
+      type: object
+      properties:
+        detail:
+          type: string
+      example:
+        detail: 'Not found.'
