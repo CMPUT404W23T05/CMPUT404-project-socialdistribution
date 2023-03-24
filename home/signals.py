@@ -66,5 +66,5 @@ def send_comment_to_inbox(sender, instance, created, **kwargs):
         author_of_post = Author.objects.get(author_id = author_data_dict['_id'])
 
         # the same author of the post might be the same author of the comment
-        if author_data_dict['_id'] != comment.author.author_id: 
+        if author_data_dict['_id'] != str(comment.author.author_id): 
             author_of_post.inbox_items.create(inbox_item = comment_serializer.data)
