@@ -7,9 +7,9 @@ info:
     email: jmacdona@ualberta.ca
 
   license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-    
+    name: MIT  
+    url: https://opensource.org/licenses/MIT    
+
 servers:
   - url: https://social-t30.herokuapp.com/api/
   
@@ -1078,6 +1078,9 @@ components:
         id:
           type: string
           description: ID of author (must be url format)
+        _id:
+          type: string
+          description: just the UUID portion of the author ID
         url:
           type: string
           description: url of author profile on server (same as id)
@@ -1117,6 +1120,8 @@ components:
           type: string
         id:
           type: string
+        _id:
+          type: string
         source:
           type: string
         origin: 
@@ -1141,6 +1146,9 @@ components:
           type: boolean
         visibility:
           type: string
+        commentSrc:
+          type: '#/components/schemas/Comment'
+          
 
     Comment:
       type: object
