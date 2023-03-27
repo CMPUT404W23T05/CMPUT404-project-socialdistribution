@@ -391,6 +391,14 @@ class InboxDetails(APIView, PageNumberPagination):
     Returns a status code of 200 OK, otherwise returns a 404 Not Found if the author 
     does not exist
     """
+    
+    def get_permissions(self):
+        if self.request.method == 'GET' or self.request.method == 'POST':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+    
     def get_author_object(self, author_id):
         try:
             return Author.objects.get(author_id = author_id)
