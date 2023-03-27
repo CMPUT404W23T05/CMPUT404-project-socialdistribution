@@ -400,58 +400,74 @@ class InboxDetails(APIView, PageNumberPagination):
         
     def handle_local_or_remote_post(self, request):
 
-        if 'commentCount' in request.data.keys():
-           request.data['count'] = request.data.pop('commentCount')
-
         new_post = PostDeSerializer(data=request.data)
   
-        # if its a remote post, create a new post object
         url_id = request.data['id'] # get the url
         is_local_post = len(Post.objects.filter(url_id=url_id))
+        
+        # if the incoming post uses integer ids rather than uuid
+        author_id = request.data["author"]["url"].split("/")[-1] 
+        if author_id.isdigit():
+            new_post_dict = request.data # leave the data unchanged
+            return (new_post, new_post_dict)
+        
+        # if the incoming post has data that is valid
         if new_post.is_valid():
-            if not is_local_post:
+            if not is_local_post: # if it is a remote post
                 author_id = new_post.validated_data['author']['author_id']
-                does_author_exist = len(Author.objects.filter(author_id=author_id))
+                does_author_exist = len(Author.objects.filter(author_id=author_id)) 
                 
-                # associate the post with an author
+                # create a new post and author object?
                 Author.objects.create(**new_post.validated_data['author']) if not does_author_exist else False
                 new_post.validated_data['author'] = Author.objects.get(author_id= author_id)
                 access_post = Post.objects.create(**new_post.validated_data)
             else:
                 # a local author has created a new post, we can retrieve that post
+                # (maybe for the case of private posts?)
                 access_post = Post.objects.get(url_id=url_id)
             
             serializer = PostSerializer(access_post)
             new_post_dict = json.loads(json.dumps(serializer.data))
 
+        else: # if data is not valid (e.g uses a different format from ours)
+            new_post_dict = request.data
             
-        return (new_post, new_post_dict)
+        return new_post_dict
 
     def handle_local_or_remote_comment(self, request):
 
         new_comment = CommentSerializer(data=request.data)
 
-        # if its a remote comment, create a new comment object
+        # check if its a remote comment
         url_id = request.data['id']
         is_local_comment = len(Comment.objects.filter(url_id=request.data['id']))
 
+        # if the incoming comment uses integer ids rather than uuid
+        author_id = request.data["author"]["url"].split("/")[-1] 
+        if author_id.isdigit():
+            new_comment_dict = request.data # leave data unchanged
+            return (new_comment, new_comment_dict)
+        
         if new_comment.is_valid():
-            if not is_local_comment:
+            if not is_local_comment: # if it's a remote comment
                 author_id = new_comment.validated_data['author']['author_id']
                 does_author_exist = len(Author.objects.filter(author_id=author_id))
 
-                # associate the comment with an author
+                # associate the comment with an author (also helps to keep track of comment count)
                 Author.objects.create(**new_comment.validated_data['author']) if not does_author_exist else False
                 new_comment.validated_data['author'] = Author.objects.get(author_id= author_id)
                 access_comment = Comment.objects.create(**new_comment.validated_data)
             else:
                 # a local author has created a new comment, we can retrieve that comment
                 access_comment = Comment.objects.get(url_id=url_id)
-            
+
             serializer = CommentSerializer(access_comment)
             new_comment_dict = json.loads(json.dumps(serializer.data))
 
-        return (new_comment, new_comment_dict)
+        else: # comment data is not valid
+            new_comment_dict = request.data
+
+        return new_comment_dict
     
     def get(self, request, author_id):
 
@@ -474,20 +490,19 @@ class InboxDetails(APIView, PageNumberPagination):
         return Response(inbox_json, status=status.HTTP_200_OK)   
     
     def post(self, request, author_id):
-
+ 
         # get the current author and set up its id url
         current_author = self.get_author_object(author_id)
 
         # POST
         if request.data["type"] == "post":
 
-            new_post, new_post_dict = self.handle_local_or_remote_post(request)
-            #return Response(status=status.HTTP_400_BAD_REQUEST)  
+            new_post_dict = self.handle_local_or_remote_post(request)
  
             # checking that we're not adding duplicates in the inbox
             check_for_post = current_author.inbox_items.filter(inbox_item = new_post_dict)
             if len(check_for_post) > 0:
-                return Response(status=status.HTTP_400_BAD_REQUEST)  
+                return Response({"detail": "This post already exists in their inbox"}, status=status.HTTP_409_CONFLICT)  
             else:
                 current_author.inbox_items.create(inbox_item = new_post_dict)
                 return Response(status=status.HTTP_201_CREATED)  
@@ -495,12 +510,12 @@ class InboxDetails(APIView, PageNumberPagination):
         # COMMENT
         elif request.data["type"] == "comment":
 
-            new_comment, new_comment_dict = self.handle_local_or_remote_comment(request)
+            new_comment_dict = self.handle_local_or_remote_comment(request)
 
             # checking that we're not adding duplicates in the inbox
             check_for_comment = current_author.inbox_items.filter(inbox_item = new_comment_dict)
             if len(check_for_comment) > 0:
-                return Response(status=status.HTTP_400_BAD_REQUEST)  
+                return Response({"detail": "This post already exists in their inbox"}, status=status.HTTP_409_CONFLICT)  
             else:
                 current_author.inbox_items.create(inbox_item = new_comment_dict)
                 return Response(status=status.HTTP_201_CREATED)  
@@ -511,7 +526,7 @@ class InboxDetails(APIView, PageNumberPagination):
             # checking that we're not adding duplicates in the inbox
             check_for_like = current_author.inbox_items.filter(inbox_item = request.data)
             if len(check_for_like) > 0:
-                return Response(status=status.HTTP_400_BAD_REQUEST)  
+                return Response({"detail": "This post already exists in their inbox"}, status=status.HTTP_409_CONFLICT)  
             else: # we haven't seen this like "post" before yet
                 context_url = request.data["@context"] if "@context" in request.data.keys() else request.data["context"] 
                 Like.objects.create_like(context_url, request.data["author"], request.data["object"])
@@ -536,12 +551,6 @@ class InboxDetails(APIView, PageNumberPagination):
 
             # updating the follow request (since it has been either accepted or declined)
             elif len(does_follow_exist) > 0 and "state" in request.data.keys(): # the follow request existed before, now it either got accepted or denied
-                old_follow = does_follow_exist[0]
-                serializer = FollowSerializer(old_follow)
-                old_follow_data = json.loads(json.dumps(serializer.data)) # changing it to JSON dict
-
-                # get the specific follow request from the inbox
-                follow_from_inbox = current_author.inbox_items.filter(inbox_item = old_follow_data)[0]
 
                 if request.data["state"] == "Accepted":
 
@@ -570,6 +579,10 @@ class InboxDetails(APIView, PageNumberPagination):
                     does_follow_exist[0].save(update_fields=["state"])
 
                     return Response(status=status.HTTP_200_OK)
+                
+                else:
+                    return Response({"detail": "This post already exists in their inbox"}, status=status.HTTP_409_CONFLICT)
+                    
             else:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
   
