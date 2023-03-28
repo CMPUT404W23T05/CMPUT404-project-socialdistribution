@@ -125,12 +125,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'OPTIONS': {
+            'sslmode': 'require',
             'options': '-c search_path=myschema'
         },
         'NAME': 'mydatabase',
         'USER': 'myuser',
         'PASSWORD': 'somepassword',
-        'HOST': 'localhost'
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
