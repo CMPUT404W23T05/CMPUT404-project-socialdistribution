@@ -18,12 +18,15 @@ from django.urls import path, re_path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.views import serve
+from . import views
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/', include('djoser.urls')),
     path('api/', include('djoser.urls.authtoken')),
     path('api/', include('home.urls')),
+    path('404', views.handleVue404, name='404'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # all other paths, solution from https://stackoverflow.com/questions/27065510/how-to-serve-static-files-with-django-that-has-hardcoded-relative-paths-on-herok/40525157#40525157
