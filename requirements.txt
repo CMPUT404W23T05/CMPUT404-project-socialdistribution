@@ -13,3 +13,6 @@ django-cors-headers
 djoser
 pillow
 stripe
+psycopg2-binary
+gunicorn 
+django-on-heroku
