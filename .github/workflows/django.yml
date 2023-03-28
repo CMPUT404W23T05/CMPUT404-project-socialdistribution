@@ -49,11 +49,10 @@ jobs:
           PGPASSWORD: somepassword
 
       - name: Run Migrations
-        env:
-          PGPASSWORD: somepassword
         run: |
           python manage.py migrate
-
+        env:
+          PGPASSWORD: somepassword
 
       - name: Coverage Report
         run: |
