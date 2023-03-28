@@ -125,7 +125,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'OPTIONS': {
-            'options': '-c search_path=myschema,public'
+            'options': '-c search_path=public'
         },
         'NAME': 'mydatabase',
         'USER': 'myuser',
