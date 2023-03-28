@@ -11,7 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import permission_classes
 from django.http import HttpResponse, Http404
 from djoser.views import TokenCreateView
-from permissions import RemoteAuth
+from home.permissions import RemoteAuth
 
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
