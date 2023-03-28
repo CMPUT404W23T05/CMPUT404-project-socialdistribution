@@ -8,15 +8,18 @@ import requests
 from django.core.cache import cache
 
 # creates an instance of author anytime a user is made (connects the 2 with one2one relation)
+
+
 @receiver(post_save, sender=get_user_model())
 def create_author(sender, instance, created, **kwargs):
     if created:
         uid = str(uuid.uuid4())
         Author.objects.create(
+# counts the number of comments on post any time a new instance of Comment is saved
                 object_type = 'author',
                 url_id = "https://social-t30.herokuapp.com/api/authors/" + uid,
                 author_id = uid,
-                home_host = "https://social-t30.herokuapp.com/",
+                home_host = "https://social-t30.herokuapp.com/api/authors/",
                 display_name = instance.username,
                 profile_url = "https://social-t30.herokuapp.com/api/authors/" + uid,
                 author_github = "",
@@ -24,12 +27,12 @@ def create_author(sender, instance, created, **kwargs):
                 user = instance
                 )
 
-# counts the number of comments on post any time a new instance of Comment is saved 
 @receiver(post_save, sender=Comment)
 def updated_post_count(sender, instance, created, **kwargs):
     if created:
         post = Post.objects.get(post_id=instance.post_id)
-        post.comment_count = Comment.objects.filter(post_id=instance.post_id).count()
+        post.comment_count = Comment.objects.filter(
+            post_id=instance.post_id).count()
         post.save()
 
 

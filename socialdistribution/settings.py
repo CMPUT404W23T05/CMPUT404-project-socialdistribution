@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import django_on_heroku
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,6 +60,7 @@ INSTALLED_APPS = [
     'djoser',
 
     'home',
+    "whitenoise.runserver_nostatic",  # for heroku whitenoise
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -77,10 +80,12 @@ DJOSER = {
 }
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -107,14 +112,27 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'socialdistribution.wsgi.application'
 
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'OPTIONS': {
+            'options': '-c search_path=public'
+        },
+        'NAME': 'mydatabase',
+        'USER': 'myuser',
+        'PASSWORD': 'somepassword',
+        'HOST': 'localhost',
+        'PORT': 5432,
     }
 }
 
@@ -159,10 +177,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'dist'),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+django_on_heroku.settings(locals())
+
+# whitenoise
+WHITENOISE_INDEX_FILE = True
+WHITENOISE_ROOT = os.path.join(STATIC_ROOT, 'vue')
