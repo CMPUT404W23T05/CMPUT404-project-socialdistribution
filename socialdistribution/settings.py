@@ -123,9 +123,9 @@ STORAGES = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'OPTIONS': {
-            'options': '-c search_path=public'
+            'options': '-c search_path=django,public'
         },
         'NAME': 'mydatabase',
         'USER': 'myuser',
