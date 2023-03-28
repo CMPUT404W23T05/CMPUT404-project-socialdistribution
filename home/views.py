@@ -11,6 +11,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import permission_classes
 from django.http import HttpResponse, Http404
 from djoser.views import TokenCreateView
+from permissions import RemoteAuth
 
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
@@ -23,7 +24,7 @@ class BrowsePosts(APIView, PageNumberPagination):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
