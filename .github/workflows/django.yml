@@ -36,10 +36,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Create Schema
-        env:
-          PGPASSWORD: mypassword
         run: |
           psql -h localhost -U myuser -d mydatabase -c "CREATE SCHEMA myschema;"
+        env:
+          PGPASSWORD: somepassword
       
       - name: Install Dependencies
         run: |
