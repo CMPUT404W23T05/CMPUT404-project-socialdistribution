@@ -52,6 +52,7 @@ jobs:
 
       - name: Run Migrations
         run: |
+          python manage.py makemigrations
           python manage.py migrate
         env:
           PGPASSWORD: somepassword
