@@ -125,7 +125,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'OPTIONS': {
-            'options': '-c search_path=django,public'
+            'options': '-c search_path=public'
         },
         'NAME': 'mydatabase',
         'USER': 'myuser',
