@@ -145,9 +145,27 @@ class PostDeSerializer(serializers.ModelSerializer):
             #   raise serializers.ValidationError("Could not extract uuid from url in 'id'. Are you sure 'id' is valid?")
 
             attrs['post_id'] = post_id
-        
+            
         return attrs
 
+    def to_internal_value(self, data):
+
+        if "commentCount" in data.keys():
+            data["count"] = data.pop("commentCount")
+        
+        # in case "source" is an empty string
+        if not data["source"]:
+            data["source"] = data["author"]["host"]
+
+        # in case "origin" is an empty string
+        if not data["origin"]:
+            data["origin"] = data["author"]["host"]
+
+        # in case "profileImage" is an empty string, set default picture
+        if not data["author"]["profileImage"]:
+            data["author"]["profileImage"] = "https://i.imgur.com/k7XVwpB.jpeg"
+
+        return super().to_internal_value(data)
 
     
 class CommentSerializer(serializers.ModelSerializer):
@@ -374,7 +392,7 @@ class AuthorFollowersSerializer(serializers.ModelSerializer):
         followers_info = validated_data.pop('followers_items')
         create_author = Author.objects.create(**validated_data)
         for follower in followers_info:
-            Follower.objects.create(follower_author = create_author, author_info = json.dumps(follower.author_info))
+            Follower.objects.create(follower_author = create_author, author_info = follower.author_info)
         return create_author
 
     def to_representation(self, instance):
