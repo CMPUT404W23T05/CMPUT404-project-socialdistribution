@@ -36,10 +36,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Create Schema
-        # run: |
-        #   psql -h localhost -U myuser -d mydatabase -c "CREATE SCHEMA myschema;"
         run: |
-          psql -h localhost -U postgres -c "GRANT ALL ON SCHEMA public TO myuser;"
+          psql -h localhost -U myuser -d mydatabase -c "CREATE SCHEMA myschema;"
+          psql -h localhost -U myuser -d mydatabase -c "GRANT ALL ON SCHEMA public TO myuser;"
         env:
           PGPASSWORD: somepassword
       
