@@ -35,17 +35,25 @@ jobs:
         uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python-version }}
+            
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
       - name: Create Schema
         run: |
           psql -h localhost -U myuser -d mydatabase -c "CREATE SCHEMA myschema;"
           psql -h localhost -U myuser -d mydatabase -c "GRANT ALL ON SCHEMA public TO myuser;"
         env:
           PGPASSWORD: somepassword
-      
-      - name: Install Dependencies
+
+      - name: Run Migrations
+        env:
+          PGPASSWORD: somepassword
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python manage.py migrate
+
 
       - name: Coverage Report
         run: |
