@@ -13,3 +13,4 @@ django-cors-headers
 djoser
 pillow
 stripe
+requests

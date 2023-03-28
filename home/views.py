@@ -17,6 +17,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 import json
 
 
+
 class BrowsePosts(APIView, PageNumberPagination):
     """
     URL: ://service/api/posts/
@@ -399,72 +400,58 @@ class InboxDetails(APIView, PageNumberPagination):
             raise Http404 
         
     def handle_local_or_remote_post(self, request):
+        """
+        1. local to local inbox (public/friends posts): handled through signals.py
+        2. local to local inbox (private posts): handled through InboxDetails
+        3. local to remote inbox (public/friends posts): handled through signals.py
+        4. local to remote inbox (private posts): handled by other groups
+        
+        5. remote to local inbox (public/friends posts): handled through InboxDetails
+        6. remote to local inbox (private posts): handled through InboxDetails
+        """
 
-        new_post = PostDeSerializer(data=request.data)
-  
         url_id = request.data['id'] # get the url
         is_local_post = len(Post.objects.filter(url_id=url_id))
         
-        # if the incoming post uses integer ids rather than uuid
-        author_id = request.data["author"]["url"].split("/")[-1] 
-        if author_id.isdigit():
-            new_post_dict = request.data # leave the data unchanged
-            return (new_post, new_post_dict)
-        
-        # if the incoming post has data that is valid
-        if new_post.is_valid():
-            if not is_local_post: # if it is a remote post
-                author_id = new_post.validated_data['author']['author_id']
-                does_author_exist = len(Author.objects.filter(author_id=author_id)) 
-                
-                # create a new post and author object?
-                Author.objects.create(**new_post.validated_data['author']) if not does_author_exist else False
-                new_post.validated_data['author'] = Author.objects.get(author_id= author_id)
-                access_post = Post.objects.create(**new_post.validated_data)
-            else:
-                # a local author has created a new post, we can retrieve that post
-                # (maybe for the case of private posts?)
-                access_post = Post.objects.get(url_id=url_id)
-            
+        if not is_local_post: # if it is a remote post, leave it unchanged and put in inbox
+            new_post_dict = request.data
+        else: # if it's a local post, get the data from post objects and change to our format
+            access_post = Post.objects.get(url_id=url_id)
             serializer = PostSerializer(access_post)
             new_post_dict = json.loads(json.dumps(serializer.data))
-
-        else: # if data is not valid (e.g uses a different format from ours)
-            new_post_dict = request.data
             
         return new_post_dict
 
     def handle_local_or_remote_comment(self, request):
-
+        """
+        1. local to local comment: handled through signals.py
+        2. remote to local comment: handled through InboxDetails
+        3. local to remote comment: handled through signals.py 
+        """
         new_comment = CommentSerializer(data=request.data)
 
-        # check if its a remote comment
-        url_id = request.data['id']
+        author_url = request.data["author"]["url"]
+        author_id = request.data["author"]["url"].split("/")[-1] 
+        comment = request.data['comment']
         is_local_comment = len(Comment.objects.filter(url_id=request.data['id']))
 
-        # if the incoming comment uses integer ids rather than uuid
-        author_id = request.data["author"]["url"].split("/")[-1] 
-        if author_id.isdigit():
-            new_comment_dict = request.data # leave data unchanged
-            return (new_comment, new_comment_dict)
-        
         if new_comment.is_valid():
             if not is_local_comment: # if it's a remote comment
-                author_id = new_comment.validated_data['author']['author_id']
                 does_author_exist = len(Author.objects.filter(author_id=author_id))
 
                 # associate the comment with an author (also helps to keep track of comment count)
                 Author.objects.create(**new_comment.validated_data['author']) if not does_author_exist else False
                 new_comment.validated_data['author'] = Author.objects.get(author_id= author_id)
                 access_comment = Comment.objects.create(**new_comment.validated_data)
+
             else:
                 # a local author has created a new comment, we can retrieve that comment
-                access_comment = Comment.objects.get(url_id=url_id)
+                access_comment = Comment.objects.get(content = comment, author__url_id = author_url)
 
             serializer = CommentSerializer(access_comment)
             new_comment_dict = json.loads(json.dumps(serializer.data))
 
-        else: # comment data is not valid
+        else: # comment data is not valid, leave data as is
             new_comment_dict = request.data
 
         return new_comment_dict
@@ -491,7 +478,7 @@ class InboxDetails(APIView, PageNumberPagination):
     
     def post(self, request, author_id):
  
-        # get the current author and set up its id url
+        # get the current author 
         current_author = self.get_author_object(author_id)
 
         # POST

@@ -30,6 +30,7 @@ ALLOWED_HOSTS = [
     'https://sd7-api.herokuapp.com',
     'https://social-t30.herokuapp.com'
     'localhost',
+    '*',
 ]
 
 

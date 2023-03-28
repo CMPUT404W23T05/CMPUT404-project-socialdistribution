@@ -109,8 +109,8 @@ class PostTesting(TestCase):
         self.assertEqual(str(self.post2), "example post 2")
         # self.assertNotEqual(str(self.post3), "example post 3")
 
-# ---------------------- testing follower model ----------------------------------
-class FollowerTesting(TestCase):
+# ---------------------- testing follower and like model ----------------------------------
+class FollowandLikeTesting(TestCase):
     def setUp(self):
         
         self.author = Author.objects.create(
@@ -146,7 +146,6 @@ class FollowerTesting(TestCase):
                 "author_github": "http://github.com/jdoe",
                 "profile_image": "https://i.imgur.com/k7XVwpB.jpeg"
             })
-        
 
     def test_followers_get(self):
         serializer = AuthorSerializer(self.author2)

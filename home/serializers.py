@@ -372,7 +372,6 @@ class FollowersSerializer(serializers.ModelSerializer):
         return_data.update({
                 'type': author_dict['type'],
                 'id': author_dict['id'],
-                '_id': author_dict['_id'],
                 'host': author_dict['host'],
                 'displayName': author_dict['displayName'],
                 'url': author_dict['url'],
@@ -393,7 +392,7 @@ class AuthorFollowersSerializer(serializers.ModelSerializer):
         followers_info = validated_data.pop('followers_items')
         create_author = Author.objects.create(**validated_data)
         for follower in followers_info:
-            Follower.objects.create(follower_author = create_author, author_info = json.dumps(follower.author_info))
+            Follower.objects.create(follower_author = create_author, author_info = follower.author_info)
         return create_author
 
     def to_representation(self, instance):
