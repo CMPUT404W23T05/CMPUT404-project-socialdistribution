@@ -125,7 +125,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'OPTIONS': {
-            'sslmode': 'require',
             'options': '-c search_path=myschema'
         },
         'NAME': 'mydatabase',

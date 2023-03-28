@@ -16,13 +16,14 @@ jobs:
           POSTGRES_USER: myuser
           POSTGRES_PASSWORD: somepassword
           POSTGRES_DB: mydatabase
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
+
     strategy:
       max-parallel: 5
       matrix:
@@ -40,17 +41,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Configure PostgreSQL
-        run: |
-          sudo apt-get install libpq-dev
-          pip install psycopg2-binary
-      - name: Migrate Database
-        env:
-          DATABASE_URL: postgres://myuser:somepassowrd@localhost:5432/mydatabase?sslmode=require
-        run: python manage.py migrate
       - name: Coverage Report
-        env: 
-          DATABASE_URL: postgres://myuser:somepassowrd@localhost:5432/mydatabase?sslmode=require
         run: |
           pip install coverage
           coverage run manage.py test
