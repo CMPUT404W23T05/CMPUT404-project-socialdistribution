@@ -45,6 +45,7 @@ jobs:
         run: |
           psql -h localhost -U myuser -d mydatabase -c "CREATE SCHEMA myschema;"
           psql -h localhost -U myuser -d mydatabase -c "GRANT ALL ON SCHEMA myschema TO myuser;"
+          psql -h localhost -U myuser -d mydatabase -c "GRANT ALL ON SCHEMA public TO myuser;"
         env:
           PGPASSWORD: somepassword
 
