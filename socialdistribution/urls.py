@@ -30,5 +30,5 @@ urlpatterns = [
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # all other paths, solution from https://stackoverflow.com/questions/27065510/how-to-serve-static-files-with-django-that-has-hardcoded-relative-paths-on-herok/40525157#40525157
-# urlpatterns += [re_path(r'^.*$', serve,
-#                         kwargs={'path': '/vue/index.html'})]
+urlpatterns += [re_path(r'^.*/$', serve,
+                        kwargs={'path': '/vue/index.html'})]
