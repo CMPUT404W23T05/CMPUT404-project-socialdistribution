@@ -13,12 +13,47 @@ from rest_framework.decorators import permission_classes
 from django.http import HttpResponse, Http404
 from djoser.views import TokenCreateView
 from home.permissions import RemoteAuth, CustomIsAuthenticated
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User
 
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 
 
+
+class RemoteApiKey(APIView):
+    """
+    URL: ://service/api/remotes/{URL}
+    """
+    permission_classes = [CustomIsAuthenticated]
+        
+    def get(self, request, url, format=None):
+        remote = Remote.objects.get(url=url)
+        #put serializer here
+
+
+class GenericKey(APIView):
+    """
+    URL: ://service/api/key
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request, format=None):
+        try:
+            user = User.objects.get(username='anonymous')
+            try:
+                token_obj = Token.objects.get(user=user)
+                token = token_obj.key
+            except Token.DoesNotExist:
+                token = None
+        except User.DoesNotExist:
+            user = None
+            token = None
+
+        response = {"api_key": token}
+        return Response(response, status=status.HTTP_200_OK)
+ 
 
 class BrowsePosts(APIView, PageNumberPagination):
     """
@@ -637,3 +672,6 @@ class InboxDetails(APIView, PageNumberPagination):
         all_items = current_author.inbox_items.all()
         all_items.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
