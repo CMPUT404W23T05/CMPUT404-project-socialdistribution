@@ -31,7 +31,7 @@ ALLOWED_HOSTS = [
     'https://socialdistcmput404.herokuapp.com',
     'https://sd7-api.herokuapp.com',
     'https://social-t30.herokuapp.com'
-    'localhost',
+    'localhost'
 ]
 
 

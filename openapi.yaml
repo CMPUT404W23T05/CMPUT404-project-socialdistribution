@@ -1060,7 +1060,9 @@ paths:
         '201':
           description: Created, The follow request has been created
         '400':
-          description: Bad Request, Either the format is not the correct or you're sending a duplicate "post"
+          description: Bad Request (format may not be correct)
+        '409':
+          description: You're sending a duplicate "post"
         '404':
           description: The author does not exist
         '5XX':
