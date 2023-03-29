@@ -35,7 +35,6 @@ class BrowsePosts(APIView, PageNumberPagination):
 
     def get(self, request, format=None):
         token = request.META.get('HTTP_AUTHORIZATION', None)
-        print("token: ", token)
         posts = Post.objects.filter(visibility='PUBLIC')
 
         self.page = int(request.query_params.get('page', 1))
