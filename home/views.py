@@ -51,12 +51,9 @@ class GenericKey(APIView):
                 token_obj = Token.objects.get(user=user)
                 token = token_obj.key
             except Token.DoesNotExist:
-                response = {'api_key': None}
-                return Response(response, status=status.HTTP_404_NOT_FOUND)
+                raise Http404
         except User.DoesNotExist:
-            response = {'api_key': None}
-            return Response(response, status=status.HTTP_404_NOT_FOUND)
-
+            Http404
         response = {"api_key": token}
         return Response(response, status=status.HTTP_200_OK)
  
