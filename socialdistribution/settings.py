@@ -123,15 +123,8 @@ STORAGES = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'OPTIONS': {
-            'options': '-c search_path=public'
-        },
-        'NAME': 'mydatabase',
-        'USER': 'myuser',
-        'PASSWORD': 'somepassword',
-        'HOST': 'localhost',
-        'PORT': 5432,
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
