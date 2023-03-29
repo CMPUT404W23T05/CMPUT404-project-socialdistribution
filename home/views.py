@@ -7,11 +7,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import permission_classes
 from django.http import HttpResponse, Http404
 from djoser.views import TokenCreateView
-from home.permissions import RemoteAuth
+from home.permissions import RemoteAuth, CustomIsAuthenticated
 
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
@@ -22,14 +23,18 @@ class BrowsePosts(APIView, PageNumberPagination):
     """
     URL: ://service/api/posts/
     """
+
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [RemoteAuth]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
 
     def get(self, request, format=None):
+        token = request.META.get('HTTP_AUTHORIZATION', None)
+        print("token: ", token)
         posts = Post.objects.filter(visibility='PUBLIC')
 
         self.page = int(request.query_params.get('page', 1))
@@ -46,9 +51,10 @@ class PostList(APIView, PageNumberPagination):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
 
     def get(self, request, author_id, format=None):
@@ -91,10 +97,12 @@ class PostDetail(APIView):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
+
 
     def get_object(self, post_id):
         try:
@@ -139,9 +147,10 @@ class ImageView(APIView):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
 
 
@@ -162,9 +171,10 @@ class AuthorList(APIView, PageNumberPagination):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
 
 
@@ -188,10 +198,11 @@ class AuthorDetail(APIView):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+            permission_classes = [CustomIsAuthenticated]
+
+        return [permission() for permission in permission_classes]    
 
     def get_object(self, author_id):
         try:
@@ -220,9 +231,10 @@ class CommentList(APIView, PageNumberPagination):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
 
     def get(self, request, post_id, author_id, format=None):
@@ -258,9 +270,10 @@ class CommentDetail(APIView):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
 
     def get_object(self, comment_id):
@@ -283,9 +296,10 @@ class PostLikes(APIView):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
     
     def get_author_object(self, author_id):
@@ -327,9 +341,10 @@ class CommentLikes(APIView):
 
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
     
     def get_author_object(self, author_id):
@@ -368,9 +383,10 @@ class LikedList(APIView):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
     
     def get_author_object(self, author_id):
@@ -394,10 +410,11 @@ class InboxDetails(APIView, PageNumberPagination):
     """
     
     def get_permissions(self):
-        if self.request.method == 'GET' or self.request.method == 'POST':
-            permission_classes = [AllowAny]
+        if self.request.method == 'POST':
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
+
         return [permission() for permission in permission_classes]
     
     def get_author_object(self, author_id):
