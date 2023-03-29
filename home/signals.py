@@ -50,7 +50,7 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
 
         # add post to their own inbox
         post_serializer = PostSerializer(post)
-        post.author.inbox_items.create(post_serializer.data)
+        post.author.inbox_items.create(inbox_item = post_serializer.data)
 
         followers_serializer = AuthorFollowersSerializer(post.author) # get the followers
         
