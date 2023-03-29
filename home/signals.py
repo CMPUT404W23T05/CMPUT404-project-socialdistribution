@@ -40,18 +40,6 @@ def updated_post_count(sender, instance, created, **kwargs):
         post.save()
 
 
-@receiver(post_save, sender=Follow)
-def create_remote_author(sender, instance, created, **kwargs):
-    host = "https://social-t30.herokuapp.com/"
-    if created:
-        pass
-        """
-        if instance.author_actor["host"] != host:
-            serializer = AuthorSerializer(data=instance.author_actor)
-            if serializer.is_valid():
-                Author.objects.create(**serializer.validated_data)
-        """
-
 @receiver(post_save, sender=Post)
 def send_post_to_inbox(sender, instance, created, **kwargs):
  

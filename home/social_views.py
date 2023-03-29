@@ -14,6 +14,11 @@ from djoser.views import TokenCreateView
 
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
+import requests
+
+auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
+        "https://sd7-api.herokuapp.com/": {"Authorization": "Basic node01:P*ssw0rd!"},
+        "https://social-t30.herokuapp.com/": {"Authorization": "Token 332af37c2a154de56cd8cb42644f1f81cc46c4ef"}}
 
 
 class FollowersList(APIView):
@@ -60,14 +65,6 @@ class FollowersDetails(APIView):
         except Author.DoesNotExist:
             raise Http404 
         
-    def check_follower(self, current_author, follower_info):
-        """
-        Checks if a specific author is following the current author
-        """
-        try:
-            return current_author.followers_items.filter(author_info = follower_info)[0]
-        except: # follower does not exist (i.e. we get an IndexError)
-            raise Http404 
         
     def get(self, request, author_id, follower_id):
         """
@@ -83,15 +80,9 @@ class FollowersDetails(APIView):
         """
         # get the first match
         current_author = self.get_object(author_id)
-        selected_follower = self.get_object(follower_id)
-
-        # turning our data into bytes and then to a string
-        follower_serializer = AuthorSerializer(selected_follower)
-        author_data = json.dumps(follower_serializer.data)
-        follower_data_dict = json.loads(author_data)
 
         # is this author a follower of the current author? Compare the information
-        check_follower = current_author.followers_items.filter(author_info = follower_data_dict)
+        check_follower = current_author.followers_items.filter(author_info__id = follower_id)
 
         response_body = {}
         if len(check_follower) > 0: # the author does follow the current author
@@ -110,27 +101,18 @@ class FollowersDetails(APIView):
         """
         # get the author and the follower
         current_author = self.get_object(author_id)
-        selected_follower = self.get_object(follower_id)
-        
-        # turning our data into bytes, to string, then a dict
-        author_serializer = AuthorSerializer(current_author)
-        current_author_data = json.dumps(author_serializer.data)
-        author_data_dict = json.loads(current_author_data)
-
-        follower_serializer = AuthorSerializer(selected_follower)
-        follower_author_data = json.dumps(follower_serializer.data)
-        follower_data_dict = json.loads(follower_author_data)
+        follower_exists = len(current_author.followers_items.filter(author_info__id = follower_id))
 
         # update the status of the follow request object (remove follower = we unbefriend that person aka they no longer follow us)
-        get_follow_object = Follow.objects.filter(author_object=author_data_dict).filter(author_actor=follower_data_dict)
+        get_follow_object = Follow.objects.filter(author_object__id = current_author.url_id).filter(author_actor__id=follower_id)
         if len(get_follow_object) > 0:
             get_follow_object[0].state = "Declined"
             get_follow_object[0].save(update_fields=["state"])
 
-        selected_follower = self.check_follower(current_author, follower_data_dict)
+        if follower_exists:
+            # if everything above is successful
+            follower_exists[0].delete() 
 
-        # if everything above is successful
-        selected_follower.delete() 
         return Response(status=status.HTTP_204_NO_CONTENT) 
 
     
@@ -141,27 +123,25 @@ class FollowersDetails(APIView):
         If author_id or follower_id does not exist, then status code = 404 Not Found,
         else 200 OK (the follower has been added) or 409 Conflict (the follower already exists), or
         400 Bad Request (maybe you're making the author follow itself?)
-        """
-        if author_id == follower_id:
-            return Response(status=status.HTTP_400_BAD_REQUEST)  
+        """ 
                  
         # get the author and the follower
         current_author = self.get_object(author_id)
-        selected_follower = self.get_object(follower_id)
 
-        # turning our data into bytes, to a string, then dict
-        follower_serializer = AuthorSerializer(selected_follower)
-        follower_data = json.dumps(follower_serializer.data)
-        follower_data_dict = json.loads(follower_data)
+        if current_author.url_id == follower_id:
+            return Response(status=status.HTTP_400_BAD_REQUEST) 
 
         # checks if follower already exists (to avoid duplicates)
-        does_follower_exist = current_author.followers_items.filter(author_info = follower_data_dict)
+        does_follower_exist = current_author.followers_items.filter(author_info__id = follower_id)
         
         if len(does_follower_exist) > 0: # this follower already exists
             return Response(status=status.HTTP_409_CONFLICT) 
 
         else:
-            current_author.followers_items.create(author_info = follower_data_dict)
+            host = follower_id.split('api/')[0]
+            headers = auth[host] # get authorization
+            r = requests.get(follower_id, headers = headers)
+            current_author.followers_items.create(author_info = r.json())
             return Response(status=status.HTTP_201_CREATED) 
     
 class FollowingList(APIView):
@@ -206,6 +186,7 @@ class FollowingList(APIView):
         following_list = json.loads(following_data)
         following_json = {"type": "following", "items": following_list}
         return Response(following_json)
+    
 
 class FriendsList(APIView):
     """

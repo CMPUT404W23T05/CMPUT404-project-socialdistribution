@@ -13,7 +13,7 @@ import json
 from rest_framework.renderers import JSONRenderer
 from .views import *
 import uuid
-
+import requests
 
 
 
@@ -60,7 +60,7 @@ class PostTesting(TestCase):
         self.post1 = Post.objects.create(
                 object_type = "post",
                 title = "example post 1",
-                url_id = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/decad856-d48d-4b2a-a100-b0734bcef0a7",
+                url_id = "http://127.0.0.1:8000/api/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/decad856-d48d-4b2a-a100-b0734bcef0a7",
                 post_id = "decad856-d48d-4b2a-a100-b0734bcef0a7",
                 post_source = "http://lastplaceigotthisfrom.com/posts/yyyyy",
                 post_origin = "http://whereitcamefrom.com/posts/zzzzz",
@@ -70,7 +70,7 @@ class PostTesting(TestCase):
                 image = ContentFile(base64.b64decode(image_data_png), name='test_image_1'),
                 author = self.author2,
                 comment_count = 5,
-                comments = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/decad856-d48d-4b2a-a100-b0734bcef0a7/comments",
+                comments = "http://127.0.0.1:8000/api/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/decad856-d48d-4b2a-a100-b0734bcef0a7/comments",
                 visibility = "PUBLIC",
                 is_unlisted = False
                 )
@@ -79,7 +79,7 @@ class PostTesting(TestCase):
         self.post2 = Post.objects.create(
                 object_type = "post",
                 title = "example post 2",
-                url_id = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/218049ef-ac5b-4f4c-a853-f8b8bd8dcd68",
+                url_id = "http://127.0.0.1:8000/api/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/218049ef-ac5b-4f4c-a853-f8b8bd8dcd68",
                 post_id = "218049ef-ac5b-4f4c-a853-f8b8bd8dcd68",
                 post_source = "http://lastplaceigotthisfrom.com/posts/yyyyy",
                 post_origin = "http://whereitcamefrom.com/posts/zzzzz",
@@ -89,7 +89,7 @@ class PostTesting(TestCase):
                 image = ContentFile(base64.b64decode(image_data_jpg), name='test_image_2'),
                 author = self.author2,
                 comment_count = 5,
-                comments = "http://127.0.0.1:5454/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/218049ef-ac5b-4f4c-a853-f8b8bd8dcd68/comments",
+                comments = "http://127.0.0.1:8000/api/authors/26dfb518-6dde-4ccb-bfbf-b95ba26d4e88/posts/218049ef-ac5b-4f4c-a853-f8b8bd8dcd68/comments",
                 visibility = "PUBLIC",
                 is_unlisted = False
                 )
@@ -115,22 +115,22 @@ class FollowandLikeTesting(TestCase):
         
         self.author = Author.objects.create(
                 object_type = "author",
-                url_id = "http://127.0.0.1:5454/authors/a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
+                url_id = "http://127.0.0.1:8000/api/authors/a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
                 author_id = "a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
-                home_host = "http://127.0.0.1:5454/",
+                home_host = "http://127.0.0.1:8000/",
                 display_name = "Greg Johnson",
-                profile_url = "http://127.0.0.1:5454/authors/a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
+                profile_url = "http://127.0.0.1:8000/api/authors/a15eb467-5eb0-4b7d-9eaf-850c3bf7970c",
                 author_github = "http://github.com/gjohnson",
                 profile_image = "https://i.imgur.com/k7XVwpB.jpeg"
                 )
         
         self.author2 = Author.objects.create(**{
                 "object_type": "author",
-                "url_id": "http://127.0.0.1:5454/authors/6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
+                "url_id": "http://127.0.0.1:8000/api/authors/6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
                 "author_id": "6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
-                "home_host":  "http://127.0.0.1:5454/",
+                "home_host":  "http://127.0.0.1:8000/",
                 "display_name": "Lara Croft",
-                "profile_url": "http://127.0.0.1:5454/authors/6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
+                "profile_url": "http://127.0.0.1:8000/api/authors/6dd28022-aaef-4bc7-af6f-9224ec6fcf42",
                 "author_github": "http://github.com/laracroft",
                 "profile_image": "https://i.imgur.com/k7XVwpB.jpeg"
             })
@@ -138,11 +138,11 @@ class FollowandLikeTesting(TestCase):
         
         self.author3 = Author.objects.create(**{
                 "object_type": "author",
-                "url_id": "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658ee",
+                "url_id": "http://127.0.0.1:8000/api/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658ee",
                 "author_id": "4318ba4e-6f8d-4f3e-985a-ea2fadb7cd87",
-                "home_host":  "http://127.0.0.1:5454/",
+                "home_host":  "http://127.0.0.1:8000/",
                 "display_name": "John Doe",
-                "profile_url": "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658ee",
+                "profile_url": "http://127.0.0.1:8000/api/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658ee",
                 "author_github": "http://github.com/jdoe",
                 "profile_image": "https://i.imgur.com/k7XVwpB.jpeg"
             })
@@ -152,9 +152,14 @@ class FollowandLikeTesting(TestCase):
         author_data = json.dumps(serializer.data)
         author_data_dict = json.loads(author_data)
         
+        # author 2 follows author 1
         self.author.followers_items.create(author_info = author_data_dict)
         self.assertEqual(len(self.author.followers_items.all()), 1)
 
+        filter = self.author.followers_items.filter(author_info__id ='http://127.0.0.1:8000/api/authors/6dd28022-aaef-4bc7-af6f-9224ec6fcf42')
+        self.assertEqual(len(filter), 1)
+
+        
     def test_follow_manager(self):
         author_serializer = AuthorSerializer(self.author)
         author_data = json.dumps(author_serializer.data)
@@ -170,9 +175,12 @@ class FollowandLikeTesting(TestCase):
         
         self.assertEqual(len(Follow.objects.all()), 1)
 
+        filter = Follow.objects.filter(author_object__id="http://127.0.0.1:8000/api/authors/6dd28022-aaef-4bc7-af6f-9224ec6fcf42")
+        self.assertEqual(len(filter), 1)
+
     def test_likes(self):
         context = "https://www.w3.org/ns/activitystreams"
-        object_link = "http://127.0.0.1:5454/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e"
+        object_link = "http://127.0.0.1:8000/api/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/764efa883dda1e11db47671c4a3bbd9e"
 
         serializer = AuthorSerializer(self.author)
         author_dict = json.loads(json.dumps(serializer.data))
