@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: Social Distribution Website API
   description: This is our API for our Social Distribution website (Team 5)
-  version: 1.0.0
+  version: 1.1.0
   contact:
     email: jmacdona@ualberta.ca
 
@@ -14,7 +14,71 @@ servers:
   - url: https://social-t30.herokuapp.com/api
   
 paths: 
-  /authors:
+  /key:
+    get:
+      tags:
+        - Generic API Key
+      summary: LOCAL, REMOTE
+      description: Returns a generic api token key that can be used to remotely access our api, can return None if not key exists
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_key:
+                    type: string
+                    example: d769v3dee9855b6f5df8908ne1cba7fc1876felt
+        '404':
+          description: Not Found - No API key exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  api_key:
+                    type: string
+                    example: None
+                    
+  /remotes/{URL}:
+    parameters:
+      - name: URL
+        in: path
+        required: true
+        description: The url of a node's api endpoint
+        schema:
+          type: string
+    get:
+      tags:
+       - Remote Nodes
+      summary: LOCAL
+      description: Returns the TEAM name, url of api, and api key of node at {URL}
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    example: TEAM 5
+                  url:
+                    type: string
+                    example: https://social-t30.herokuapp.com/api/
+                  token: 
+                    type: string
+                    description: can be a token or null
+                    example: d769v3dee9855b6f5df8908ne1cba7fc1876felt
+                  basic: 
+                    type: string
+                    description: can be username:password or null
+                    example: myusername:somepassowrd
+                    
+  /authors/:
     get:
       parameters:
         - in: query
@@ -179,6 +243,7 @@ paths:
                         displayName: testuser1
                         github: http://github.com/testuser1
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                    categories: [tags, are, fun]
                     count: 96
                     comments: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
                     published: 2023-03-23T00:33:51.532544Z
@@ -209,6 +274,7 @@ paths:
                         displayName: Aragorn, Son of Arathorn
                         github: http://github.com/aragorn
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                    categories: [tags, are, fun]
                     count: 51
                     comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
                     visibility: PUBLIC
@@ -268,6 +334,7 @@ paths:
                     displayName: testuser1
                     github: http://github.com/testuser1
                     profileImage: https://i.imgur.com/k7XVwp
+                  categories: [tags, are, fun]
                   count: 96
                   comments: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
                   published: 2023-03-23T00:33:51.532544Z
@@ -315,6 +382,7 @@ paths:
                   displayName: Aragorn, Song of Arathorn
                   github: http://github.com/aragorn
                   profileImage: https://i.imgur.com/k7XVwpB.jpeg
+              categories: [tags, are, fun]
               count: 108 
               comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d/comments
               visibility: PUBLIC
@@ -343,6 +411,7 @@ paths:
                     displayName: Aragorn, Song of Arathorn
                     github: http://github.com/aragorn
                     profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                categories: [tags, are, fun]
                 count: 108 
                 comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d/comments
                 visibility: PUBLIC
@@ -1163,6 +1232,10 @@ components:
           type: string
         author:
           $ref: '#/components/schemas/Author'
+        categories:
+          type: array
+          items: 
+            type: string
         count:
           type: integer 
         comments:
