@@ -26,4 +26,7 @@ urlpatterns = [
         path('authors/<uuid:author_id>/liked/', views.LikedList.as_view()),
 
         path('authors/<uuid:author_id>/inbox/', views.InboxDetails.as_view()),
+
+        path('remotes/<path:url>', views.RemoteApiKey.as_view()),
+        path('key', views.GenericKey.as_view())
 ]
