@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 
 class RemoteAuth(BasePermission):
 
-    def get_anon_user():
+    def get_anon_user(self):
         try:
             user = User.objects.get(username='anonymous')
 
@@ -29,7 +29,7 @@ class RemoteAuth(BasePermission):
 
 class CustomIsAuthenticated(IsAuthenticated):
 
-    def get_anon_user():
+    def get_anon_user(self):
         try:
             user = User.objects.get(username='anonymous')
 
