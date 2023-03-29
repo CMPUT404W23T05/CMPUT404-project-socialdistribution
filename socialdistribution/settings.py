@@ -139,7 +139,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        # 'LOCATION': 'team_tokens',
+        'LOCATION': 'team_tokens',
     }
 }
 # Password validation
