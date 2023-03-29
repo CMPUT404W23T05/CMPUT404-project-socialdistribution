@@ -1,2 +1,2 @@
 web: gunicorn socialdistribution.wsgi
-release: ./proc.sh
+release: chmod u+x proc.sh && ./proc.sh
