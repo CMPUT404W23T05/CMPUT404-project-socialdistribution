@@ -31,8 +31,7 @@ ALLOWED_HOSTS = [
     'https://socialdistcmput404.herokuapp.com',
     'https://sd7-api.herokuapp.com',
     'https://social-t30.herokuapp.com'
-    'localhost',
-    '*',
+    'localhost'
 ]
 
 
@@ -136,12 +135,7 @@ DATABASES = {
     }
 }
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'team_tokens',
-    }
-}
+
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 

@@ -25,6 +25,7 @@ class PostForRemoteSerializer(serializers.ModelSerializer):
                   'visibility', 'unlisted']
 
     def to_representation(self, instance):
+        
         data = super().to_representation(instance)
         return_data = {} # update how it's displayed after being serialized
         return_data.update({
@@ -36,6 +37,7 @@ class PostForRemoteSerializer(serializers.ModelSerializer):
                 'description': data['description'],
                 'contentType': data['contentType'],
                 'content': data['content'],
+                'image': data['image'],
                 'author': data['author'],
                 'count': data['count'],
                 'comments': data['comments'],
