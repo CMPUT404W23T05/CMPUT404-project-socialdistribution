@@ -26,11 +26,16 @@ class RemoteApiKey(APIView):
     """
     URL: ://service/api/remotes/{URL}
     """
-    permission_classes = [CustomIsAuthenticated]
+    permission_classes = [AllowAny]
         
     def get(self, request, url, format=None):
-        remote = Remote.objects.get(url=url)
-        #put serializer here
+        try:
+            remote = Remote.objects.get(url=url)
+        except Remote.DoesNotExist:
+            raise Http404
+
+        serializer = RemoteSerializer(remote)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GenericKey(APIView):

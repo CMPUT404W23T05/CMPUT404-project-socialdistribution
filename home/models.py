@@ -14,7 +14,7 @@ URL_MAX_LENGTH = 2000       # for urls
 COMMENT_MAX_LENGTH = 200    # for comment length
 ID_MAX_LENGTH = 50          # for ids
 BIG_MAX_LENGTH = 80         # for longer fields like 'title'
-SMALL_MAX_LENGTH = 20       # for short fields like 'type'
+SMALL_MAX_LENGTH = 30       # for short fields like 'type'
 
 
 
@@ -92,7 +92,18 @@ class FollowManager(models.Manager):
 
     def delete_follow(self):
         self.delete()
+
 ####################### Models #################################################
+class Remote(models.Model):
+    name = models.CharField(max_length=SMALL_MAX_LENGTH, default='TEAM')
+    url = models.URLField(max_length=URL_MAX_LENGTH, unique=True, null=False, blank=False)
+    token = models.CharField(max_length=BIG_MAX_LENGTH, null=True, blank=True)
+    basic = models.CharField(max_length=BIG_MAX_LENGTH, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Author(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     url_id = models.URLField(max_length=URL_MAX_LENGTH, unique=True, null=False, blank=False)

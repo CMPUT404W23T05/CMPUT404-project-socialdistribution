@@ -14,6 +14,10 @@ import re
 # need to pip install rest_framework
 # To convert your queries to or from a JSON object (useful when connecting with groups)
 
+class RemoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Remote
+        fields = ['name', 'url', 'token', 'basic']
 
 class AuthorSerializer(serializers.ModelSerializer):
 
