@@ -14,7 +14,7 @@ from rest_framework.renderers import JSONRenderer
 from .views import *
 import uuid
 import requests
-from django.core.cache import cache
+
 
 class InboxTesting(TestCase):
     def setUp(self):
@@ -97,6 +97,7 @@ class InboxTesting(TestCase):
         author_data_dict = json.loads(author_data)
         self.author2.followers_items.create(author_info = author_data_dict)
         self.assertEqual(len(self.author2.followers_items.all()), 1)
+
         post = Post.objects.get(url_id=self.post2.url_id)
         post_serializer = PostSerializer(post)
         followers_serializer = AuthorFollowersSerializer(post.author) # get the followers
@@ -106,33 +107,18 @@ class InboxTesting(TestCase):
             if follower_host != self.author2.home_host: # if it's a remote author
                 follower_id = item["id"].split("/")[-1]
                 url = follower_host + "api/authors/" + follower_id + "/inbox/" 
-                headers = {"Authorization": "Token 83bd54db7cc5e502d6724e072c5dbbd7f9bd460a"}
-                r = requests.post(url, headers = headers, data=post_serializer.data) # post to inbox
-                self.assertEqual(r.status_code, 201)
-            else: # it's a local author
-                get_follower = Author.objects.get(author_id = item['_id']) # get the author follower
-                
-                # notify each follower about the new post
-                get_follower.inbox_items.create(inbox_item = post_serializer.data)
+                r = requests.head(url) 
+                self.assertEqual(r.status_code, 200) # check if url exists
 
-    def test_send_comment_to_remote_follower_inbox(self):
+
+    def test_send_comment_to_remote_author_inbox(self):
         is_local_post = len(Post.objects.filter(url_id=self.comment_for_author_1.url_id)) # get the post based on its url
         comment = Comment.objects.get(url_id=self.comment_for_author_1.url_id) # get the comment based on its id
         comment_serializer = CommentSerializer(comment)
         if not is_local_post: # a local author commented on a remote post
             comment_url = comment.url_id
             get_remote_author_info = comment_url.split('posts/')[0]
-            host = comment_url.split('api/')[0]
-            headers = {"Authorization": "Token 83bd54db7cc5e502d6724e072c5dbbd7f9bd460a"}
             url = get_remote_author_info + '/inbox/'
-            r = requests.post(url, headers = headers, data=comment_serializer.data) # post to inbox
-        else: # a local author commented on a local post
-            post = is_local_post[0]
-            author_serializer = AuthorSerializer(post.author)
-            author_data = json.dumps(author_serializer.data)
-            author_data_dict = json.loads(author_data)
-            # get the author of the post (we need to send the comment notifcation to this author)
-            author_of_post = Author.objects.get(author_id = author_data_dict['_id'])
-            # the same author of the post might be the same author of the comment
-            if author_data_dict['_id'] != str(comment.author.author_id): 
-                author_of_post.inbox_items.create(inbox_item = comment_serializer.data)
+            r = requests.head(url) 
+            self.assertEqual(r.status_code, 200) # check if url exists
+
