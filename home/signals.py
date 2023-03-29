@@ -39,19 +39,6 @@ def updated_post_count(sender, instance, created, **kwargs):
             post_id=instance.post_id).count()
         post.save()
 
-
-@receiver(post_save, sender=Follow)
-def create_remote_author(sender, instance, created, **kwargs):
-    host = "https://social-t30.herokuapp.com/"
-    if created:
-        pass
-        """
-        if instance.author_actor["host"] != host:
-            serializer = AuthorSerializer(data=instance.author_actor)
-            if serializer.is_valid():
-                Author.objects.create(**serializer.validated_data)
-        """
-
 @receiver(post_save, sender=Post)
 def send_post_to_inbox(sender, instance, created, **kwargs):
  
@@ -60,6 +47,10 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
     # if a local post is created, send notification to local and remote authors (their followers)
     if created: 
         post = Post.objects.get(url_id=instance.url_id)
+
+        # add post to their own inbox
+        post_serializer = PostSerializer(post)
+        post.author.inbox_items.create(post_serializer.data)
 
         followers_serializer = AuthorFollowersSerializer(post.author) # get the followers
         
@@ -83,6 +74,7 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
                 get_follower.inbox_items.create(inbox_item = post_serializer.data)
 
 
+
 @receiver(post_save, sender=Comment)
 def send_comment_to_inbox(sender, instance, created, **kwargs):
 
@@ -90,7 +82,7 @@ def send_comment_to_inbox(sender, instance, created, **kwargs):
     # if a comment is created locally, send to inboxes
     # (now it depends on whether a comment was placed on a local or remote post)
     if created: 
-        is_local_post = len(Post.objects.filter(post_id=instance.post_id)) # get the post based on its url
+        is_local_post = Post.objects.filter(post_id=instance.post_id) # get the post based on its url
         comment = Comment.objects.get(url_id=instance.url_id) # get the comment based on its id
 
         if not is_local_post: # a local author commented on a remote post
