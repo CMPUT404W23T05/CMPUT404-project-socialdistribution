@@ -1,4 +1,4 @@
-# from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, IntegrityError
 from django.core.files.base import ContentFile
 from django.core.files import File
