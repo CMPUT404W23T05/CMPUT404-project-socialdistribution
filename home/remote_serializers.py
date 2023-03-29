@@ -82,7 +82,6 @@ class CommentForRemoteSerializer(serializers.ModelSerializer):
                 'type': data['type'],
                 'id': data['id'],
                 'author': data['author'],
-                'count': data['count'],
                 'comment': data['comment'],
                 'contentType': data['contentType'],
                 'published': data['published']})

@@ -90,7 +90,7 @@ def send_comment_to_inbox(sender, instance, created, **kwargs):
     # if a comment is created locally, send to inboxes
     # (now it depends on whether a comment was placed on a local or remote post)
     if created: 
-        is_local_post = len(Post.objects.filter(url_id=instance.url_id)) # get the post based on its url
+        is_local_post = len(Post.objects.filter(post_id=instance.post_id)) # get the post based on its url
         comment = Comment.objects.get(url_id=instance.url_id) # get the comment based on its id
 
         if not is_local_post: # a local author commented on a remote post
