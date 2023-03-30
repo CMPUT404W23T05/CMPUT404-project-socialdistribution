@@ -1,2 +1,2 @@
 web: gunicorn socialdistribution.wsgi
-release: python manage.py migrate
+release: chmod u+x proc.sh && ./proc.sh

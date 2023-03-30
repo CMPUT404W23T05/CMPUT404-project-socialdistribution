@@ -9,12 +9,6 @@ from home.remote_serializers import *
 import requests
 
 # creates an instance of author anytime a user is made (connects the 2 with one2one relation)
-r = requests.get("https://social-t30.herokuapp.com/api/key")
-token = r.json()["api_key"]
-
-auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
-        "https://sd7-api.herokuapp.com/": {"Authorization": "Basic node01:P*ssw0rd!"},
-        "https://social-t30.herokuapp.com/": {"Authorization": "Token " + token}}
 
 @receiver(post_save, sender=get_user_model())
 def create_author(sender, instance, created, **kwargs):
@@ -43,6 +37,9 @@ def updated_post_count(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Post)
 def send_post_to_inbox(sender, instance, created, **kwargs):
+
+    auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
+        "https://sd7-api.herokuapp.com/": {"Authorization": "Basic node01:P*ssw0rd!"}}
  
     host = "https://social-t30.herokuapp.com/"
     # if a local post is created, send notification to local and remote authors (their followers)
@@ -72,6 +69,9 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Comment)
 def send_comment_to_inbox(sender, instance, created, **kwargs):
+
+    auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
+        "https://sd7-api.herokuapp.com/": {"Authorization": "Basic node01:P*ssw0rd!"}}
 
     # if a comment is created locally, send to inboxes
     # (now it depends on whether a comment was placed on a local or remote post)
