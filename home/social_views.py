@@ -88,7 +88,7 @@ class FollowersDetails(APIView):
             response_body["exists"] = "true"
         else:
             response_body["exists"] = "false"
-
+ 
         return Response(response_body, status=status.HTTP_200_OK)
         
     def delete(self, request, author_id, follower_id):
@@ -111,8 +111,9 @@ class FollowersDetails(APIView):
         if follower_exists:
             # if everything above is successful
             follower_exists[0].delete() 
-
-        return Response(status=status.HTTP_204_NO_CONTENT) 
+            return Response(status=status.HTTP_204_NO_CONTENT) 
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND) 
 
     
     def put(self, request, author_id, follower_id):
@@ -170,27 +171,22 @@ class FollowingList(APIView):
         except Author.DoesNotExist:
             raise Http404 
         
-    def check_for_remote_followers(self, author_object):
-        authors_list = []
+    def check_for_remote_following(self, author_object):
         following_remote_authors = []
 
         auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
-        "https://sd7-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
+        "https://sd-7-433-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
 
-        r = requests.get("http://sd7-api.herokuapp.com/api/authors/", headers = {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')})
-        authors_list.extend(r.json()["items"])
-
-        r = requests.get("https://socialdistcmput404.herokuapp.com/api/authors/", headers = {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"})
-        authors_list.extend(r.json()["items"])
+        remote_follows_sent = RemoteFollow.objects.filter(author_id = author_object.author_id)
   
-        for author in authors_list:
-            host = author["host"] + "/" if not author["host"].endswith("/") else author["host"]
-            author_id = author["id"].split("/authors/")[-1]
+        for follow in remote_follows_sent:
+            object_host = follow.remote_follow_info["object"]["host"]
+            host = object_host + "/" if not object_host.endswith("/") else object_host
+            author_id = follow.remote_follow_info["object"]["id"].split("/authors/")[-1]
 
-            if "heroku" in host:
-                r = requests.get(host + "api/authors/" + author_id + "/followers/" + author_object.url_id, headers = auth[host])
-                if r.status_code == 200:
-                    following_remote_authors.append(author)
+            r = requests.get(host + "api/authors/" + author_id + "/followers/" + author_object.url_id, headers = auth[host])
+            if r.status_code == 200:
+                following_remote_authors.append(follow.remote_follow_info["object"])
                 r.close()
 
         return following_remote_authors
@@ -220,7 +216,7 @@ class FollowingList(APIView):
         following_list = json.loads(following_data)
 
         # get the "remote" followers
-        following_remote_authors = self.check_for_remote_followers(current_author)
+        following_remote_authors = self.check_for_remote_following(current_author)
         following_list.extend(following_remote_authors)
 
         following_json = {"type": "following", "items": following_list}
@@ -244,27 +240,22 @@ class FriendsList(APIView):
         except Author.DoesNotExist:
             raise Http404 
         
-    def check_for_remote_followers(self, author_object):
-            authors_list = []
+    def check_for_remote_following(self, author_object):
             following_remote_authors = []
 
             auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
-            "https://sd7-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
+            "https://sd-7-433-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
 
-            r = requests.get("http://sd7-api.herokuapp.com/api/authors/", headers = {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')})
-            authors_list.extend(r.json()["items"])
-
-            r = requests.get("https://socialdistcmput404.herokuapp.com/api/authors/", headers = {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"})
-            authors_list.extend(r.json()["items"])
+            remote_follows_sent = RemoteFollow.objects.filter(author_id = author_object.author_id)
     
-            for author in authors_list:
-                host = author["host"] + "/" if not author["host"].endswith("/") else author["host"]
-                author_id = author["id"].split("/authors/")[-1]
+            for follow in remote_follows_sent:
+                object_host = follow.remote_follow_info["object"]["host"]
+                host = object_host + "/" if not object_host.endswith("/") else object_host
+                author_id = follow.remote_follow_info["object"]["id"].split("/authors/")[-1]
 
-                if "heroku" in host:
-                    r = requests.get(host + "api/authors/" + author_id + "/followers/" + author_object.url_id, headers = auth[host])
-                    if r.status_code == 200:
-                        following_remote_authors.append(author)
+                r = requests.get(host + "api/authors/" + author_id + "/followers/" + author_object.url_id, headers = auth[host])
+                if r.status_code == 200:
+                    following_remote_authors.append(follow.remote_follow_info["object"])
                     r.close()
 
             return following_remote_authors
@@ -294,7 +285,7 @@ class FriendsList(APIView):
         following_list = json.loads(following_data)
 
         # get the "remote" followers
-        following_remote_authors = self.check_for_remote_followers(current_author)
+        following_remote_authors = self.check_for_remote_following(current_author)
         following_list.extend(following_remote_authors)
 
         follower_list = current_author.followers_items.all() # who is following them

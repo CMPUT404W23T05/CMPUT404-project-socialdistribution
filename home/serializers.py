@@ -359,7 +359,7 @@ class FollowStateSerializer(serializers.ModelSerializer):
         fields = ['type', 'actor', 'object', 'summary', 'state']
 
 class RemoteFollowSerializer(serializers.ModelSerializer):
-    info = serializers.JSONField(source = 'remote_follow_info') # the author who is the follower
+    info = serializers.JSONField(source = 'remote_follow_info') 
 
     class Meta:
         model = RemoteFollow

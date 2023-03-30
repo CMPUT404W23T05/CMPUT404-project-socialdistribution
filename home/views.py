@@ -19,7 +19,7 @@ from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 import json
-from django.db.models import Q
+
 
 
 
@@ -681,7 +681,13 @@ class RemoteRequestsList(APIView, PageNumberPagination):
     """
     Keeps track of what remote follow requests that the author has sent (local to remote requests)
     """
-    
+
+    def get_author_object(self, author_id):
+        try:
+            return Author.objects.get(author_id = author_id)
+        except Author.DoesNotExist:
+            raise Http404 
+        
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
@@ -691,13 +697,23 @@ class RemoteRequestsList(APIView, PageNumberPagination):
         return [permission() for permission in permission_classes]
 
     def get(self, request, author_id):
-        host_with_authors = "https://social-t30.herokuapp.com/api/authors/"
-        remote_requests = RemoteFollow.objects.filter(Q(follow__actor__id = host_with_authors + str(author_id)))
+        current_author = self.get_author_object(author_id)
+        remote_requests = RemoteFollow.objects.filter(author_id = author_id)
         remote_requests_serializer = RemoteFollowSerializer(remote_requests, many=True)
 
         remote_json = {"type": "remote_requests", "items": remote_requests_serializer.data}
         return Response(remote_json, status=status.HTTP_200_OK)
 
     def put(self, request, author_id):
-        RemoteFollow.objects.create(follow = request.data)
-        return Response(status=status.HTTP_200_OK)
+        current_author = self.get_author_object(author_id)
+        
+        # to-do: put into serializer later and remove from here
+        required_keys = ["type", "actor", "object"]
+        required_author_keys = ["type", "id", "host", "displayName", "github", "profileImage"]
+        check_authors = set(required_author_keys) <= request.data["actor"].keys() and set(required_author_keys) <= request.data["object"].keys()
+        if (set(required_keys) <= request.data.keys() and check_authors):
+            RemoteFollow.objects.create(remote_follow_info = request.data, author_id = author_id)
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": "You may be missing a field somewhere in your follow request"}, status=status.HTTP_400_BAD_REQUEST)
+        

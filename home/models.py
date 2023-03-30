@@ -231,10 +231,14 @@ class Follow(models.Model):
         return self.following_summary
     
 class RemoteFollow(models.Model):
-    follow = models.JSONField()
+    author_id = models.UUIDField(max_length=BIG_MAX_LENGTH, null=True, blank=True) 
+    remote_follow_info = models.JSONField()
 
     def __str__(self):
-        return self.follow["summary"]
+        if "actor" in self.remote_follow_info.keys() and "object" in self.remote_follow_info.keys():
+            return self.remote_follow_info["actor"]["displayName"] + " wants to follow " + self.remote_follow_info["object"]["displayName"]
+        else:
+            return str(self.remote_follow_info)
 
 class Comment(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
