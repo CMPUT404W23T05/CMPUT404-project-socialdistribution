@@ -16,7 +16,7 @@ urlpatterns = [
         
         
         path('authors/<uuid:author_id>/followers/', social_views.FollowersList.as_view()),
-        path('authors/<uuid:author_id>/followers/<uuid:follower_id>/', social_views.FollowersDetails.as_view()),
+        path('authors/<uuid:author_id>/followers/<path:follower_id>/', social_views.FollowersDetails.as_view()),
 
         path('authors/<uuid:author_id>/following/', social_views.FollowingList.as_view()),
         path('authors/<uuid:author_id>/friends/', social_views.FriendsList.as_view()),
@@ -28,5 +28,7 @@ urlpatterns = [
         path('authors/<uuid:author_id>/inbox/', views.InboxDetails.as_view()),
 
         path('remotes/<path:url>', views.RemoteApiKey.as_view()),
-        path('key', views.GenericKey.as_view())
+        path('key', views.GenericKey.as_view()),
+
+        path('authors/<uuid:author_id>/remote-requests/', views.RemoteRequestsList.as_view())
 ]
