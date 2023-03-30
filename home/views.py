@@ -19,6 +19,7 @@ from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 import json
+from django.db.models import Q
 
 
 
@@ -676,5 +677,27 @@ class InboxDetails(APIView, PageNumberPagination):
         all_items.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class RemoteRequestsList(APIView, PageNumberPagination):
+    """
+    Keeps track of what remote follow requests that the author has sent (local to remote requests)
+    """
+    
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        else:
+            permission_classes = [CustomIsAuthenticated]
 
+        return [permission() for permission in permission_classes]
 
+    def get(self, request, author_id):
+        host_with_authors = "https://social-t30.herokuapp.com/api/authors/"
+        remote_requests = RemoteFollow.objects.filter(Q(follow__actor__id = host_with_authors + str(author_id)))
+        remote_requests_serializer = RemoteFollowSerializer(remote_requests, many=True)
+
+        remote_json = {"type": "remote_requests", "items": remote_requests_serializer.data}
+        return Response(remote_json, status=status.HTTP_200_OK)
+
+    def put(self, request, author_id):
+        RemoteFollow.objects.create(follow = request.data)
+        return Response(status=status.HTTP_200_OK)

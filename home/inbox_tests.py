@@ -20,7 +20,7 @@ class InboxTesting(TestCase):
     def setUp(self):
         # for the sake of testing, assume that http://127.0.0.1:8000/ is the remote author
         # and https://social-t30.herokuapp.com/ is the local author
-        
+
         # our "remote" author
         self.author = Author.objects.create(
                 object_type = "author",

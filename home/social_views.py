@@ -14,11 +14,9 @@ from djoser.views import TokenCreateView
 
 from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
-import requests
 
-auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
-        "https://sd7-api.herokuapp.com/": {"Authorization": "Basic node01:P*ssw0rd!"},
-        "https://social-t30.herokuapp.com/": {"Authorization": "Token 332af37c2a154de56cd8cb42644f1f81cc46c4ef"}}
+import requests
+import base64
 
 
 class FollowersList(APIView):
@@ -69,6 +67,7 @@ class FollowersDetails(APIView):
     def get(self, request, author_id, follower_id):
         """
         Checks to see if follower_id is a follower of author_id (local, remote)
+        where follower_id is a url
 
         Returns a status code of 200 OK with one of the following response body:
 
@@ -124,7 +123,11 @@ class FollowersDetails(APIView):
         else 200 OK (the follower has been added) or 409 Conflict (the follower already exists), or
         400 Bad Request (maybe you're making the author follow itself?)
         """ 
-                 
+        auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
+        "https://sd7-api.herokuapp.com/": {"Authorization": "Basic node01:P*ssw0rd!"}}
+
+        our_host = "https://social-t30.herokuapp.com/"
+
         # get the author and the follower
         current_author = self.get_object(author_id)
 
@@ -137,11 +140,17 @@ class FollowersDetails(APIView):
         if len(does_follower_exist) > 0: # this follower already exists
             return Response(status=status.HTTP_409_CONFLICT) 
 
-        else:
+        else: # follower does not exist
             host = follower_id.split('api/')[0]
-            headers = auth[host] # get authorization
-            r = requests.get(follower_id, headers = headers)
-            current_author.followers_items.create(author_info = r.json())
+            if host == our_host:
+                local_follower = Author.objects.get(url_id = follower_id)
+                serializer = AuthorSerializer(local_follower)
+                author_dict = json.loads(json.dumps(serializer.data))
+                current_author.followers_items.create(author_info = author_dict)
+            else:
+                headers = auth[host] # get authorization
+                r = requests.get(follower_id, headers = headers)
+                current_author.followers_items.create(author_info = r.json())
             return Response(status=status.HTTP_201_CREATED) 
     
 class FollowingList(APIView):
@@ -160,6 +169,31 @@ class FollowingList(APIView):
             return Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
+        
+    def check_for_remote_followers(self, author_object):
+        authors_list = []
+        following_remote_authors = []
+
+        auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
+        "https://sd7-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
+
+        r = requests.get("http://sd7-api.herokuapp.com/api/authors/", headers = {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')})
+        authors_list.extend(r.json()["items"])
+
+        r = requests.get("https://socialdistcmput404.herokuapp.com/api/authors/", headers = {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"})
+        authors_list.extend(r.json()["items"])
+  
+        for author in authors_list:
+            host = author["host"] + "/" if not author["host"].endswith("/") else author["host"]
+            author_id = author["id"].split("/authors/")[-1]
+
+            if "heroku" in host:
+                r = requests.get(host + "api/authors/" + author_id + "/followers/" + author_object.url_id, headers = auth[host])
+                if r.status_code == 200:
+                    following_remote_authors.append(author)
+                r.close()
+
+        return following_remote_authors
         
     def get(self, request, author_id):
         """
@@ -184,6 +218,11 @@ class FollowingList(APIView):
         # convert serializer return list to string, then string to a dict
         following_data = json.dumps(serializer.data)
         following_list = json.loads(following_data)
+
+        # get the "remote" followers
+        following_remote_authors = self.check_for_remote_followers(current_author)
+        following_list.extend(following_remote_authors)
+
         following_json = {"type": "following", "items": following_list}
         return Response(following_json)
     
@@ -205,6 +244,31 @@ class FriendsList(APIView):
         except Author.DoesNotExist:
             raise Http404 
         
+    def check_for_remote_followers(self, author_object):
+            authors_list = []
+            following_remote_authors = []
+
+            auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
+            "https://sd7-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
+
+            r = requests.get("http://sd7-api.herokuapp.com/api/authors/", headers = {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')})
+            authors_list.extend(r.json()["items"])
+
+            r = requests.get("https://socialdistcmput404.herokuapp.com/api/authors/", headers = {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"})
+            authors_list.extend(r.json()["items"])
+    
+            for author in authors_list:
+                host = author["host"] + "/" if not author["host"].endswith("/") else author["host"]
+                author_id = author["id"].split("/authors/")[-1]
+
+                if "heroku" in host:
+                    r = requests.get(host + "api/authors/" + author_id + "/followers/" + author_object.url_id, headers = auth[host])
+                    if r.status_code == 200:
+                        following_remote_authors.append(author)
+                    r.close()
+
+            return following_remote_authors
+    
     def get(self, request, author_id):
         '''
         Gets a list of the author's friends, where they follow each other (extra - not in spec, local)
@@ -214,14 +278,25 @@ class FriendsList(APIView):
         '''
         current_author = self.get_object(author_id)
 
-        # turning our data into bytes, to a string, and then to a regular dict
+        # turning our data into bytes, to a string, then to a dict
         author_serializer = AuthorSerializer(current_author)
         author_data = json.dumps(author_serializer.data)
         author_data_dict = json.loads(author_data)
 
-        # check who the current author is following, and who is following
-        # the current author
-        following_list = Author.objects.filter(followers_items__author_info = author_data_dict)
+        # check if the author is the followers_list of the authors
+        following_authors = Author.objects.filter(followers_items__author_info = author_data_dict)
+ 
+        # returns a list of Author objects that the current author is following
+        serializer = AuthorSerializer(following_authors, many=True)
+        
+        # convert serializer return list to string, then string to a dict
+        following_data = json.dumps(serializer.data)
+        following_list = json.loads(following_data)
+
+        # get the "remote" followers
+        following_remote_authors = self.check_for_remote_followers(current_author)
+        following_list.extend(following_remote_authors)
+
         follower_list = current_author.followers_items.all() # who is following them
 
         list_of_friends = []  
@@ -229,17 +304,15 @@ class FriendsList(APIView):
         for following in following_list: # for each author that the current author is following
             for follower in follower_list: # for each author that is following the current author
 
-                following_id = following.profile_url # id of the author who is being followed by the current author
-                follower_id = follower.author_info['url'] 
+                following_id = following["id"]# id of the author who is being followed by the current author
+                follower_id = follower.author_info["id"] 
                 
                 # this particular author is following the current author
                 # and is being followed by the current author
                 if following_id == follower_id: 
                     list_of_friends.append(following)
 
-        serializer = AuthorSerializer(list_of_friends, many=True)
 
-        friends_data = json.dumps(serializer.data)
-        friends_list = json.loads(friends_data)
-        friends_json = {"type": "friends", "items": friends_list}
+        friends_json = {"type": "friends", "items": list_of_friends}
         return Response(friends_json, status=status.HTTP_200_OK)
+    

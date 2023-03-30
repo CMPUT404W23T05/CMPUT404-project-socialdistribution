@@ -230,7 +230,11 @@ class Follow(models.Model):
     def __str__(self):
         return self.following_summary
     
+class RemoteFollow(models.Model):
+    follow = models.JSONField()
 
+    def __str__(self):
+        return self.follow["summary"]
 
 class Comment(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
