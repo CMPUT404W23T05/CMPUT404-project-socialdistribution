@@ -55,7 +55,12 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
         for item in followers_serializer.data['items']:
             follower_host = item["host"] + "/" if not item["host"].endswith("/") else item["host"]
             if follower_host != host: # if it's a remote author
-                post_serializer = PostForRemoteSerializer(post)
+
+                if follower_host == "https://socialdistcmput404.herokuapp.com/":
+                    post_serializer = PostForRemoteTenSerializer(post)
+                else:
+                    post_serializer = PostForRemoteSerializer(post)
+                    
                 follower_id = item["id"].split("/")[-1]
                 url = follower_host + "api/authors/" + follower_id + "/inbox/" 
                 headers = auth[follower_host] # get authorization
