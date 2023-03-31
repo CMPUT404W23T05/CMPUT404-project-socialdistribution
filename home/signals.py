@@ -60,11 +60,13 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
                     post_serializer = PostForRemoteTenSerializer(post)
                 else:
                     post_serializer = PostForRemoteSerializer(post)
-                    
+
                 follower_id = item["id"].split("/")[-1]
                 url = follower_host + "api/authors/" + follower_id + "/inbox/" 
                 headers = auth[follower_host] # get authorization
-                r = requests.post(url, headers = headers, data=post_serializer.data) # post to inbox
+
+                data = json.loads(json.dumps(post_serializer.data))
+                r = requests.post(url, headers = headers, json=data) # post to inbox
             else: # it's a local author
                 post_serializer = PostSerializer(post)
                 get_follower = Author.objects.get(url_id = item['id']) # get the author follower
@@ -75,7 +77,6 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Comment)
 def send_comment_to_inbox(sender, instance, created, **kwargs):
-
 
     auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
     "https://sd-7-433-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
@@ -92,8 +93,10 @@ def send_comment_to_inbox(sender, instance, created, **kwargs):
             host = comment_url.split('api/')[0]
             headers = auth[host] # get authorization
             url = get_remote_author_info + '/inbox/'
-            r = requests.post(url, headers = headers, data=comment_serializer.data) # post to inbox
 
+            data = json.loads(json.dumps(comment_serializer.data))
+            r = requests.post(url, headers = headers, json=data) # post to inbox
+            
         else: # a local author commented on a local post
             
             comment_serializer = CommentSerializer(comment)
