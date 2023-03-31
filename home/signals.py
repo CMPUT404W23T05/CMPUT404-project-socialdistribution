@@ -67,6 +67,9 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
 
                 data = json.loads(json.dumps(post_serializer.data))
                 r = requests.post(url, headers = headers, json=data) # post to inbox
+                if r.status_code == 500:
+                    r = requests.post(url, headers = headers, json=data)
+                    
             else: # it's a local author
                 post_serializer = PostSerializer(post)
                 get_follower = Author.objects.get(url_id = item['id']) # get the author follower
