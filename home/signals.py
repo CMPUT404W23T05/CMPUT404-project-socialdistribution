@@ -6,6 +6,7 @@ from .models import Author, Comment, Post
 import uuid
 from home.serializers import *
 from home.remote_serializers import *
+import urllib.request
 import requests
 
 # creates an instance of author anytime a user is made (connects the 2 with one2one relation)
@@ -65,8 +66,13 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
                 url = follower_host + "api/authors/" + follower_id + "/inbox/" 
                 headers = auth[follower_host] # get authorization
 
-                data = json.loads(json.dumps(post_serializer.data))
-                r = requests.post(url, headers = headers, json=data) # post to inbox
+                request = urllib.request.Request(url)
+                request.add_header('Content-Type', 'application/json; charset=utf-8')
+                request.add_header('Authorization', headers["Authorization"])
+                json_data = json.dumps(post_serializer.data)
+                json_bytes = json_data.encode('utf-8')
+                response = urllib.request.urlopen(request, json_bytes)
+                
             else: # it's a local author
                 post_serializer = PostSerializer(post)
                 get_follower = Author.objects.get(url_id = item['id']) # get the author follower
