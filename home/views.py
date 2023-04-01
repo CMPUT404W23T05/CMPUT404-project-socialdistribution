@@ -450,7 +450,7 @@ class InboxDetails(APIView, PageNumberPagination):
     
     def get_permissions(self):
         if self.request.method == 'POST':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
             permission_classes = [CustomIsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -465,7 +465,6 @@ class InboxDetails(APIView, PageNumberPagination):
         """
         1. local to local inbox (public/friends posts): handled through signals.py
         2. local to remote inbox (public/friends posts): handled through signals.py
-        3. local to remote inbox (private posts): handled by other groups
         4. remote to local inbox (public/friends posts): handled through InboxDetails
         """
 
@@ -484,8 +483,7 @@ class InboxDetails(APIView, PageNumberPagination):
     def handle_local_or_remote_comment(self, request):
         """
         1. local to local comment: handled through signals.py
-        2. remote to local comment: handled through InboxDetails
-        3. local to remote comment: handled through signals.py 
+        2. remote to local comment: handled through InboxDetails 
         """
         new_comment = CommentSerializer(data=request.data)
 
@@ -494,6 +492,7 @@ class InboxDetails(APIView, PageNumberPagination):
         comment = request.data['comment']
         is_local_comment = Comment.objects.filter(url_id=request.data['id'])
 
+        # remove this later
         if author_id.isnumeric():
             author_info ={
                 'profile_url': request.data['author']['url'],
