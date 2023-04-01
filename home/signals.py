@@ -51,7 +51,7 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
         post_serializer = PostSerializer(post)
         post.author.inbox_items.create(inbox_item = post_serializer.data)
         followers_serializer = AuthorFollowersSerializer(post.author) # get the followers
-        
+  
         # for each follower
         for item in followers_serializer.data['items']:
             follower_host = item["host"] + "/" if not item["host"].endswith("/") else item["host"]
@@ -59,8 +59,8 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
 
                 if follower_host == "https://socialdistcmput404.herokuapp.com/":
                     post_serializer = PostForRemoteTenSerializer(post)
-                else:
-                    post_serializer = PostForRemoteSerializer(post)
+                else: # team 7
+                    post_serializer = PostForRemoteSevenSerializer(post)
 
                 follower_id = item["id"].split("/")[-1]
                 url = follower_host + "api/authors/" + follower_id + "/inbox/" 
@@ -70,7 +70,7 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
                 r = requests.post(url, headers = headers, json=data) # post to inbox
                 if r.status_code == 500:
                     r = requests.post(url, headers = headers, json=data)
-                    
+
             else: # it's a local author
                 post_serializer = PostSerializer(post)
                 get_follower = Author.objects.get(url_id = item['id']) # get the author follower
@@ -87,7 +87,7 @@ def send_comment_to_inbox(sender, instance, created, **kwargs):
 
     host = "https://social-t30.herokuapp.com/"
 
-    # if a comment is created locally, send to inboxes
+    # if a comment is created locally, send to inbox of the author who made the post
     if created and instance.author.home_host == host: 
 
         local_post = Post.objects.filter(post_id=instance.post_id) # get the post based on its url

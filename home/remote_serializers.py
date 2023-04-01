@@ -2,7 +2,8 @@ from rest_framework import serializers
 from home.serializers import AuthorSerializer, CommentSerializer
 from home.models import Post, Comment
 
-class PostForRemoteSerializer(serializers.ModelSerializer):
+class PostForRemoteSevenSerializer(serializers.ModelSerializer):
+    # uses an extra field called object
     
     type = serializers.CharField(source='object_type')
     id = serializers.URLField(source='url_id')
@@ -43,19 +44,8 @@ class PostForRemoteSerializer(serializers.ModelSerializer):
                 'comments': data['comments'],
                 'published': data['published'],
                 'visibility': data['visibility'],
+                'object': data['id'], # making object as id 
                 'unlisted': data['unlisted']})
-        # add comment src?
-        comments = Comment.objects.filter(post_id=data['_id'])[:5]
-        serializer = CommentSerializer(comments, many=True)
-        comment_src_object = {
-                "type": "comments",
-                "page": 1,
-                "size": 5,
-                "post": data['id'],
-                "id": data['id'] + '/comments',
-                "comments": serializer.data
-                }
-        return_data['commentSrc'] = comment_src_object
         return return_data
     
 
