@@ -453,9 +453,8 @@ class InboxDetails(APIView, PageNumberPagination):
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
             permission_classes = [CustomIsAuthenticated]
-
         return [permission() for permission in permission_classes]
-    
+
     def get_author_object(self, author_id):
         try:
             return Author.objects.get(author_id = author_id)
@@ -465,12 +464,8 @@ class InboxDetails(APIView, PageNumberPagination):
     def handle_local_or_remote_post(self, request):
         """
         1. local to local inbox (public/friends posts): handled through signals.py
-        2. local to local inbox (private posts): handled through InboxDetails
-        3. local to remote inbox (public/friends posts): handled through signals.py
-        4. local to remote inbox (private posts): handled by other groups
-        
-        5. remote to local inbox (public/friends posts): handled through InboxDetails
-        6. remote to local inbox (private posts): handled through InboxDetails
+        2. local to remote inbox (public/friends posts): handled through signals.py
+        4. remote to local inbox (public/friends posts): handled through InboxDetails
         """
 
         url_id = request.data['id'] # get the url
@@ -488,33 +483,17 @@ class InboxDetails(APIView, PageNumberPagination):
     def handle_local_or_remote_comment(self, request):
         """
         1. local to local comment: handled through signals.py
-        2. remote to local comment: handled through InboxDetails
-        3. local to remote comment: handled through signals.py 
+        2. remote to local comment: handled through InboxDetails 
         """
         new_comment = CommentSerializer(data=request.data)
 
         author_url = request.data["author"]["url"]
         author_id = request.data["author"]["url"].split("/")[-1] 
         comment = request.data['comment']
-        is_local_comment = len(Comment.objects.filter(url_id=request.data['id']))
+        is_local_comment = Comment.objects.filter(url_id=request.data['id'])
 
-        if new_comment.is_valid():
-            if not is_local_comment: # if it's a remote comment
-                does_author_exist = len(Author.objects.filter(author_id=author_id))
-
-                # associate the comment with an author (also helps to keep track of comment count)
-                Author.objects.create(**new_comment.validated_data['author']) if not does_author_exist else False
-                new_comment.validated_data['author'] = Author.objects.get(author_id= author_id)
-                access_comment = Comment.objects.create(**new_comment.validated_data)
-
-            else:
-                # a local author has created a new comment, we can retrieve that comment
-                access_comment = Comment.objects.get(content = comment, author__url_id = author_url)
-
-                serializer = CommentSerializer(access_comment)
-                new_comment_dict = json.loads(json.dumps(serializer.data))
-                
-        elif author_id.isnumeric():
+        # remove this later
+        if author_id.isnumeric():
             author_info ={
                 'profile_url': request.data['author']['url'],
                 'home_host': request.data['author']['host'],
@@ -523,20 +502,21 @@ class InboxDetails(APIView, PageNumberPagination):
                 'profile_image': request.data['author']['profileImage'],
                 'object_type': 'author',
                 'url_id': request.data['author']['url'],
-                'author_id': str(uuid.uuid4())
+                'author_id': uuid.uuid4()
             }
 
             comment_info = {
                 'object_type': request.data['type'],
                 'url_id': request.data['id'],
-                'comment_id': re.split(r'/posts/|/comments/', request.data['id'])[1],
-                'post_id': re.split(r'/comments/', request.data['id'])[1],
+                'comment_id': uuid.uuid4(),
+                'post_id':  uuid.uuid4(),
                 'author': '',
                 'content': request.data['comment'],
-                'content_type':request.data['contetType'],
+                'content_type':request.data['contentType'],
             }
+            
 
-            does_author_exist = len(Author.objects.filter(url_id=author_url))
+            does_author_exist = Author.objects.filter(url_id=author_url)
 
             # associate the comment with an author (also helps to keep track of comment count)
             Author.objects.create(**author_info) if not does_author_exist else False
@@ -545,6 +525,25 @@ class InboxDetails(APIView, PageNumberPagination):
 
             serializer = CommentSerializer(access_comment)
             new_comment_dict = json.loads(json.dumps(serializer.data))
+  
+        elif new_comment.is_valid():
+            if not is_local_comment: # if it's a remote comment
+                does_author_exist = len(Author.objects.filter(author_id=author_id))
+
+                # associate the comment with an author (also helps to keep track of comment count)
+                Author.objects.create(**new_comment.validated_data['author']) if not does_author_exist else False
+                new_comment.validated_data['author'] = Author.objects.get(author_id= author_id)
+                access_comment = Comment.objects.create(**new_comment.validated_data)
+
+                serializer = CommentSerializer(access_comment)
+                new_comment_dict = json.loads(json.dumps(serializer.data))
+
+            else:
+                # a local author has created a new comment, we can retrieve that comment
+                access_comment = Comment.objects.get(content = comment, author__url_id = author_url)
+
+                serializer = CommentSerializer(access_comment)
+                new_comment_dict = json.loads(json.dumps(serializer.data))
 
         else: # comment data is not valid, leave data as is
             new_comment_dict = request.data
@@ -610,11 +609,14 @@ class InboxDetails(APIView, PageNumberPagination):
             if len(check_for_like) > 0:
                 return Response({"detail": "This post already exists in their inbox"}, status=status.HTTP_409_CONFLICT)  
             else: # we haven't seen this like "post" before yet
-                context_url = request.data["@context"] if "@context" in request.data.keys() else request.data["context"] 
-                Like.objects.create_like(context_url, request.data["author"], request.data["object"])
-
-                current_author.inbox_items.create(inbox_item = request.data)
-                return Response(status=status.HTTP_201_CREATED)  
+                try:
+                    context_url = request.data["@context"] if "@context" in request.data.keys() else request.data["context"] 
+                    Like.objects.create_like(context_url, request.data["author"], request.data["object"])
+                except:
+                    return Response(status=status.HTTP_400_BAD_REQUEST)  
+                else:
+                    current_author.inbox_items.create(inbox_item = request.data)
+                    return Response(status=status.HTTP_201_CREATED)  
 
         # FOLLOW
         elif request.data["type"] == "Follow":
