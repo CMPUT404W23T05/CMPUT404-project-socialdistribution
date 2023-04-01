@@ -14,12 +14,16 @@ from rest_framework.renderers import JSONRenderer
 from .views import *
 import uuid
 import requests
+from django.test import Client
+
 
 
 class InboxTesting(TestCase):
     def setUp(self):
         # for the sake of testing, assume that http://127.0.0.1:8000/ is the remote author
         # and https://social-t30.herokuapp.com/ is the local author
+        self.factory = RequestFactory()
+ 
 
         # our "remote" author
         self.author = Author.objects.create(
@@ -79,7 +83,8 @@ class InboxTesting(TestCase):
                 visibility = "PUBLIC",
                 is_unlisted = False
                 )
-        # author 2 (our "local" author) leave a comment on the remote author's post
+        # author 1 (our "local" author) leave a comment on the remote author's post
+        '''
         self.comment_for_author_1 = Comment.objects.create(
                 object_type = "comment",
                 url_id = "https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/d091e3f1-4482-4d9d-8673-ac913f44fb9b/comments/73fe120d-1f19-44e4-9a7f-c184b7df5597",
@@ -89,6 +94,7 @@ class InboxTesting(TestCase):
                 content = "I am author 2!",
                 content_type = "text/plain"
                 )
+        '''
 
     def test_send_post_to_remote_follower_inbox(self):
         # add author 1 (our "remote" author) as a follower of author 2
@@ -121,4 +127,57 @@ class InboxTesting(TestCase):
             url = get_remote_author_info + '/inbox/'
             r = requests.head(url) 
             self.assertEqual(r.status_code, 200) # check if url exists
+
+
+    def receiving_comment_from_remote_author(self):
+        example_comment = {
+            "type": "comment",
+            "id": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/d091e3f1-4482-4d9d-8673-ac913f44fb9b/comments/92478016-9376-4e83-ad1e-8b1a2204fa36",
+            "comment": "I come from a remote place",
+            "contentType": "text/plain",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea",
+                "host": "http://127.0.0.1:8000/",
+                "displayName": "testuser1",
+                "url": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea",
+                "github": "",
+                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+                
+            }
+        }
+        # also works without the _id for the author
+        comment_json_dict = json.dumps(example_comment)
+        request = self.factory.post('/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/inbox/', comment_json_dict, content_type='application/json')
+        response = InboxDetails.as_view()(request, author_id = "d569cd39-0a2d-411e-8d86-e8a063a18dea")
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(self.author.inbox_items.filter(inbox_item__type = "comment"))
+        
+        post = Post.objects.get(url_id = example_comment["id"].split('/comments/')[0])
+        self.assertEqual(post.comment_count, 1)
+
+    def receiving_like_from_remote_author(self):
+        example_like = {
+            "type": "Like",
+            "@context": "https://www.w3.org/ns/activitystreams",
+            "summary": "testuser1 Likes your post",
+            "object": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/d091e3f1-4482-4d9d-8673-ac913f44fb9b",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea",
+                "host": "http://127.0.0.1:8000/",
+                "displayName": "testuser1",
+                "url": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea",
+                "github": "",
+                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
+                
+            }
+        }
+        # also works without the _id for the author
+        comment_json_dict = json.dumps(example_like)
+        request = self.factory.post('/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/inbox/', comment_json_dict, content_type='application/json')
+        response = InboxDetails.as_view()(request, author_id = "d569cd39-0a2d-411e-8d86-e8a063a18dea")
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(self.author.inbox_items.filter(inbox_item__type = "Like"))
+
 

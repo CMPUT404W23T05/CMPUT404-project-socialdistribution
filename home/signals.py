@@ -41,11 +41,12 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
     auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
     "https://sd-7-433-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
 
- 
     host = "https://social-t30.herokuapp.com/"
+
     # if a local post is created, send notification to local and remote authors (their followers)
     if created: 
         post = Post.objects.get(url_id=instance.url_id)
+
         # add post to their own inbox
         post_serializer = PostSerializer(post)
         post.author.inbox_items.create(inbox_item = post_serializer.data)
@@ -84,32 +85,24 @@ def send_comment_to_inbox(sender, instance, created, **kwargs):
     auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
     "https://sd-7-433-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
 
-    # if a comment is created locally, send to inboxes
-    # (now it depends on whether a comment was placed on a local or remote post)
-    if created: 
-        is_local_post = Post.objects.filter(post_id=instance.post_id) # get the post based on its url
-        comment = Comment.objects.get(url_id=instance.url_id) # get the comment based on its id
-        if not is_local_post: # a local author commented on a remote post
-            comment_serializer = CommentForRemoteSerializer(comment)
-            comment_url = comment.url_id
-            get_remote_author_info = comment_url.split('posts/')[0]
-            host = comment_url.split('api/')[0]
-            headers = auth[host] # get authorization
-            url = get_remote_author_info + '/inbox/'
+    host = "https://social-t30.herokuapp.com/"
 
-            data = json.loads(json.dumps(comment_serializer.data))
-            r = requests.post(url, headers = headers, json=data) # post to inbox
-            print(r.status_code)
-            
-        else: # a local author commented on a local post
-            
-            comment_serializer = CommentSerializer(comment)
-            post = is_local_post[0]
-            author_serializer = AuthorSerializer(post.author)
-            author_data = json.dumps(author_serializer.data)
-            author_data_dict = json.loads(author_data)
-            # get the author of the post (we need to send the comment notifcation to this author)
-            author_of_post = Author.objects.get(author_id = author_data_dict['_id'])
-            # the same author of the post might be the same author of the comment
-            if author_data_dict['_id'] != str(comment.author.author_id): 
-                author_of_post.inbox_items.create(inbox_item = comment_serializer.data)
+    # if a comment is created locally, send to inboxes
+    if created and instance.author.home_host == host: 
+
+        local_post = Post.objects.filter(post_id=instance.post_id) # get the post based on its url
+        comment = Comment.objects.get(url_id=instance.url_id) # get the comment based on its id
+
+        comment_serializer = CommentSerializer(comment)
+        post = local_post[0]
+
+        author_serializer = AuthorSerializer(post.author)
+        author_data = json.dumps(author_serializer.data)
+        author_data_dict = json.loads(author_data)
+
+        # get the author of the post (we need to send the comment notifcation to this author)
+        author_of_post = Author.objects.get(url_id = author_data_dict['url'])
+
+        # the same author of the post might be the same author of the comment
+        if author_data_dict['url'] != str(comment.author.url_id): 
+            author_of_post.inbox_items.create(inbox_item = comment_serializer.data)

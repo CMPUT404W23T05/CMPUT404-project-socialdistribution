@@ -17,6 +17,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 
 import requests
 import base64
+from home.permissions import RemoteAuth, CustomIsAuthenticated
 
 
 class FollowersList(APIView):
@@ -25,9 +26,9 @@ class FollowersList(APIView):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
         return [permission() for permission in permission_classes]
 
     def get_object(self, author_id):
@@ -52,9 +53,9 @@ class FollowersDetails(APIView):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [CustomIsAuthenticated]
         return [permission() for permission in permission_classes]
 
     def get_object(self, author_id):
