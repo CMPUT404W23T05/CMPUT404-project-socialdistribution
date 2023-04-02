@@ -81,7 +81,11 @@ class BrowsePosts(APIView, PageNumberPagination):
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        response_body = {
+                    'type': 'posts',
+                    'items': serializer.data
+                   }
+        return Response(response_body, status=status.HTTP_200_OK)
 
 
 class PostList(APIView, PageNumberPagination):
