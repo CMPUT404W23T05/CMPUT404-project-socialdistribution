@@ -108,6 +108,7 @@ class PostList(APIView, PageNumberPagination):
         except AttributeError:
             posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
         except Exception as e:
+            posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
