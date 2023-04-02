@@ -7,6 +7,7 @@ import uuid
 from home.serializers import *
 from home.remote_serializers import *
 import requests
+import sys
 
 # creates an instance of author anytime a user is made (connects the 2 with one2one relation)
 
@@ -70,7 +71,8 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
                 r = requests.post(url, headers = headers, json=data) # post to inbox
                 if r.status_code == 500:
                     r = requests.post(url, headers = headers, json=data)
-
+                print(r.status_code)
+                sys.stdout.flush()
             else: # it's a local author
                 post_serializer = PostSerializer(post)
                 get_follower = Author.objects.get(url_id = item['id']) # get the author follower
