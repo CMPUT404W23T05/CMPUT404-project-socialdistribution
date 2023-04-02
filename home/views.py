@@ -77,7 +77,7 @@ class BrowsePosts(APIView, PageNumberPagination):
         posts = Post.objects.filter(visibility='PUBLIC')
 
         self.page = int(request.query_params.get('page', 1))
-        self.page_size = int(request.query_params.get('size', 20))
+        self.page_size = int(request.query_params.get('size', len(posts)))
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
@@ -114,7 +114,7 @@ class PostList(APIView, PageNumberPagination):
 
 
         self.page = int(request.query_params.get('page', 1))
-        self.page_size = int(request.query_params.get('size', 20))
+        self.page_size = int(request.query_params.get('size', len(posts)))
 
         results = self.paginate_queryset(posts, request, view=self)
         serializer = PostSerializer(results, many=True)
@@ -225,7 +225,7 @@ class AuthorList(APIView, PageNumberPagination):
         authors = Author.objects.all()
 
         self.page = int(request.query_params.get('page', 1))
-        self.page_size = int(request.query_params.get('size', 20))
+        self.page_size = int(request.query_params.get('size', len(authors)))
 
         results = self.paginate_queryset(authors, request, view=self)
         serializer = AuthorSerializer(results, many=True)
@@ -284,7 +284,7 @@ class CommentList(APIView, PageNumberPagination):
         comments = Comment.objects.filter(post_id=post_id)
 
         self.page = int(request.query_params.get('page', 1))
-        self.page_size = int(request.query_params.get('size', 5))
+        self.page_size = int(request.query_params.get('size', len(comments)))
 
         results = self.paginate_queryset(comments, request, view=self)
         serializer = CommentSerializer(results, many=True)
@@ -563,7 +563,7 @@ class InboxDetails(APIView, PageNumberPagination):
       
         # pagination
         self.page = int(request.query_params.get('page',1))
-        self.page_size = int(request.query_params.get('size',20))
+        self.page_size = int(request.query_params.get('size',len(inbox_items)))
         inbox = self.paginate_queryset(inbox_items, request, view=self)
        
         serializer = InboxItemSerializer(inbox, many = True)
