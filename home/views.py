@@ -190,7 +190,7 @@ class ImageView(APIView):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [RemoteAuth | CustomIsAuthenticated]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated | AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
