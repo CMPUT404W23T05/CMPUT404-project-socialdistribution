@@ -40,7 +40,8 @@ def updated_post_count(sender, instance, created, **kwargs):
 def send_post_to_inbox(sender, instance, created, **kwargs):
 
     auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
-    "https://sd-7-433-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
+    "https://sd-7-433-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')},
+    "https://ultimate-teapot.herokuapp.com/": "Basic "  + base64.b64encode(b'team5:jN2!42GUtCgB').decode('utf-8')}
 
     host = "https://social-t30.herokuapp.com/"
 
