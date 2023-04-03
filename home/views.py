@@ -499,13 +499,13 @@ class InboxDetails(APIView, PageNumberPagination):
         # remove this later
         if author_id.isnumeric():
             author_info ={
-                'profile_url': request.data['author']['url'],
+                'profile_url': request.data['author']['id'],
                 'home_host': request.data['author']['host'],
                 'display_name': request.data['author']['displayName'],
                 'author_github': request.data['author']['github'],
                 'profile_image': request.data['author']['profileImage'],
                 'object_type': 'author',
-                'url_id': request.data['author']['url'],
+                'url_id': request.data['author']['id'],
                 'author_id': uuid.uuid4()
             }
 
