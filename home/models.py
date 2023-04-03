@@ -32,7 +32,7 @@ class LikeManager(models.Manager):
         """
         # create the summary statement by taking the first name of the author giving a like
         author_liking_name = author_liking["displayName"]
-        author = Author.objects.filter(profile_url = author_liking["url"])
+        author = Author.objects.filter(profile_url = author_liking["id"])
 
 
         # an author can like posts and comments

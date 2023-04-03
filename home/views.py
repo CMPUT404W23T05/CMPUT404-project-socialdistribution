@@ -491,8 +491,8 @@ class InboxDetails(APIView, PageNumberPagination):
         """
         new_comment = CommentSerializer(data=request.data)
 
-        author_url = request.data["author"]["url"]
-        author_id = request.data["author"]["url"].split("/")[-1] 
+        author_url = request.data["author"]["id"]
+        author_id = request.data["author"]["id"].split("/")[-1] 
         comment = request.data['comment']
         is_local_comment = Comment.objects.filter(url_id=request.data['id'])
 
