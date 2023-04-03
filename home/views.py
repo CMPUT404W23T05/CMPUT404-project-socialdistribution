@@ -483,12 +483,16 @@ class InboxDetails(APIView, PageNumberPagination):
             new_post_dict = json.loads(json.dumps(serializer.data))
             
         return new_post_dict
-
+    
     def handle_local_or_remote_comment(self, request):
         """
         1. local to local comment: handled through signals.py
         2. remote to local comment: handled through InboxDetails 
         """
+        # for some groups, it may be left blank
+        if request.data['author']['profileImage'] == "":
+            request.data['author']['profileImage'] = "https://i.imgur.com/k7XVwpB.jpeg"
+
         new_comment = CommentSerializer(data=request.data)
 
         author_url = request.data["author"]["id"]
@@ -529,14 +533,15 @@ class InboxDetails(APIView, PageNumberPagination):
 
             serializer = CommentSerializer(access_comment)
             new_comment_dict = json.loads(json.dumps(serializer.data))
-  
+
+       
         elif new_comment.is_valid():
             if not is_local_comment: # if it's a remote comment
                 does_author_exist = len(Author.objects.filter(author_id=author_id))
 
                 # associate the comment with an author (also helps to keep track of comment count)
                 Author.objects.create(**new_comment.validated_data['author']) if not does_author_exist else False
-                new_comment.validated_data['author'] = Author.objects.get(author_id= author_id)
+                new_comment.validated_data['author'] = Author.objects.get(url_id = author_url)
                 access_comment = Comment.objects.create(**new_comment.validated_data)
 
                 serializer = CommentSerializer(access_comment)
@@ -549,8 +554,8 @@ class InboxDetails(APIView, PageNumberPagination):
                 serializer = CommentSerializer(access_comment)
                 new_comment_dict = json.loads(json.dumps(serializer.data))
 
-        else: # comment data is not valid, leave data as is
-            new_comment_dict = request.data
+        else: # comment data is not valid, return its errors
+            return {"details": new_comment.errors}
 
         return new_comment_dict
     
@@ -594,8 +599,11 @@ class InboxDetails(APIView, PageNumberPagination):
         
         # COMMENT
         elif request.data["type"] == "comment":
-
             new_comment_dict = self.handle_local_or_remote_comment(request)
+
+            # return the error details back to them if it's a bad request
+            if "details" in new_comment_dict:
+                return Response(new_comment_dict, status=status.HTTP_400_BAD_REQUEST)  
 
             # checking that we're not adding duplicates in the inbox
             check_for_comment = current_author.inbox_items.filter(inbox_item = new_comment_dict)

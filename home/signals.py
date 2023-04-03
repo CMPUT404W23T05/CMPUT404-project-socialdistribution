@@ -50,7 +50,12 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
 
         # add post to their own inbox
         post_serializer = PostSerializer(post)
-        post.author.inbox_items.create(inbox_item = post_serializer.data)
+        post_data_dict = json.loads(json.dumps(post_serializer.data))
+
+        if "categories" not in post_data_dict.keys():
+            post_data_dict["categories"] = "post"
+
+        post.author.inbox_items.create(inbox_item = post_data_dict)
         followers_serializer = AuthorFollowersSerializer(post.author) # get the followers
   
         # for each follower
@@ -68,6 +73,8 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
                 headers = auth[follower_host] # get authorization
 
                 data = json.loads(json.dumps(post_serializer.data))
+                data["categories"] = "post" if "categories" not in data.keys() else False
+
                 r = requests.post(url, headers = headers, json=data) # post to inbox
                 if r.status_code == 500:
                     r = requests.post(url, headers = headers, json=data)
@@ -75,17 +82,21 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
                 sys.stdout.flush()
             else: # it's a local author
                 post_serializer = PostSerializer(post)
+                data = json.loads(json.dumps(post_serializer.data))
+                data["categories"] = "post" if "categories" not in data.keys() else False
+
                 get_follower = Author.objects.get(url_id = item['id']) # get the author follower
                 
                 # notify each follower about the new post
-                get_follower.inbox_items.create(inbox_item = post_serializer.data)
+                get_follower.inbox_items.create(inbox_item = data)
 
 
 @receiver(post_save, sender=Comment)
 def send_comment_to_inbox(sender, instance, created, **kwargs):
 
     auth = {"https://socialdistcmput404.herokuapp.com/": {"Authorization": "Token d960c3dee9855f5f5df8207ce1cba7fc1876fedf"},
-    "https://sd-7-433-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}}
+    "https://sd-7-433-api.herokuapp.com/": {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')},
+    "https://ultimate-teapot.herokuapp.com/": "Basic "  + base64.b64encode(b'team5:jN2!42GUtCgB').decode('utf-8')}
 
     host = "https://social-t30.herokuapp.com/"
 
