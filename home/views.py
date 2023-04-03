@@ -500,42 +500,7 @@ class InboxDetails(APIView, PageNumberPagination):
         comment = request.data['comment']
         is_local_comment = Comment.objects.filter(url_id=request.data['id'])
 
-        # remove this later
-        if author_id.isnumeric():
-            author_info ={
-                'profile_url': request.data['author']['id'],
-                'home_host': request.data['author']['host'],
-                'display_name': request.data['author']['displayName'],
-                'author_github': request.data['author']['github'],
-                'profile_image': request.data['author']['profileImage'],
-                'object_type': 'author',
-                'url_id': request.data['author']['id'],
-                'author_id': uuid.uuid4()
-            }
-
-            comment_info = {
-                'object_type': request.data['type'],
-                'url_id': request.data['id'],
-                'comment_id': uuid.uuid4(),
-                'post_id':  uuid.uuid4(),
-                'author': '',
-                'content': request.data['comment'],
-                'content_type':request.data['contentType'],
-            }
-            
-
-            does_author_exist = Author.objects.filter(url_id=author_url)
-
-            # associate the comment with an author (also helps to keep track of comment count)
-            Author.objects.create(**author_info) if not does_author_exist else False
-            comment_info['author'] = Author.objects.get(url_id= author_url)
-            access_comment = Comment.objects.create(**comment_info)
-
-            serializer = CommentSerializer(access_comment)
-            new_comment_dict = json.loads(json.dumps(serializer.data))
-
-       
-        elif new_comment.is_valid():
+        if new_comment.is_valid():
             if not is_local_comment: # if it's a remote comment
                 does_author_exist = len(Author.objects.filter(author_id=author_id))
 
