@@ -53,7 +53,7 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
         post_data_dict = json.loads(json.dumps(post_serializer.data))
 
         if "categories" not in post_data_dict.keys():
-            post_data_dict["categories"] = "post"
+            post_data_dict["categories"] = ["post"]
 
         post.author.inbox_items.create(inbox_item = post_data_dict)
         followers_serializer = AuthorFollowersSerializer(post.author) # get the followers
@@ -73,7 +73,7 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
                 headers = auth[follower_host] # get authorization
 
                 data = json.loads(json.dumps(post_serializer.data))
-                data["categories"] = "post" if "categories" not in data.keys() else False
+                data["categories"] = ["post"] if "categories" not in data.keys() else False
 
                 r = requests.post(url, headers = headers, json=data) # post to inbox
                 if r.status_code == 500:
@@ -83,7 +83,7 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
             else: # it's a local author
                 post_serializer = PostSerializer(post)
                 data = json.loads(json.dumps(post_serializer.data))
-                data["categories"] = "post" if "categories" not in data.keys() else False
+                data["categories"] = ["post"] if "categories" not in data.keys() else False
 
                 get_follower = Author.objects.get(url_id = item['id']) # get the author follower
                 
