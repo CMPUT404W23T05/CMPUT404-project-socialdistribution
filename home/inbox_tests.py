@@ -64,6 +64,7 @@ class InboxTesting(TestCase):
                 visibility = "PUBLIC",
                 is_unlisted = False
                 )
+
         # author 2 (our "local" author) will create this post
         self.post2 = Post.objects.create(
                 object_type = "post",
@@ -129,37 +130,26 @@ class InboxTesting(TestCase):
                 #r = requests.head(url) 
                 #self.assertEqual(r.status_code, 200) # check if url exists
 
-    def test_send_comment_to_remote_author_inbox(self):
-        pass
-        '''
-        is_local_post = len(Post.objects.filter(url_id=self.comment_for_author_1.url_id)) # get the post based on its url
-        comment = Comment.objects.get(url_id=self.comment_for_author_1.url_id) # get the comment based on its id
-        comment_serializer = CommentSerializer(comment)
-        if not is_local_post: # a local author commented on a remote post
-            comment_url = comment.url_id
-            get_remote_author_info = comment_url.split('posts/')[0]
-            url = get_remote_author_info + '/inbox/'
-            r = requests.head(url) 
-            self.assertEqual(r.status_code, 200) # check if url exists
-        '''
 
     def test_receiving_comment_from_remote_author(self):
+
         example_comment = {
-            "type": "comment",
-            "id": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/d091e3f1-4482-4d9d-8673-ac913f44fb9b/comments/92478016-9376-4e83-ad1e-8b1a2204fa36",
-            "comment": "I come from a remote place",
-            "contentType": "text/plain",
-            "author": {
-                "type": "author",
-                "id": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea",
-                "host": "http://127.0.0.1:8000/",
-                "displayName": "testuser1",
-                "url": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea",
-                "github": "",
-                "profileImage": "https://i.imgur.com/k7XVwpB.jpeg"
-                
-            }
+        "id": "http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/d091e3f1-4482-4d9d-8673-ac913f44fb9b/comments/760f6803-e249-456f-b5e5-e0d6478bb182",
+        "type": "comment",
+        "author":  {
+            "type": "author",
+            "id": "https://socialdistcmput404.herokuapp.com/authors/3aebd5d7-4853-437c-8af0-b46ab4c40dfa",
+            "host": "https://socialdistcmput404.herokuapp.com/",
+            "displayName": "team5",
+            "github": "",
+            "profileImage": "",
+            "type": "author",
+            "url": "https://socialdistcmput404.herokuapp.com/authors/3aebd5d7-4853-437c-8af0-b46ab4c40dfa"
+            },
+        "comment": "test",
+        "contentType": "text/plain"
         }
+        
         # also works without the _id for the author
         comment_json_dict = json.dumps(example_comment)
         request = self.factory.post('/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/inbox/', comment_json_dict, content_type='application/json')
@@ -197,3 +187,10 @@ class InboxTesting(TestCase):
         response = InboxDetails.as_view()(request, author_id = "d569cd39-0a2d-411e-8d86-e8a063a18dea")
         self.assertEqual(response.status_code, 201)
         self.assertTrue(self.author.inbox_items.filter(inbox_item__type = "Like"))
+
+        request = self.factory.get("http://127.0.0.1:8000/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/d091e3f1-4482-4d9d-8673-ac913f44fb9b/likes")
+        force_authenticate(request, user=self.user)
+        response = PostLikes.as_view()(request, author_id = "d569cd39-0a2d-411e-8d86-e8a063a18dea", post_id = "d091e3f1-4482-4d9d-8673-ac913f44fb9b")
+
+        self.assertEqual(response.status_code, 200)
+ 
