@@ -27,6 +27,8 @@ SECRET_KEY = 'django-insecure-5%l_=vv@r$^wvu6w-fm89@&jeit1i@i!gm_g8df(0xd=%l$+xd
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+APPEND_SLASH = True
+
 ALLOWED_HOSTS = [
     'https://socialdistcmput404.herokuapp.com',
     'https://sd7-api.herokuapp.com',
@@ -121,6 +123,7 @@ STORAGES = {
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -134,6 +137,7 @@ DATABASES = {
         'PORT': 5432,
     }
 }
+
 
 
 # Password validation
