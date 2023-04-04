@@ -99,6 +99,12 @@ class PostList(APIView, PageNumberPagination):
             permission_classes = [CustomIsAuthenticated]
 
         return [permission() for permission in permission_classes]
+    
+    def get_object(self, author_id):
+        try:
+            return Author.objects.get(author_id=author_id)
+        except Author.DoesNotExist:
+            raise Http404 
 
     def get(self, request, author_id, format=None):
         try:
@@ -126,18 +132,20 @@ class PostList(APIView, PageNumberPagination):
 
    
     def post(self, request, author_id, format=None):
-        try:
-            Author.objects.get(author_id=author_id)
-        except Author.DoesNotExist:
-            raise Http404 
+        author = self.get_object(author_id)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
 
-        serializer = PostDeSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if uid and (uid == author_id):
+            serializer = PostDeSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+       
 class PostDetail(APIView):
     """
     URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/
@@ -151,22 +159,32 @@ class PostDetail(APIView):
         return [permission() for permission in permission_classes]
 
 
-    def get_object(self, post_id):
+    def get_object(self, post_id, author_id):
         try:
-            return Post.objects.get(post_id=post_id)
+            return Post.objects.get(post_id=post_id, author__author_id=author_id)
         except Post.DoesNotExist:
             raise Http404 
 
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
-        post = self.get_object(post_id)
-        serializer = PostSerializer(post)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        post = self.get_object(post_id, author_id)
+        if post.visibility = 'PUBLIC':
+            serializer = PostSerializer(post)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+
+        if uid and (uid == author_id):
+            serializer = PostSerializer(post)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
         # PUT DOES NOT WORK CURRENTLY - for creating a post from another node in db
     @permission_classes([IsAuthenticated])
     def put(self, request, post_id, author_id, format=None):
-        post = self.get_object(post_id)
+        post = self.get_object(post_id, author_id)
         serializer = PostDeSerializer(post, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -175,18 +193,29 @@ class PostDetail(APIView):
 
         # FOR EDITING EXISTING POST
     def post(self, request, post_id, author_id, format=None):
-        post = self.get_object(post_id)
-        serializer = PostDeSerializer(instance=post, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        post = self.get_object(post_id, author_id)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+
+        if uid and (uid == author_id):
+            serializer = PostDeSerializer(instance=post, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
         # FOR DELETING EXISITING POST
     def delete(self, request, post_id, author_id, format=None):
-        post = self.get_object(post_id)
-        post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        post = self.get_object(post_id, author_id)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+
+        if uid and (uid == author_id):
+            post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class ImageView(APIView):
     """
