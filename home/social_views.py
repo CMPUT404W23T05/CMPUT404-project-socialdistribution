@@ -272,11 +272,9 @@ class FriendsList(APIView):
 
         # turning our data into bytes, to a string, then to a dict
         author_serializer = AuthorSerializer(current_author)
-        author_data = json.dumps(author_serializer.data)
-        author_data_dict = json.loads(author_data)
 
-        # check if the author is the followers_list of the authors
-        following_authors = Author.objects.filter(followers_items__author_info = author_data_dict)
+        # check if the author is in the followers_list of the authors
+        following_authors = Author.objects.filter(followers_items__author_info__id = author_serializer.data["id"])
  
         # returns a list of Author objects that the current author is following
         serializer = AuthorSerializer(following_authors, many=True)

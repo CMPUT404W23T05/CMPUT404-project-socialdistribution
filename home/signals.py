@@ -46,15 +46,12 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
     host = "https://social-t30.herokuapp.com/"
 
     # if a local post is created, send notification to local and remote authors (their followers)
-    if created: 
+    if created and instance.visibility in ["PUBLIC", "FRIENDS"]: 
         post = Post.objects.get(url_id=instance.url_id)
 
         # add post to their own inbox
         post_serializer = PostSerializer(post)
         post_data_dict = json.loads(json.dumps(post_serializer.data))
-
-        if "categories" not in post_data_dict.keys():
-            post_data_dict["categories"] = ["post"]
 
         post.author.inbox_items.create(inbox_item = post_data_dict)
         followers_serializer = AuthorFollowersSerializer(post.author) # get the followers
@@ -63,11 +60,15 @@ def send_post_to_inbox(sender, instance, created, **kwargs):
         for item in followers_serializer.data['items']:
             follower_host = item["host"] + "/" if not item["host"].endswith("/") else item["host"]
             if follower_host != host: # if it's a remote author
-
+                
+                # different groups may format their post differently
                 if follower_host == "https://socialdistcmput404.herokuapp.com/":
                     post_serializer = PostForRemoteTenSerializer(post)
-                else: # team 7
+                elif follower_host == "https://sd-7-433-api.herokuapp.com/":
                     post_serializer = PostForRemoteSevenSerializer(post)
+                else: # sending to team 9 (e.g. https://ultimate-teapot.herokuapp.com/main/api/authors/d487324f-e41a-402c-a726-6916161695bf/inbox/)
+                    post_serializer = PostSerializer(post)
+                    follower_host = follower_host + "main/"
 
                 follower_id = item["id"].split("/")[-1]
                 url = follower_host + "api/authors/" + follower_id + "/inbox/" 
