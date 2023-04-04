@@ -107,6 +107,7 @@ class PostList(APIView, PageNumberPagination):
             raise Http404 
 
     def get(self, request, author_id, format=None):
+        author = get_object(author_id)
         try:
             uid = request.user.author.author_id
             if (uid == author_id):
@@ -168,7 +169,7 @@ class PostDetail(APIView):
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id, author_id)
-        if post.visibility = 'PUBLIC':
+        if post.visibility == 'PUBLIC':
             serializer = PostSerializer(post)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
