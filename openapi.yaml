@@ -114,17 +114,17 @@ paths:
                       $ref: '#/components/schemas/Author'
                     example:
                       - type: author
-                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
-                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        url: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         host: https://social-t30.herokuapp.com/
                         displayName: testuser1
                         github: http://github.com/testuser1
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
                       - type: author
-                        id: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        id: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
-                        url: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        url: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         host: https://social-t30.herokuapp.com/
                         displayName: testuser12
                         github: http://github.com/testuser2
@@ -154,9 +154,9 @@ paths:
                 $ref: '#/components/schemas/Author'
               example:
                   type: author
-                  id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                  id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                   _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
-                  url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                  url: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                   host: https://social-t30.herokuapp.com/
                   displayName: testuser1
                   github: http://github.com/testuser1
@@ -226,7 +226,7 @@ paths:
                 example:
                   - type: post
                     title: Example Post 1
-                    id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                    id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
                     _id: b544efa0-c807-47c8-9abe-6a0d827fc4a6
                     source: http://lastplaceigotthisfrom.com/posts/yyyyy
                     origin: http://whereitcamefrom.com/posts/zzzzz
@@ -236,16 +236,16 @@ paths:
                     image: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
                     author:
                         type: author
-                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
-                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        url: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         host: https://social-t30.herokuapp.com/
                         displayName: testuser1
                         github: http://github.com/testuser1
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
                     categories: [tags, are, fun]
                     count: 96
-                    comments: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                    comments: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
                     published: 2023-03-23T00:33:51.532544Z
                     visibility: PUBLIC
                     unlisted: false
@@ -253,13 +253,13 @@ paths:
                     - type: comments
                       page: 1
                       size: 5
-                      post: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
-                      id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                      post: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                      id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
                       comments: []
 
                   - type: post
                     title: Example Post 2
-                    id: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d
+                    id: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d
                     _id: b548683c-40f4-47da-86db-7f470d03443d
                     source: http://lastplaceigotthisfrom.com/posts/yyyyy
                     origin: http://whereitcamefrom.com/posts/zzzzz
@@ -268,9 +268,9 @@ paths:
                     content: This is the post body
                     author:
                         type: author
-                        id: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                        id: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
                         _id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                        host: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                        host: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
                         displayName: Aragorn, Son of Arathorn
                         github: http://github.com/aragorn
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -283,8 +283,8 @@ paths:
                       type: comments
                       page: 1
                       size: 5
-                      post: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
-                      id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                      post: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                      id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
                       comments: []
                         
 
@@ -317,7 +317,7 @@ paths:
               example:
                   type: post
                   title: Example Post 1
-                  id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                  id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
                   _id: b544efa0-c807-47c8-9abe-6a0d827fc4a6
                   source: http://lastplaceigotthisfrom.com/posts/yyyyy
                   origin: http://whereitcamefrom.com/posts/zzzzz
@@ -327,16 +327,16 @@ paths:
                   image: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
                   author:
                     type: author
-                    id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                    id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                     _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
-                    url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                    url: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                     host: https://social-t30.herokuapp.com/
                     displayName: testuser1
                     github: http://github.com/testuser1
                     profileImage: https://i.imgur.com/k7XVwp
                   categories: [tags, are, fun]
                   count: 96
-                  comments: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
+                  comments: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
                   published: 2023-03-23T00:33:51.532544Z
                   visibility: PUBLIC
                   unlisted: false
@@ -344,8 +344,8 @@ paths:
                     type: comments
                     page: 1
                     size: 5
-                    post: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
-                    id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                    post: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                    id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
                     comments: []
         '404':
           description: Not Found - Post doesn't exist
@@ -519,10 +519,10 @@ paths:
                     example: 5
                   post:
                     type: string
-                    example: https://social-t30.herokuapp.com/api/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d
+                    example: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d
                   id:
                     type: string
-                    example: https://social-t30.herokuapp.com/api/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
+                    example: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
                   comments:
                     type: array
                     description: Array of comment objects
@@ -530,14 +530,14 @@ paths:
                       $ref: '#/components/schemas/Comment'
                     example:
                       - type: comment
-                        id: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments/30cb41c0-c077-4291-9f4e-7ae8aa780fb7
+                        id: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments/30cb41c0-c077-4291-9f4e-7ae8aa780fb7
                         _id: 30cb41c0-c077-4291-9f4e-7ae8aa780fb7
                         post: b544efa0-c807-47c8-9abe-6a0d827fc4a6
                         author:
                             type: author
-                            id: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
+                            id: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
                             _id: 07e7050f-4bf6-4249-8cde-6d254bddce9e
-                            url: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
+                            url: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
                             host: https://social-t30.herokuapp.com/
                             displayName: testsocial123
                             github: http://github.com/frodobaggins
@@ -551,7 +551,7 @@ paths:
                         author:
                             type: author
                             id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                            url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                            url: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                             host: https://social-t30.herokuapp.com/
                             displayName: Gandalf the Grey
                             github: http://github.com/gandalfthegrey
@@ -576,14 +576,14 @@ paths:
               $ref: '#/components/schemas/Comment'
             example:
               - type: comment
-                id: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments/30cb41c0-c077-4291-9f4e-7ae8aa780fb7
+                id: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments/30cb41c0-c077-4291-9f4e-7ae8aa780fb7
                 _id: 30cb41c0-c077-4291-9f4e-7ae8aa780fb7
                 post: b544efa0-c807-47c8-9abe-6a0d827fc4a6
                 author:
                     type: author
-                    id: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
+                    id: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
                     _id: 07e7050f-4bf6-4249-8cde-6d254bddce9e
-                    url: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
+                    url: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
                     host: https://social-t30.herokuapp.com/
                     displayName: testsocial123
                     github: http://github.com/frodobaggins
@@ -598,14 +598,14 @@ paths:
                 $ref: '#/components/schemas/Comment'
               example:
                 type: comment
-                id: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments/30cb41c0-c077-4291-9f4e-7ae8aa780fb7
+                id: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments/30cb41c0-c077-4291-9f4e-7ae8aa780fb7
                 _id: 30cb41c0-c077-4291-9f4e-7ae8aa780fb7
                 post: b544efa0-c807-47c8-9abe-6a0d827fc4a6
                 author:
                     type: author
-                    id: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
+                    id: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
                     _id: 07e7050f-4bf6-4249-8cde-6d254bddce9e
-                    url: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
+                    url: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
                     host: https://social-t30.herokuapp.com/
                     displayName: testsocial123
                     github: http://github.com/frodobaggins
@@ -648,14 +648,14 @@ paths:
                 $ref: '#/components/schemas/Comment'
               example:
                 type: comment
-                id: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments/30cb41c0-c077-4291-9f4e-7ae8aa780fb7
+                id: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments/30cb41c0-c077-4291-9f4e-7ae8aa780fb7
                 _id: 30cb41c0-c077-4291-9f4e-7ae8aa780fb7
                 post: b544efa0-c807-47c8-9abe-6a0d827fc4a6
                 author:
                     type: author
-                    id: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
+                    id: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
                     _id: 07e7050f-4bf6-4249-8cde-6d254bddce9e
-                    url: https://social-t30.herokuapp.com/api/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
+                    url: https://social-t30.herokuapp.com/authors/07e7050f-4bf6-4249-8cde-6d254bddce9e
                     host: https://social-t30.herokuapp.com/
                     displayName: testsocial123
                     github: http://github.com/frodobaggins
@@ -700,18 +700,18 @@ paths:
                       $ref: '#/components/schemas/Author'
                     example:
                       - type: author
-                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
                         host: https://social-t30.herokuapp.com/
                         displayName: testuser1
-                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        url: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         github: http://github.com/testuser1
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
                       - type: author
-                        id: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        id: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         host: https://social-t30.herokuapp.com/
-                        url: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        url: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         displayName: testuser12
                         github: http://github.com/testuser2
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
@@ -811,17 +811,17 @@ paths:
                       $ref: '#/components/schemas/Author'
                     example:
                       - type: author
-                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
-                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        url: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         host: https://social-t30.herokuapp.com/
                         displayName: testuser1
                         github: http://github.com/testuser1
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
                       - type: author
-                        id: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        id: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
-                        url: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        url: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         host: https://social-t30.herokuapp.com/
                         displayName: testuser12
                         github: http://github.com/testuser2
@@ -862,17 +862,17 @@ paths:
                       $ref: '#/components/schemas/Author'
                     example:
                       - type: author
-                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
-                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                        url: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
                         host: https://social-t30.herokuapp.com/
                         displayName: testuser1
                         github: http://github.com/testuser1
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
                       - type: author
-                        id: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        id: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
-                        url: https://social-t30.herokuapp.com/api/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
+                        url: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         host: https://social-t30.herokuapp.com/
                         displayName: testuser12
                         github: http://github.com/testuser2
@@ -925,15 +925,15 @@ paths:
                         context: "https://www.w3.org/ns/activitystreams"
                         author:
                           type: author
-                          id: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          id: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                           _id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                          url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          url: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                           host: https://social-t30.herokuapp.com/
                           displayName: Lara Croft
                           github: http://github.com/laracroft
                           profileImage: https://i.imgur.com/k7XVwpB.jpeg
                         summary: Lara Croft Likes your post
-                        object: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012/posts/764efa883dda1e11db47671c4a3bbd9e
+                        object: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012/posts/764efa883dda1e11db47671c4a3bbd9e
         '404':
           description: Not Found, Either the author or the post does not exist
         '5XX':
@@ -985,15 +985,15 @@ paths:
                         context: "https://www.w3.org/ns/activitystreams"
                         author:
                           type: author
-                          id: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          id: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                           _id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                          url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          url: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                           host: https://social-t30.herokuapp.com/
                           displayName: Gandalf the Grey
                           github: http://github.com/gandalfthegrey
                           profileImage: https://i.imgur.com/k7XVwpB.jpeg
                         summary: Gandalf the Grey Likes your comment
-                        object: https://social-t30.herokuapp.com/api/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
+                        object: https://social-t30.herokuapp.com/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
 
         '404':
           description: Not Found, Either the author or the comment does not exist
@@ -1037,15 +1037,15 @@ paths:
                         context: "https://www.w3.org/ns/activitystreams"
                         author:
                           type: author
-                          id: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          id: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                           _id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                          url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                          url: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                           host: https://social-t30.herokuapp.com/
                           displayName: Gandalf the Grey
                           github: http://github.com/gandalfthegrey
                           profileImage: https://i.imgur.com/k7XVwpB.jpeg
                         summary: Gandalf the Grey Likes your post
-                        object: https://social-t30.herokuapp.com/api/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
+                        object: https://social-t30.herokuapp.com/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
 
         '404':
           description: Not Found, The author does not exist
@@ -1098,8 +1098,9 @@ paths:
                   type: object
                   example:
                       type: author
-                      id: f2b2b415-250b-43e6-8a5b-31834d12be0d
-                      url: https://social-t30.herokuapp.com/api/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                      id: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
+                      _id: f2b2b415-250b-43e6-8a5b-31834d12be0d
+                      url: https://social-t30.herokuapp.com/authors/f2b2b415-250b-43e6-8a5b-31834d12be0d
                       host: https://social-t30.herokuapp.com/
                       displayName: Frodo Baggins
                       github: http://github.com/frodobaggins
@@ -1108,8 +1109,9 @@ paths:
                   type: object
                   example:
                       type: author
-                      id: f2b6c0a5-117a-425f-abd5-30937c72d012
-                      url: https://social-t30.herokuapp.com/api/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                      id: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
+                      _id: f2b6c0a5-117a-425f-abd5-30937c72d012
+                      url: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012
                       host: https://social-t30.herokuapp.com/
                       displayName: Gandalf the Grey
                       github: http://github.com/gandalfthegrey

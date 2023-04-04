@@ -18,11 +18,11 @@ def create_author(sender, instance, created, **kwargs):
         Author.objects.create(
                 # counts the number of comments on post any time a new instance of Comment is saved
                 object_type = 'author',
-                url_id = "https://social-t30.herokuapp.com/api/authors/" + uid,
+                url_id = "https://social-t30.herokuapp.com/authors/" + uid,
                 author_id = uid,
                 home_host = "https://social-t30.herokuapp.com/",
                 display_name = instance.username,
-                profile_url = "https://social-t30.herokuapp.com/api/authors/" + uid,
+                profile_url = "https://social-t30.herokuapp.com/authors/" + uid,
                 author_github = "",
                 profile_image = "https://i.imgur.com/k7XVwpB.jpeg",
                 user = instance
