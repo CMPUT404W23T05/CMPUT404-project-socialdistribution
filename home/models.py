@@ -181,7 +181,7 @@ class Like(models.Model):
     objects = LikeManager() # creates the object and adds a summary along with it
     
     def __str__(self):
-        return self.author_object["displayName"] + " liked something"
+        return self.like_summary
 
 class Inbox(models.Model):
     """
@@ -252,3 +252,6 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ('-pub_date',)
+
+    def __str__(self):
+        return self.author.display_name + " commented: " + self.content
