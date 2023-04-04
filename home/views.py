@@ -230,9 +230,14 @@ class ImageView(APIView):
 
         return [permission() for permission in permission_classes]
 
+    def get_object(self, post_id, author_id):
+        try:
+            return Post.objects.get(post_id=post_id, author__author_id=author_id)
+        except Post.DoesNotExist:
+            raise Http404
 
     def get(self, request, author_id, post_id, format=None):
-        post = Post.objects.get(post_id=post_id)
+        post = self.get_object(post_id, author_id)
         image, content_type = post.get_image()
 
         if not image:
