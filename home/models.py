@@ -1,4 +1,4 @@
-# from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.fields import ArrayField
 from django.db import models, IntegrityError
 from django.core.files.base import ContentFile
 from django.core.files import File
@@ -132,7 +132,7 @@ class Post(models.Model):
     content = models.TextField(max_length=CONTENT_MAX_LENGTH, null=True, blank=True)
     image = models.TextField(null=True, blank=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, to_field='author_id', related_name='posts', null=False)
-    # categories = ArrayField(models.CharField(max_length=SMALLER_MAX_LENGTH), blank=True, null=True)
+    categories = ArrayField(models.CharField(max_length=BIG_MAX_LENGTH), blank=True, null=True)
     comment_count = models.IntegerField(null=True)
     comments = models.URLField(max_length=URL_MAX_LENGTH, null=True)
     pub_date = models.DateTimeField(auto_now_add=True, null=True, blank=True)

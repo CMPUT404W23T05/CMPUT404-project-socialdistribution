@@ -62,15 +62,15 @@ class PostSerializer(serializers.ModelSerializer):
     image = serializers.CharField(required=False)
     content = serializers.CharField(required=False)
     author = AuthorSerializer()
+    categories = serializers.ListField(child=serializers.CharField(), required=False)
     count = serializers.IntegerField(source='comment_count')    
     published = serializers.DateTimeField(source='pub_date')
     unlisted = serializers.BooleanField(source='is_unlisted')
 
     class Meta:
         model = Post
-        # add 'categories' later
         fields = ['type', 'title', 'id', '_id', 'source', 'origin', 'description', 'contentType',
-                  'image', 'content', 'author', 'count', 'comments', 'published',
+                  'image', 'content', 'author', 'categories', 'count', 'comments', 'published',
                   'visibility', 'unlisted']
 
     def to_representation(self, instance):
@@ -100,15 +100,15 @@ class PostDeSerializer(serializers.ModelSerializer):
     image = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     content = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     author = AuthorSerializer() 
+    categories = serializers.ListField(child=serializers.CharField(), required=False)
     count = serializers.IntegerField(source='comment_count')
     published = serializers.DateTimeField(source='pub_date', required=False)
     unlisted = serializers.BooleanField(source='is_unlisted')
 
     class Meta:
         model = Post
-        # add 'categories' later
         fields = ['type', 'title', 'id', '_id', 'source', 'origin', 'description', 'contentType',
-                  'image', 'content', 'author', 'count', 'comments', 'visibility',
+                  'image', 'content', 'author', 'categories', 'count', 'comments', 'visibility',
                   'unlisted', 'published']
 
     def get_author(self, author_id):
@@ -149,6 +149,9 @@ class PostDeSerializer(serializers.ModelSerializer):
             #   raise serializers.ValidationError("Could not extract uuid from url in 'id'. Are you sure 'id' is valid?")
 
             attrs['post_id'] = post_id
+
+        if 'categories' not in attrs:
+            attrs['categories'] = []
             
         return attrs
 
