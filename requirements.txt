@@ -17,3 +17,4 @@ requests
 psycopg2-binary
 gunicorn 
 django-on-heroku
+whitenoise
