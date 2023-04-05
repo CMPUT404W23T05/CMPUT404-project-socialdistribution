@@ -410,12 +410,9 @@ class CommentLikes(APIView):
     def does_comment_exist(self, author_id, comment_id):
         try:
             comment = Comment.objects.get(comment_id = comment_id)
-
-            # is the comment associated with this author
-            if comment.author.author_id != author_id:
-                raise Http404
         except:
             raise Http404
+
 
     def get(self, request, author_id, post_id, comment_id):
         
