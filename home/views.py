@@ -20,6 +20,8 @@ from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -456,6 +458,7 @@ class LikedList(APIView):
         return Response(author_serializer.data, status=status.HTTP_200_OK)
 
 
+@method_decorator(csrf_exempt, name='post')
 class InboxDetails(APIView, PageNumberPagination):
     """
     Get the inbox of the author
