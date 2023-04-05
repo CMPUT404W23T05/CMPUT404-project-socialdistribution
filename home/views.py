@@ -614,7 +614,7 @@ class InboxDetails(APIView, PageNumberPagination):
         # FOLLOW
         elif request.data["type"] == "Follow" or request.data["type"] == "follow":
             
-            if request.data["author"] in request.data.keys():
+            if "author" in request.data.keys():
                 actor_data = {request.data["author"]}
             else:
                 actor_data = request.data["actor"]
