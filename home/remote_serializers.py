@@ -29,6 +29,11 @@ class PostForRemoteSevenSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         
         data = super().to_representation(instance)
+
+        if "categories" in data.keys():
+            if data["categories"] == "":
+                data["categories"] = ["post"]
+                
         return_data = {} # update how it's displayed after being serialized
         return_data.update({
                 'type': data['type'],
