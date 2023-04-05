@@ -389,9 +389,9 @@ class PostLikes(APIView):
     def get(self, request, author_id, post_id):
 
         # check if the author and post exist
-        author = self.get_author_object(author_id)
         self.does_post_exist(author_id, post_id)
-
+        author = self.get_author_object(author_id)
+        
         object_url = author.profile_url + "/posts/" + str(post_id) 
         filter_post_likes = Like.objects.filter(obj=object_url)
   
@@ -419,12 +419,12 @@ class CommentLikes(APIView):
 
         return [permission() for permission in permission_classes]
     
-    def get_author_object(self, author_id):
+    def get_object(self, author_id, post_id):
         try:
-            return Author.objects.get(author_id=author_id)
+            return Post.objects.get(author__author_id=author_id, post_id = post_id)
         except Author.DoesNotExist:
             raise Http404 
-
+        
     def does_comment_exist(self, author_id, comment_id):
         try:
             comment = Comment.objects.get(comment_id = comment_id)
@@ -434,8 +434,8 @@ class CommentLikes(APIView):
 
     def get(self, request, author_id, post_id, comment_id):
         
-        # check if the author and the comment exists
-        author = self.get_author_object(author_id)
+        # check if the author, post and the comment exists
+        author = self.get_object(author_id)
         self.does_comment_exist(author_id, comment_id)
 
         # URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}
