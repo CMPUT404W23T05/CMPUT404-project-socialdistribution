@@ -360,11 +360,7 @@ class PostLikes(APIView):
     
     def does_post_exist(self, author_id, post_id):
         try:
-            post = Post.objects.get(post_id=post_id)
-
-            # is the post associated with this author
-            if post.author.author_id != author_id:
-                raise Http404
+            post = Post.objects.get(post_id=post_id, author__author_id=author_id)
         except:
             raise Http404
 
@@ -642,7 +638,7 @@ class InboxDetails(APIView, PageNumberPagination):
             author_object_id = follow_format["object"]["id"]
             author_actor_id = follow_format["actor"]["id"]
             does_follow_exist = Follow.objects.filter(author_object__id=author_object_id).filter(author_actor__id=author_actor_id)
-            print(does_follow_exist)
+      
             # the follow does not exist (first time we're making a follow request)
             if len(does_follow_exist) == 0:
                 new_follow = Follow.objects.create_follow(follow_format["actor"], follow_format["object"])
