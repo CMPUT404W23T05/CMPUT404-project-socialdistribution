@@ -153,11 +153,11 @@ class PostDetail(APIView):
         return [permission() for permission in permission_classes]
 
 
-        def get_object(self, post_id, author_id):
-            try:
-                return Post.objects.get(post_id=post_id, author__author_id=author_id)
-            except Post.DoesNotExist:
-                raise Http404 
+    def get_object(self, post_id, author_id):
+        try:
+            return Post.objects.get(post_id=post_id, author__author_id=author_id)
+        except Post.DoesNotExist:
+            raise Http404 
 
 
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
