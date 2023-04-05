@@ -96,7 +96,7 @@ class PostList(APIView, PageNumberPagination):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [RemoteAuth | CustomIsAuthenticated | AllowAny]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated]
         else:
             permission_classes = [CustomIsAuthenticated]
 
