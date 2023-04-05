@@ -162,14 +162,14 @@ class PostDetail(APIView):
 
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
-        post = self.get_object(post_id)
+        post = self.get_object(post_id, author_id)
         serializer = PostSerializer(post)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
         # PUT DOES NOT WORK CURRENTLY - for creating a post from another node in db
     @permission_classes([IsAuthenticated])
     def put(self, request, post_id, author_id, format=None):
-        post = self.get_object(post_id)
+        post = self.get_object(post_id, author_id)
         serializer = PostDeSerializer(post, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -178,7 +178,7 @@ class PostDetail(APIView):
 
         # FOR EDITING EXISTING POST
     def post(self, request, post_id, author_id, format=None):
-        post = self.get_object(post_id)
+        post = self.get_object(post_id, author_id)
         serializer = PostDeSerializer(instance=post, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -187,7 +187,7 @@ class PostDetail(APIView):
 
         # FOR DELETING EXISITING POST
     def delete(self, request, post_id, author_id, format=None):
-        post = self.get_object(post_id)
+        post = self.get_object(post_id, author_id)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
