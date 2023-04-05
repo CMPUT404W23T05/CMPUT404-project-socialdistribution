@@ -501,9 +501,10 @@ class InboxDetails(APIView, PageNumberPagination):
         1. local to local comment: handled through signals.py
         2. remote to local comment: handled through InboxDetails 
         """
-        # for some groups, it may be left blank
+        # for some groups, it may be left blank (and will throw an error)
         if request.data['author']['profileImage'] == "":
-            request.data['author']['profileImage'] = "https://i.imgur.com/k7XVwpB.jpeg"
+            default_profile_pic = "https://cdn.dribbble.com/users/6142/screenshots/5679189/media/1b96ad1f07feee81fa83c877a1e350ce.png?compress=1&resize=1200x900&vertical=top"
+            request.data['author']['profileImage'] = default_profile_pic
 
         new_comment = CommentSerializer(data=request.data)
 
