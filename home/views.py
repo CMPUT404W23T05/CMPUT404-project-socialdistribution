@@ -325,6 +325,7 @@ class CommentList(APIView, PageNumberPagination):
         except Post.DoesNotExist:
             raise Http404
 
+
     def get(self, request, post_id, author_id, format=None):
         self.get_object(post_id, author_id)
         comments = Comment.objects.filter(post_id=post_id)
