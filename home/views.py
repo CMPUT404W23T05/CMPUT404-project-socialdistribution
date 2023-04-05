@@ -22,6 +22,7 @@ import json
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+import requests
 
 
 
@@ -499,6 +500,28 @@ class InboxDetails(APIView, PageNumberPagination):
             
         return new_post_dict
     
+    def handle_remote_follow_request(self, request):
+        # given the object and actor that are url strings, do some modifications
+
+        actor_url = request.data["author"] # remote author
+        object_url = request.data["object"] # local author
+        remote_auth = {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}
+
+        # get information about our own author
+        object_id = object_url.split("/")[-1] 
+        object = Author.objects.get(author_id = object_id)
+        object_serializer = AuthorSerializer(object)
+
+        r = requests.get(actor_url, headers = remote_auth)
+        actor = r.json()
+
+        follow_format = {"type": "Follow",
+                         "actor": actor,
+                        "object": object_serializer.data,
+                        "summary": actor["displayName"] + " wants to follow " + object_serializer.data["displayName"]}
+
+        return follow_format 
+    
     def handle_local_or_remote_comment(self, request):
         """
         1. local to local comment: handled through signals.py
@@ -614,21 +637,18 @@ class InboxDetails(APIView, PageNumberPagination):
         # FOLLOW
         elif request.data["type"] == "Follow" or request.data["type"] == "follow":
             
-            if "author" in request.data.keys():
-                actor_data = {request.data["author"]}
+            if "author" in request.data.keys(): # got a request from team 9
+                follow_format = self.handle_remote_follow_request(request)
             else:
-                actor_data = request.data["actor"]
+                follow_format = request.data
 
-            if isinstance(request.data["object"], str):
-                object_data = {request.data["object"]}
-            else:
-                object_data = request.data["object"]
-
-            does_follow_exist = Follow.objects.filter(author_object=object_data).filter(author_actor=actor_data)
-
+            author_object_id = follow_format["object"]["id"]
+            author_actor_id = follow_format["actor"]["id"]
+            does_follow_exist = Follow.objects.filter(author_object__id=author_object_id).filter(author_actor__id=author_actor_id)
+            print(does_follow_exist)
             # the follow does not exist (first time we're making a follow request)
             if len(does_follow_exist) == 0:
-                new_follow = Follow.objects.create_follow(actor_data, object_data)
+                new_follow = Follow.objects.create_follow(follow_format["actor"], follow_format["object"])
                 serializer = FollowSerializer(new_follow)
 
                 new_follow_data = json.loads(json.dumps(serializer.data))
@@ -642,7 +662,7 @@ class InboxDetails(APIView, PageNumberPagination):
                 if request.data["state"] == "Accepted":
 
                     # create a follower
-                    current_author.followers_items.create(author_info = json.loads(json.dumps(request.data["actor"])))
+                    current_author.followers_items.create(author_info = follow_format["actor"])
 
                     # earlier, had no state field, now has a state field of accepted
                     # (indicates that it has been handled)
@@ -667,8 +687,8 @@ class InboxDetails(APIView, PageNumberPagination):
 
                     return Response(status=status.HTTP_200_OK)
                 
-                else:
-                    return Response({"detail": "This post already exists in their inbox"}, status=status.HTTP_409_CONFLICT)
+            else:
+                return Response({"detail": "This post already exists in their inbox"}, status=status.HTTP_409_CONFLICT)
                     
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
