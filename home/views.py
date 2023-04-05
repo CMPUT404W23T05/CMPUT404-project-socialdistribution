@@ -94,7 +94,7 @@ class PostList(APIView, PageNumberPagination):
     """
     def get_permissions(self):
         if self.request.method == 'GET':
-            permission_classes = [RemoteAuth | CustomIsAuthenticated]
+            permission_classes = [RemoteAuth | CustomIsAuthenticated | AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -166,18 +166,29 @@ class PostDetail(APIView):
         except Post.DoesNotExist:
             raise Http404 
 
+    def get_author(self, author_id):
+        try:
+            return Author.objects.get(author_id=author_id)
+        except Author.DoesNotExist:
+            raise Http404
+
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id, author_id)
+        author = self.get_author(author_id)
         if post.visibility == 'PUBLIC':
             serializer = PostSerializer(post)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+        serializer = AuthorFollowersSerializer(author)
 
         if uid and (uid == author_id):
             serializer = PostSerializer(post)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        for item in serializer.data['items']:
+            if item['_id'] == uid and uid:
+                return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
@@ -377,6 +388,7 @@ class CommentDetail(APIView):
         comment = self.get_object(comment_id)
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class PostLikes(APIView):
     """
