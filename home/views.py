@@ -153,11 +153,12 @@ class PostDetail(APIView):
         return [permission() for permission in permission_classes]
 
 
-    def get_object(self, post_id):
-        try:
-            return Post.objects.get(post_id=post_id)
-        except Post.DoesNotExist:
-            raise Http404 
+        def get_object(self, post_id, author_id):
+            try:
+                return Post.objects.get(post_id=post_id, author__author_id=author_id)
+            except Post.DoesNotExist:
+                raise Http404 
+
 
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
@@ -202,9 +203,15 @@ class ImageView(APIView):
 
         return [permission() for permission in permission_classes]
 
+    def get_object(self, post_id, author_id):
+        try:
+            return Post.objects.get(post_id=post_id, author__author_id=author_id)
+        except Post.DoesNotExist:
+            raise Http404 
+
 
     def get(self, request, author_id, post_id, format=None):
-        post = Post.objects.get(post_id=post_id)
+        post = self.get_object(post_id, author_id)
         image, content_type = post.get_image()
 
         if not image:
@@ -286,7 +293,14 @@ class CommentList(APIView, PageNumberPagination):
 
         return [permission() for permission in permission_classes]
 
+    def get_object(self, post_id, author_id):
+        try:
+            Post.objects.get(post_id=post_id, author__author_id=author_id)
+        except Post.DoesNotExist:
+            raise Http404
+
     def get(self, request, post_id, author_id, format=None):
+        self.get_object(post_id, author_id)
         comments = Comment.objects.filter(post_id=post_id)
 
         self.page = int(request.query_params.get('page', 1))
@@ -306,6 +320,7 @@ class CommentList(APIView, PageNumberPagination):
         return Response(response, status=status.HTTP_200_OK)
 
     def post(self, request, post_id, author_id, format=None):
+        self.get_object(post_id, author_id)
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -325,14 +340,21 @@ class CommentDetail(APIView):
 
         return [permission() for permission in permission_classes]
 
-    def get_object(self, comment_id):
+    def get_object(self, post_id, author_id):
+        try:
+            Post.objects.get(post_id=post_id, author__author_id=author_id)
+        except Post.DoesNotExist:
+            raise Http404
+
+    def get_comment(self, comment_id):
         try:
             return Comment.objects.get(comment_id=comment_id)
         except Comment.DoesNotExist:
             raise Http404 
 
     def get(self, request, post_id, author_id, comment_id, format=None):
-        comment = self.get_object(comment_id)
+        self.get_object(post_id, author_id)
+        comment = self.get_comment(comment_id)
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
