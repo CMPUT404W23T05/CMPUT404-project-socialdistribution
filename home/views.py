@@ -466,7 +466,7 @@ class InboxDetails(APIView, PageNumberPagination):
     
     def get_permissions(self):
         if self.request.method == 'POST':
-            permission_classes = [RemoteAuth | CustomIsAuthenticated]
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
         return [permission() for permission in permission_classes]
