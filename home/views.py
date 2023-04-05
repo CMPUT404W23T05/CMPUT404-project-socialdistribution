@@ -20,6 +20,8 @@ from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -411,9 +413,13 @@ class PostLikes(APIView):
         except Author.DoesNotExist:
             raise Http404 
     
-    def does_post_exist(self, post_id):
+    def does_post_exist(self, author_id, post_id):
         try:
-            Post.objects.get(post_id=post_id)
+            post = Post.objects.get(post_id=post_id)
+
+            # is the post associated with this author
+            if post.author.author_id != author_id:
+                raise Http404
         except:
             raise Http404
 
@@ -421,7 +427,7 @@ class PostLikes(APIView):
 
         # check if the author and post exist
         author = self.get_author_object(author_id)
-        self.does_post_exist(post_id)
+        self.does_post_exist(author_id, post_id)
 
         object_url = author.profile_url + "/posts/" + str(post_id) 
         filter_post_likes = Like.objects.filter(obj=object_url)
@@ -456,9 +462,13 @@ class CommentLikes(APIView):
         except Author.DoesNotExist:
             raise Http404 
 
-    def does_comment_exist(self, comment_id):
+    def does_comment_exist(self, author_id, comment_id):
         try:
-            Comment.objects.get(comment_id=comment_id)
+            comment = Comment.objects.get(comment_id = comment_id)
+
+            # is the comment associated with this author
+            if comment.author.author_id != author_id:
+                raise Http404
         except:
             raise Http404
 
@@ -466,7 +476,7 @@ class CommentLikes(APIView):
         
         # check if the author and the comment exists
         author = self.get_author_object(author_id)
-        self.does_comment_exist(comment_id)
+        self.does_comment_exist(author_id, comment_id)
 
         # URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}
         object_url = author.profile_url + "/posts/" + str(post_id) + "/comments/" + str(comment_id)
@@ -504,6 +514,7 @@ class LikedList(APIView):
         return Response(author_serializer.data, status=status.HTTP_200_OK)
 
 
+@method_decorator(csrf_exempt, name='post')
 class InboxDetails(APIView, PageNumberPagination):
     """
     Get the inbox of the author
@@ -514,7 +525,7 @@ class InboxDetails(APIView, PageNumberPagination):
     
     def get_permissions(self):
         if self.request.method == 'POST':
-            permission_classes = [RemoteAuth | CustomIsAuthenticated]
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
         return [permission() for permission in permission_classes]
@@ -549,9 +560,10 @@ class InboxDetails(APIView, PageNumberPagination):
         1. local to local comment: handled through signals.py
         2. remote to local comment: handled through InboxDetails 
         """
-        # for some groups, it may be left blank
+        # for some groups, it may be left blank (and will throw an error)
         if request.data['author']['profileImage'] == "":
-            request.data['author']['profileImage'] = "https://i.imgur.com/k7XVwpB.jpeg"
+            default_profile_pic = "https://cdn.dribbble.com/users/6142/screenshots/5679189/media/1b96ad1f07feee81fa83c877a1e350ce.png?compress=1&resize=1200x900&vertical=top"
+            request.data['author']['profileImage'] = default_profile_pic
 
         new_comment = CommentSerializer(data=request.data)
 
@@ -656,13 +668,23 @@ class InboxDetails(APIView, PageNumberPagination):
                     return Response(status=status.HTTP_201_CREATED)  
 
         # FOLLOW
-        elif request.data["type"] == "Follow":
+        elif request.data["type"] == "Follow" or request.data["type"] == "follow":
+            
+            if "author" in request.data.keys():
+                actor_data = {request.data["author"]}
+            else:
+                actor_data = request.data["actor"]
 
-            does_follow_exist = Follow.objects.filter(author_object=request.data["object"]).filter(author_actor=request.data["actor"])
+            if isinstance(request.data["object"], str):
+                object_data = {request.data["object"]}
+            else:
+                object_data = request.data["object"]
+
+            does_follow_exist = Follow.objects.filter(author_object=object_data).filter(author_actor=actor_data)
 
             # the follow does not exist (first time we're making a follow request)
             if len(does_follow_exist) == 0:
-                new_follow = Follow.objects.create_follow(request.data["actor"], request.data["object"])
+                new_follow = Follow.objects.create_follow(actor_data, object_data)
                 serializer = FollowSerializer(new_follow)
 
                 new_follow_data = json.loads(json.dumps(serializer.data))
@@ -704,8 +726,8 @@ class InboxDetails(APIView, PageNumberPagination):
                 else:
                     return Response({"detail": "This post already exists in their inbox"}, status=status.HTTP_409_CONFLICT)
                     
-            else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
   
     def delete(self, request, author_id):
 
