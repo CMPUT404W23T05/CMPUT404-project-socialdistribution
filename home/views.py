@@ -612,13 +612,23 @@ class InboxDetails(APIView, PageNumberPagination):
                     return Response(status=status.HTTP_201_CREATED)  
 
         # FOLLOW
-        elif request.data["type"] == "Follow":
+        elif request.data["type"] == "Follow" or request.data["type"] == "follow":
+            
+            if request.data["author"] in request.data.keys():
+                actor_data = {request.data["author"]}
+            else:
+                actor_data = request.data["actor"]
 
-            does_follow_exist = Follow.objects.filter(author_object=request.data["object"]).filter(author_actor=request.data["actor"])
+            if isinstance(request.data["object"], str):
+                object_data = {request.data["object"]}
+            else:
+                object_data = request.data["object"]
+
+            does_follow_exist = Follow.objects.filter(author_object=object_data).filter(author_actor=actor_data)
 
             # the follow does not exist (first time we're making a follow request)
             if len(does_follow_exist) == 0:
-                new_follow = Follow.objects.create_follow(request.data["actor"], request.data["object"])
+                new_follow = Follow.objects.create_follow(actor_data, object_data)
                 serializer = FollowSerializer(new_follow)
 
                 new_follow_data = json.loads(json.dumps(serializer.data))
@@ -660,8 +670,8 @@ class InboxDetails(APIView, PageNumberPagination):
                 else:
                     return Response({"detail": "This post already exists in their inbox"}, status=status.HTTP_409_CONFLICT)
                     
-            else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
   
     def delete(self, request, author_id):
 
