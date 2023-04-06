@@ -474,6 +474,7 @@ class LikedList(APIView):
         return Response(author_serializer.data, status=status.HTTP_200_OK)
 
 
+
 @method_decorator(csrf_exempt, name='post')
 class InboxDetails(APIView, PageNumberPagination):
     """
@@ -599,9 +600,9 @@ class InboxDetails(APIView, PageNumberPagination):
         return Response(inbox_json, status=status.HTTP_200_OK)   
     
     def post(self, request, author_id):
- 
         # get the current author 
         current_author = self.get_author_object(author_id)
+
 
         # POST
         if request.data["type"] == "post":
@@ -716,7 +717,20 @@ class InboxDetails(APIView, PageNumberPagination):
         all_items = current_author.inbox_items.all()
         all_items.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+@method_decorator(csrf_exempt, name='post')
+class RedirectToInbox(APIView, PageNumberPagination):
 
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [CustomIsAuthenticated]
+        return [permission() for permission in permission_classes]
+    
+    def post(self, request, author_id):
+        return InboxDetails().post(request, author_id)
+    
 class RemoteRequestsList(APIView, PageNumberPagination):
     """
     Keeps track of what remote follow requests that the author has sent (local to remote requests)
