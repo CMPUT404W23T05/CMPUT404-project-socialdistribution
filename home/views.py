@@ -25,9 +25,6 @@ from django.views.decorators.csrf import csrf_exempt
 import requests
 import sys
 
-from requests.adapters import HTTPAdapter
-from urllib3.util import Retry
-
 
 class RemoteApiKey(APIView):
     """
@@ -531,31 +528,16 @@ class InboxDetails(APIView, PageNumberPagination):
         object = Author.objects.get(author_id = uuid.UUID(object_id))
         object_serializer = AuthorSerializer(object)
 
-        retry_strategy = Retry(
-        total=3, # 3 total retries
-        backoff_factor=2
-        )
-        adapter = HTTPAdapter(max_retries=retry_strategy)
-        request = requests.Session()
-        request.mount("https://", adapter)
-        request.mount("http://", adapter)
-        try: 
-            r = request.get(actor_url, headers = remote_auth)
-            actor = r.json()
-        except requests.exceptions.ConnectionError as ConnectionError: 
-            print(ConnectionError)
-            sys.stdout.flush()
-        except Exception as e:
-            print(e)
-        else:
-            follow_format = {"type": "Follow",
+        r = requests.get(actor_url, headers = remote_auth)
+        actor = r.json()
+
+        follow_format = {"type": "Follow",
                          "actor": actor,
                         "object": object_serializer.data,
                         "summary": actor["displayName"] + " wants to follow " + object_serializer.data["displayName"]}
 
-            return follow_format 
-        
-
+        return follow_format 
+    
     def handle_local_or_remote_comment(self, request):
         """
         1. local to local comment: handled through signals.py
