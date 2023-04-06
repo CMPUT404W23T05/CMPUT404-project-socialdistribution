@@ -519,8 +519,8 @@ class InboxDetails(APIView, PageNumberPagination):
     def handle_remote_follow_request(self, request):
         # given the object and actor that are url strings, do some modifications
 
-        actor_url = request.data["author"] # remote author
-        object_url = request.data["object"] # local author
+        actor_url = request.data["author"] if isinstance(request.data["author"], str) else request.data["author"]["id"]
+        object_url = request.data["object"] if isinstance(request.data["object"], str) else request.data["object"]["id"]
         remote_auth = {"Authorization": "Basic "  + base64.b64encode(b'node01:P*ssw0rd!').decode('utf-8')}
 
         # get information about our own author
