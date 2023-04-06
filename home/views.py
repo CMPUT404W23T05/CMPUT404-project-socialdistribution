@@ -525,7 +525,7 @@ class InboxDetails(APIView, PageNumberPagination):
 
         # get information about our own author
         object_id = object_url.split("/")[-1] 
-        object = Author.objects.get(author_id = object_id)
+        object = Author.objects.get(author_id = uuid.UUID(object_id))
         object_serializer = AuthorSerializer(object)
 
         r = requests.get(actor_url, headers = remote_auth)
