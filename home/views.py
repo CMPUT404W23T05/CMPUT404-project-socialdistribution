@@ -23,7 +23,7 @@ import json
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import requests
-
+import sys
 
 
 class RemoteApiKey(APIView):
@@ -603,6 +603,8 @@ class InboxDetails(APIView, PageNumberPagination):
         # get the current author 
         current_author = self.get_author_object(author_id)
 
+        print(request.data)
+        sys.stdout.flush()
 
         # POST
         if request.data["type"] == "post":
