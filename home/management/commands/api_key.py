@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 
 
 class Command(BaseCommand):
-    help = 'Creates a token for anonymous user'
+    help = 'Creates a generic api token for "anonymous" user'
 
     def handle(self, *args, **options):
         # Get or create the anonymous user
