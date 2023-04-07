@@ -389,6 +389,7 @@ class FollowersSerializer(serializers.ModelSerializer):
         return_data.update({
                 'type': author_dict['type'],
                 'id': author_dict['id'],
+                '_id': author_dict['_id'],
                 'host': author_dict['host'],
                 'displayName': author_dict['displayName'],
                 'url': author_dict['url'],

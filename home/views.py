@@ -110,7 +110,7 @@ class PostList(APIView, PageNumberPagination):
             raise Http404 
 
     def get(self, request, author_id, format=None):
-        author = get_object(author_id)
+        author = self.get_object(author_id)
         try:
             uid = request.user.author.author_id
             if (uid == author_id):
@@ -184,14 +184,15 @@ class PostDetail(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
-        serializer = AuthorFollowersSerializer(author)
+        followers_serializer = AuthorFollowersSerializer(author)
 
-        if uid and (uid == author_id):
+        if uid and (str(uid) == str(author_id)):
             serializer = PostSerializer(post)
             return Response(serializer.data, status=status.HTTP_200_OK)
-        for item in serializer.data['items']:
-            if item['_id'] == uid and uid:
-                return Response(status=status.HTTP_200_OK)
+        for item in followers_serializer.data['items']:
+            if item['_id'] == str(uid) and uid:
+                serializer = PostSerializer(post)
+                return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
