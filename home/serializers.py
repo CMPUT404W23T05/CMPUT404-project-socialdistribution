@@ -388,6 +388,10 @@ class FollowersSerializer(serializers.ModelSerializer):
             author_dict = json.loads(data['author_info'])
         else:
             author_dict = data['author_info']
+        if '_id' not in author_dict:
+            parsed_url = urlparse(author_dict['id'])
+            uid = parsed_url.path.split('/')[-1]
+            author_dict['_id'] = uid
         return_data = {}
         return_data.update({
                 'type': author_dict['type'],
