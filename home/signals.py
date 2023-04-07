@@ -4,7 +4,7 @@ from rest_framework.authtoken.models import Token
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
-from .models import Author, Comment, Post
+from .models import Author, Comment, Post, Remote, RemoteToken
 import uuid
 from home.serializers import *
 from home.remote_serializers import *
@@ -37,6 +37,7 @@ def create_user_and_token_on_remote_create(sender, instance, created, **kwargs):
         user = User.objects.create_user(username=username)
 
         token = Token.objects.create(user=user)
+        remote_token = RemoteToken.objects.create(token=token.key) 
 
 @receiver(post_delete, sender=Remote)
 def delete_user_and_token_on_remote_delete(sender, instance, **kwargs):
@@ -49,7 +50,11 @@ def delete_user_and_token_on_remote_delete(sender, instance, **kwargs):
     try:
         token = Token.objects.get(user__username=instance.name.lower())
         token.delete()
+        remote_token = RemoteToken.objects.get(token=token.key)
+        remote_token.delete()
     except Token.DoesNotExist:
+        pass
+    except RemoteToken.DoesNotExist:
         pass
 
 

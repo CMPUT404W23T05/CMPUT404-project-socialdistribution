@@ -1,8 +1,9 @@
+
 openapi: 3.0.1
 info:
   title: Social Distribution Website API
   description: This is our API for our Social Distribution website (Team 5)
-  version: 1.1.0
+  version: 1.1.2
   contact:
     email: jmacdona@ualberta.ca
 
@@ -132,7 +133,7 @@ paths:
         '5XX':
           description: Unexpected error
                         
-  /authors/{AUTHOR_ID}:
+  /authors/{AUTHOR_ID}/:
     parameters:
       - name: AUTHOR_ID
         in: path
@@ -161,6 +162,8 @@ paths:
                   displayName: testuser1
                   github: http://github.com/testuser1
                   profileImage: https://i.imgur.com/k7XVwp
+        '404':
+          description: Not Found
         '5XX':
           description: Unexpected error
 
@@ -191,6 +194,8 @@ paths:
 
         '400':
           description: Bad Request - error while serializing request body
+        '401':
+          description: Unauthorized
         '404':
           description: Not Found - Author doesn't exist
           content:
@@ -200,11 +205,11 @@ paths:
         '5XX':
           description: Unexpected error
 
-  /posts:
+  /posts/:
     get:
       tags:
         - Post
-      summary: LOCAL, REMOTE
+      summary: LOCAL, REMOTE, PAGINATED
       description: List of all public posts on the server
       responses:
         '200':
@@ -282,7 +287,7 @@ paths:
         '5XX':
           description: Unexpected error
 
-  /authors/{AUTHOR_ID}/posts:
+  /authors/{AUTHOR_ID}/posts/:
     parameters:
       - name: AUTHOR_ID
         in: path
@@ -368,9 +373,63 @@ paths:
                       post: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
                       id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
                       comments: []
-                        
+    post:
+      tags:
+        - Post
+      summary: LOCAL
+      description: Add new post
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: List of all public posts from author AUTHOR_ID
+                items:
+                  $ref: '#/components/schemas/Post'
+                example:
+                  type: post
+                  title: Example Post 3
+                  id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                  _id: b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                  source: http://lastplaceigotthisfrom.com/posts/yyyyy
+                  origin: http://whereitcamefrom.com/posts/zzzzz
+                  description: This is an example post for testing. Includes image.
+                  contentType: text/plain, image/png;base64
+                  content: This is the post body
+                  image: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
+                  author:
+                      type: author
+                      id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                      _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
+                      url: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                      host: https://social-t30.herokuapp.com/
+                      displayName: testuser1
+                      github: http://github.com/testuser1
+                      profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                  categories: [tags, are, fun]
+                  count: 96
+                  comments: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                  published: 2023-03-23T00:33:51.532544Z
+                  visibility: PUBLIC
+                  unlisted: false
+                  commentSrc: 
+                  - type: comments
+                    page: 1
+                    size: 5
+                    post: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                    id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                    comments: []
+        '400':
+          description: Bad Request - object can't be serialized
+        '401': 
+          description: Unauthorized
+        '5XX':
+          description: Unexpected error
+          
 
-  /authors/{AUTHOR_ID}/posts/{POST_ID}:
+  /authors/{AUTHOR_ID}/posts/{POST_ID}/:
     parameters:
       - name: AUTHOR_ID
         in: path
@@ -429,6 +488,8 @@ paths:
                     post: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
                     id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
                     comments: []
+        '401':
+          description: Unauthorized
         '404':
           description: Not Found - Post doesn't exist
           content:
@@ -500,6 +561,8 @@ paths:
                 unlisted: false
         '400':
           description: Bad Request - error while serializing request body
+        '401':
+          description: Unauthorized
         '404':
           description: Not Found - Post doesn't exist
           content:
@@ -519,6 +582,8 @@ paths:
       responses:
         '204':
           description: No Content, Post successfully deleted
+        '401':
+          description: Unauthorized
         '404':
           description: Not Found - Post doesn't exist
           content:
@@ -558,6 +623,8 @@ paths:
               schema:
                 type: string
                 format: binary
+        '401':
+          description: Unauthorized
         '404':
           description: Not Found - Post doesn't have an image
         '5XX':
@@ -641,7 +708,8 @@ paths:
                         comment: Shadowfax goes brrrr
                         contentType: text/markdown
                         published: 2020-05-08T10:08:04+00:00
-
+        '401':
+          description: Unauthorized
         '5XX':
           description: Unexpected error
 
@@ -694,6 +762,8 @@ paths:
                     profileImage: https://i.imgur.com/k7XVwpB.jpeg
         '400':
           description: Bad Request - error while serializing request body
+        '401':
+          description: Unauthorized
         '5XX':
           description: Unexpected error
 
@@ -742,6 +812,8 @@ paths:
                     displayName: testsocial123
                     github: http://github.com/frodobaggins
                     profileImage: https://i.imgur.com/k7XVwpB.jpeg
+        '401':
+          description: Unauthorized
         '404':
           description: Not Found - Comment doesn't exist
           content:
@@ -1416,3 +1488,4 @@ components:
           type: string
       example:
         detail: 'Not found.'
+
