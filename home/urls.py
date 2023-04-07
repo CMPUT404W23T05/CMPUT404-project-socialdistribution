@@ -4,6 +4,7 @@ from home import views, social_views
 
 app_name = 'home'
 urlpatterns = [
+        path('users/me/', CustomUserViewSet.as_view({'options': 'options'}), name='user-options'),
         path('posts/', views.BrowsePosts.as_view()),
         path('authors/', views.AuthorList.as_view()),
         path('authors/<uuid:author_id>/', views.AuthorDetail.as_view()),
