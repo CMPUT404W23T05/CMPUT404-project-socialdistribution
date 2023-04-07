@@ -1,4 +1,3 @@
-
 openapi: 3.0.1
 info:
   title: Social Distribution Website API
@@ -127,7 +126,7 @@ paths:
                         _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         url: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         host: https://social-t30.herokuapp.com/
-                        displayName: testuser12
+                        displayName: testuser2
                         github: http://github.com/testuser2
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
         '5XX':
@@ -141,6 +140,7 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
     get:
       tags:
         - Single Author
@@ -161,7 +161,7 @@ paths:
                   host: https://social-t30.herokuapp.com/
                   displayName: testuser1
                   github: http://github.com/testuser1
-                  profileImage: https://i.imgur.com/k7XVwp
+                  profileImage: https://i.imgur.com/k7XVwpB.jpeg
         '404':
           description: Not Found
         '5XX':
@@ -179,8 +179,14 @@ paths:
             schema:
               $ref: '#/components/schemas/Author'
             example:
-              displayName: Master Baggins
+              type: author
               profileImage: https://i.imgur.com/k7XVwpB.jpeg
+              id: https://social-t30.herokuapp.com/authors/4a81b271-a9d5-46ff-b2bc-0738f4028728
+              url: https://social-t30.herokuapp.com/authors/4a81b271-a9d5-46ff-b2bc-0738f4028728
+              host: https://social-t30.herokuapp.com/
+              displayName: team5
+              github: ""
+
       responses:
         '200':
           description: OK
@@ -189,8 +195,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/Author'
               example:
-                displayName: Master Baggins
+                type: author
                 profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                id: https://social-t30.herokuapp.com/authors/4a81b271-a9d5-46ff-b2bc-0738f4028728
+                url: https://social-t30.herokuapp.com/authors/4a81b271-a9d5-46ff-b2bc-0738f4028728
+                host: https://social-t30.herokuapp.com/
+                displayName: team5
+                github: ""
 
         '400':
           description: Bad Request - error while serializing request body
@@ -217,72 +228,80 @@ paths:
           content:
             application/json:
               schema:
-                type: string
-                items:
-                  $ref: '#/components/schemas/Post'
-                example:
-                  - type: post
-                    title: Example Post 1
-                    id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
-                    _id: b544efa0-c807-47c8-9abe-6a0d827fc4a6
-                    source: http://lastplaceigotthisfrom.com/posts/yyyyy
-                    origin: http://whereitcamefrom.com/posts/zzzzz
-                    description: This is an example post for testing. Includes image.
-                    contentType: text/plain, image/png;base64
-                    content: This is the post body
-                    image: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
-                    author:
-                        type: author
-                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
-                        _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
-                        url: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
-                        host: https://social-t30.herokuapp.com/
-                        displayName: testuser1
-                        github: http://github.com/testuser1
-                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
-                    categories: [tags, are, fun]
-                    count: 96
-                    comments: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
-                    published: 2023-03-23T00:33:51.532544Z
-                    visibility: PUBLIC
-                    unlisted: false
-                    commentSrc: 
-                    - type: comments
-                      page: 1
-                      size: 5
-                      post: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
-                      id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
-                      comments: []
-
-                  - type: post
-                    title: Example Post 2
-                    id: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d
-                    _id: b548683c-40f4-47da-86db-7f470d03443d
-                    source: http://lastplaceigotthisfrom.com/posts/yyyyy
-                    origin: http://whereitcamefrom.com/posts/zzzzz
-                    description: This is an example post for testing
-                    contentType: text/plain
-                    content: This is the post body
-                    author:
-                        type: author
-                        id: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                        _id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                        host: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                        displayName: Aragorn, Son of Arathorn
-                        github: http://github.com/aragorn
-                        profileImage: https://i.imgur.com/k7XVwpB.jpeg
-                    categories: [tags, are, fun]
-                    count: 51
-                    comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
-                    visibility: PUBLIC
-                    unlisted: false
-                    commentSrc: 
-                      type: comments
-                      page: 1
-                      size: 5
-                      post: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
-                      id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
-                      comments: []
+                type: object
+                properties:
+                  type:
+                    type: string
+                    example: posts
+                    description: the type of object
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+                    example:
+                    - type: post
+                      title: Example Post 1
+                      id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                      _id: b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                      source: https://social-t30.herokuapp.com
+                      origin: https://social-t30.herokuapp.com
+                      description: This is an example post for testing. Includes image.
+                      contentType: text/plain, image/png;base64
+                      image: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
+                      content: This is the post body
+                      author:
+                          type: author
+                          id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                          _id: d569cd39-0a2d-411e-8d86-e8a063a18dea
+                          url: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
+                          host: https://social-t30.herokuapp.com/
+                          displayName: testuser1
+                          github: http://github.com/testuser1
+                          profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      categories: [tags, are, fun]
+                      count: 0
+                      comments: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                      published: 2023-03-23T00:33:51.532544Z
+                      visibility: PUBLIC
+                      unlisted: false
+                      commentSrc: 
+                      - type: comments
+                        page: 1
+                        size: 5
+                        post: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                        id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                        comments: []
+  
+                    - type: post
+                      title: Example Post 2
+                      id: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d
+                      _id: b548683c-40f4-47da-86db-7f470d03443d
+                      source: https://social-t30.herokuapp.com
+                      origin: https://social-t30.herokuapp.com
+                      description: This is an example post for testing
+                      contentType: text/plain
+                      content: This is the post body
+                      author:
+                          type: author
+                          id: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                          _id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                          url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                          host: https://social-t30.herokuapp.com/
+                          displayName: Aragorn, Son of Arathorn
+                          github: http://github.com/aragorn
+                          profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      categories: [tags, are, fun]
+                      count: 0
+                      comments: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                      visibility: PUBLIC
+                      unlisted: false
+                      commentSrc: 
+                        type: comments
+                        page: 1
+                        size: 5
+                        post: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                        comments: []
 
         '5XX':
           description: Unexpected error
@@ -295,6 +314,7 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
     get:
       tags:
         - Post
@@ -315,12 +335,12 @@ paths:
                     title: Example Post 1
                     id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
                     _id: b544efa0-c807-47c8-9abe-6a0d827fc4a6
-                    source: http://lastplaceigotthisfrom.com/posts/yyyyy
-                    origin: http://whereitcamefrom.com/posts/zzzzz
+                    source: https://social-t30.herokuapp.com
+                    origin: https://social-t30.herokuapp.com
                     description: This is an example post for testing. Includes image.
                     contentType: text/plain, image/png;base64
-                    content: This is the post body
                     image: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
+                    content: This is the post body
                     author:
                         type: author
                         id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea
@@ -331,7 +351,7 @@ paths:
                         github: http://github.com/testuser1
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
                     categories: [tags, are, fun]
-                    count: 96
+                    count: 0
                     comments: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
                     published: 2023-03-23T00:33:51.532544Z
                     visibility: PUBLIC
@@ -348,22 +368,23 @@ paths:
                     title: Example Post 2
                     id: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d
                     _id: b548683c-40f4-47da-86db-7f470d03443d
-                    source: http://lastplaceigotthisfrom.com/posts/yyyyy
-                    origin: http://whereitcamefrom.com/posts/zzzzz
+                    source: https://social-t30.herokuapp.com
+                    origin: https://social-t30.herokuapp.com
                     description: This is an example post for testing
                     contentType: text/plain
+                    image: null
                     content: This is the post body
                     author:
                         type: author
                         id: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
                         _id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
-                        host: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                        host: https://social-t30.herokuapp.com/
                         displayName: Aragorn, Son of Arathorn
                         github: http://github.com/aragorn
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
                     categories: [tags, are, fun]
-                    count: 51
-                    comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
+                    count: 0
+                    comments: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d/comments
                     visibility: PUBLIC
                     unlisted: false
                     commentSrc: 
@@ -373,6 +394,7 @@ paths:
                       post: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
                       id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
                       comments: []
+                        
     post:
       tags:
         - Post
@@ -428,7 +450,6 @@ paths:
         '5XX':
           description: Unexpected error
           
-
   /authors/{AUTHOR_ID}/posts/{POST_ID}/:
     parameters:
       - name: AUTHOR_ID
@@ -437,12 +458,14 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
       - name: POST_ID
         in: path
         required: true
         description: The ID of the post
         schema:
           type: string
+          format: uuid
     get:
       tags:
         - Post
@@ -460,8 +483,8 @@ paths:
                   title: Example Post 1
                   id: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
                   _id: b544efa0-c807-47c8-9abe-6a0d827fc4a6
-                  source: http://lastplaceigotthisfrom.com/posts/yyyyy
-                  origin: http://whereitcamefrom.com/posts/zzzzz
+                  source: https://social-t30.herokuapp.com
+                  origin: https://social-t30.herokuapp.com
                   description: This is an example post for testing. Includes image.
                   contentType: text/plain, image/png;base64
                   content: This is the post body
@@ -510,24 +533,27 @@ paths:
             schema:
               $ref: '#/components/schemas/Post'
             example:
+              type: post
               title: Example Post 3 Modified
-              id: c48683c-40f4-47da-86dt-7f470d03449d
-              source: http://lastplaceigotthisfrom.com/posts/yyyyy
-              origin: http://whereitcamefrom.com/posts/zzzzz
-              description: This is an example post for testing. Includes image.
+              id: https://social-t30.herokuapp.com/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d
+              _id: c48683c-40f4-47da-86dt-7f470d03449d
+              source: https://social-t30.herokuapp.com
+              origin: https://social-t30.herokuapp.com
+              description: This is an example post for testing. 
               contentType: text/plain
               content: This is the updated post body
               author:
                   type: author
-                  id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                  _id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                  id: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
                   url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
                   host: https://social-t30.herokuapp.com/
                   displayName: Aragorn, Song of Arathorn
                   github: http://github.com/aragorn
                   profileImage: https://i.imgur.com/k7XVwpB.jpeg
               categories: [tags, are, fun]
-              count: 108 
-              comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d/comments
+              count: 0
+              comments: https://social-t30.herokuapp.com/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d/comments
               visibility: PUBLIC
               unlisted: false
 
@@ -539,24 +565,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/Post'
               example:
+                type: post
                 title: Example Post 3 Modified
-                id: c48683c-40f4-47da-86dt-7f470d03449d
-                source: http://lastplaceigotthisfrom.com/posts/yyyyy
-                origin: http://whereitcamefrom.com/posts/zzzzz
-                description: This is an example post for testing. Includes image.
+                id: https://social-t30.herokuapp.com/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d
+                _id: c48683c-40f4-47da-86dt-7f470d03449d
+                source: https://social-t30.herokuapp.com
+                origin: https://social-t30.herokuapp.com
+                description: This is an example post for testing. 
                 contentType: text/plain
                 content: This is the updated post body
                 author:
                     type: author
-                    id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                    _id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                    id: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
                     url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
                     host: https://social-t30.herokuapp.com/
                     displayName: Aragorn, Song of Arathorn
                     github: http://github.com/aragorn
                     profileImage: https://i.imgur.com/k7XVwpB.jpeg
                 categories: [tags, are, fun]
-                count: 108 
-                comments: http://127.0.0.1:5454/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d/comments
+                count: 0
+                comments: https://social-t30.herokuapp.com/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/c48683c-40f4-47da-86dt-7f470d03449d/comments
                 visibility: PUBLIC
                 unlisted: false
         '400':
@@ -582,8 +611,6 @@ paths:
       responses:
         '204':
           description: No Content, Post successfully deleted
-        '401':
-          description: Unauthorized
         '404':
           description: Not Found - Post doesn't exist
           content:
@@ -619,6 +646,7 @@ paths:
               schema:
                 type: string
                 format: binary
+                example: iVBORw0KGgoAAAANSUhEUgAAAqgAAAJICAYAAACt/BbeAAAABmJLR0QA/wD/AP+gvaeTAACAAElEQVR42ux9d...
             image/jpeg:
               schema:
                 type: string
@@ -638,12 +666,14 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
       - name: POST_ID
         in: path
         required: true
         description: The ID of the post
         schema:
           type: string
+          format: uuid
     get:
       tags:
         - Comments
@@ -775,18 +805,21 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
       - name: POST_ID
         in: path
         required: true
         description: The ID of the post
         schema:
           type: string
+          format: uuid
       - name: COMMENT_ID
         in: path
         required: true
         description: The ID of the comment
         schema:
           type: string
+          format: uuid
     get:
       tags:
         - Comments
@@ -822,6 +855,8 @@ paths:
                 $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
+          
+          
   /authors/{AUTHOR_ID}/followers/:
     parameters:
       - name: AUTHOR_ID
@@ -830,6 +865,7 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
     get:
       summary: LOCAL, REMOTE
       description: Returns the followers of author with AUTHOR_ID
@@ -866,9 +902,13 @@ paths:
                         _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         host: https://social-t30.herokuapp.com/
                         url: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
-                        displayName: testuser12
+                        displayName: testuser2
                         github: http://github.com/testuser2
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
+        '401':
+          description: Unauthorized  
+        '404':
+          description: Not Found, author does not exist
         '5XX':
           description: Unexpected error
           
@@ -880,12 +920,14 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
       - name: FOREIGN_AUTHOR_ID
         in: path
         required: true
-        description: The ID of the author
+        description: The ID of the author (url)
         schema:
           type: string
+ 
           
     delete:
       summary: LOCAL
@@ -895,6 +937,8 @@ paths:
       responses:
         '204':
           description: No Content, The follower has been deleted
+        '401':
+          description: Unauthorized  
         '404':
           description: Not Found, Either the author or the follower does not exist
         '5XX':
@@ -910,8 +954,14 @@ paths:
           description: Created, The follower has been added
         '400':
           description: Bad Request
+        '401':
+          description: Unauthorized  
         '404':
-          description: Not Found, Either the author or the follower does not exist
+          description: Not Found, ither the author or follower does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '409':
           description: Conflict, this author is already a follower
         '5XX':
@@ -929,8 +979,14 @@ paths:
             application/json:
               example: 
                 exists: 'true'
+        '401':
+          description: Unauthorized  
         '404':
-          description: Not Found, The author does not exist
+          description: Not Found, author does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
 
@@ -942,6 +998,7 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
 
     get:
       summary: LOCAL (EXTRA)
@@ -977,11 +1034,17 @@ paths:
                         _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         url: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         host: https://social-t30.herokuapp.com/
-                        displayName: testuser12
+                        displayName: testuser2
                         github: http://github.com/testuser2
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
+        '401':
+          description: Unauthorized  
         '404':
-          description: Not Found, The author does not exist
+          description: Not Found, author does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
           
@@ -993,6 +1056,7 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
 
     get:
       summary: LOCAL (EXTRA)
@@ -1028,13 +1092,18 @@ paths:
                         _id: 38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         url: https://social-t30.herokuapp.com/authors/38f57b34-f1ff-4f3b-9e81-2be731a14a0e
                         host: https://social-t30.herokuapp.com/
-                        displayName: testuser12
+                        displayName: testuser2
                         github: http://github.com/testuser2
                         profileImage: https://i.imgur.com/k7XVwpB.jpeg
 
-                    
+        '401':
+          description: Unauthorized  
         '404':
-          description: Not Found, The author does not exist
+          description: Not Found, author does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
   
@@ -1047,12 +1116,14 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
       - name: POST_ID
         in: path
         required: true
         description: The ID of the post
         schema:
           type: string
+          format: uuid
     get:
       summary: LOCAL, REMOTE
       description: Get a list of likes from other authors on AUTHOR_ID’s post POST_ID
@@ -1088,8 +1159,14 @@ paths:
                           profileImage: https://i.imgur.com/k7XVwpB.jpeg
                         summary: Lara Croft Likes your post
                         object: https://social-t30.herokuapp.com/authors/f2b6c0a5-117a-425f-abd5-30937c72d012/posts/764efa883dda1e11db47671c4a3bbd9e
+        '401':
+          description: Unauthorized  
         '404':
           description: Not Found, Either the author or the post does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
           
@@ -1101,18 +1178,21 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
       - name: POST_ID
         in: path
         required: true
         description: The ID of the post
         schema:
           type: string
+          format: uuid
       - name: COMMENT_ID
         in: path
         required: true
         description: The ID of the comment
         schema:
           type: string
+          format: uuid
     get:
       summary: LOCAL, REMOTE
       description: Get a list of likes from other authors on AUTHOR_ID’s post POST_ID comment COMMENT_ID
@@ -1148,9 +1228,14 @@ paths:
                           profileImage: https://i.imgur.com/k7XVwpB.jpeg
                         summary: Gandalf the Grey Likes your comment
                         object: https://social-t30.herokuapp.com/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
-
+        '401':
+          description: Unauthorized  
         '404':
           description: Not Found, Either the author or the comment does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
           
@@ -1163,6 +1248,7 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
 
     get:
       summary: LOCAL, REMOTE
@@ -1201,12 +1287,18 @@ paths:
                         summary: Gandalf the Grey Likes your post
                         object: https://social-t30.herokuapp.com/authors/9de17f29c12e8f97bcbbd34cc908f1baba40658e/posts/309c235f-ac9f-4914-b530-29b414ebfa18/comments/18f824d9-213f-4e27-a17c-8238635539e9
 
+        '401':
+          description: Unauthorized  
         '404':
-          description: Not Found, The author does not exist
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
-          
-          
+
+    
   /authors/{AUTHOR_ID}/inbox/:
     parameters:
       - name: AUTHOR_ID
@@ -1215,6 +1307,7 @@ paths:
         description: The ID of the author
         schema:
           type: string
+          format: uuid
 
     get:
       summary: LOCAL, PAGINATED (AUTHENTICATED)
@@ -1225,8 +1318,64 @@ paths:
       responses:
         '200':
           description: OK
-          
-          
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    default: inbox
+                  author:
+                    type: string
+                    example: https://social-t30.herokuapp.com/authors/6e81afb3-f4eb-48f1-9d26-445b9aa197ea
+                    description: the type of object (followers)
+                  items:
+                    type: array
+                    description: list of "post" objects
+                    items:
+                      $ref: '#/components/schemas/Post'
+                    example:
+                    - type: post
+                      title: Example Post 2
+                      id: https://social-t30.herokuapp.com/api/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1/posts/b548683c-40f4-47da-86db-7f470d03443d
+                      _id: b548683c-40f4-47da-86db-7f470d03443d
+                      source: https://social-t30.herokuapp.com
+                      origin: https://social-t30.herokuapp.com
+                      description: This is an example post for testing
+                      contentType: text/plain
+                      content: This is the post body
+                      author:
+                          type: author
+                          id: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                          _id: 8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                          url: https://social-t30.herokuapp.com/authors/8f3ceea1-7f18-465f-84d4-8f75de1d17a1
+                          host: https://social-t30.herokuapp.com/
+                          displayName: Aragorn, Son of Arathorn
+                          github: http://github.com/aragorn
+                          profileImage: https://i.imgur.com/k7XVwpB.jpeg
+                      categories: [tags, are, fun]
+                      count: 0
+                      comments: https://social-t30.herokuapp.com/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                      visibility: PUBLIC
+                      unlisted: false
+                      commentSrc: 
+                        type: comments
+                        page: 1
+                        size: 5
+                        post: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6
+                        id: https://social-t30.herokuapp.com/api/authors/d569cd39-0a2d-411e-8d86-e8a063a18dea/posts/b544efa0-c807-47c8-9abe-6a0d827fc4a6/comments
+                        comments: []
+    
+        '401':
+          description: Unauthorized  
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
+         
     post:
       summary: LOCAL, REMOTE
       description:
@@ -1286,10 +1435,16 @@ paths:
           description: Created, The follow request has been created
         '400':
           description: Bad Request (format may not be correct)
+        '401':
+          description: Unauthorized  
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '409':
           description: You're sending a duplicate "post"
-        '404':
-          description: The author does not exist
         '5XX':
           description: Unexpected error
           
@@ -1297,14 +1452,19 @@ paths:
       summary: LOCAL
       description:
         Delete all inbox_items ("posts") in AUTHOR_ID's inbox. <br><br>
-        
       tags:
         - Inbox
       responses:
         '204':
           description: No Content, The inbox has been cleared
+        '401':
+          description: Unauthorized  
         '404':
-          description: The author does not exist
+          description: Author not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFound'
         '5XX':
           description: Unexpected error
 
@@ -1462,7 +1622,7 @@ components:
       description: like object
       required:
         - type
-        - context (by passing it in as @context or context) 
+        - context 
         - author
         - object
       properties:
