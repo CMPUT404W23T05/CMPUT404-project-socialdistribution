@@ -580,7 +580,7 @@ class InboxDetails(APIView, PageNumberPagination):
     """
     
     def get_permissions(self):
-        if self.request.method == 'POST':
+        if self.request.method == 'POST' or self.request.method == 'OPTIONS':
             permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
