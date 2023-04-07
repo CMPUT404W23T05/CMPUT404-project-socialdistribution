@@ -13,7 +13,7 @@ import sys
 
 @receiver(post_save, sender=get_user_model())
 def create_author(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.username not in ['admin', 'anonymous']:
         uid = str(uuid.uuid4())
         Author.objects.create(
                 # counts the number of comments on post any time a new instance of Comment is saved
