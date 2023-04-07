@@ -86,6 +86,9 @@ class PostSerializer(serializers.ModelSerializer):
                 "comments": serializer.data
                 }
         representation['commentSrc'] = comment_src_object
+        if "socialdistcmput404.herokuapp.com" in representation['id']:
+            representation['image'] = representation['content']
+            representation['content'] = representation['description']
         return representation
 
 
