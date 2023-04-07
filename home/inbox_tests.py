@@ -96,7 +96,7 @@ class InboxTesting(TestCase):
                 )
         '''
 
-    def test_send_post_to_remote_follower_inbox(self):
+    def test_follows(self):
 
         # add author 1 (our "remote" author) as a follower of author 2
         serializer = AuthorSerializer(self.author)
@@ -111,25 +111,8 @@ class InboxTesting(TestCase):
         follow = Follow.objects.create_follow(author_data_dict, author_data_dict2)
         follow_serializer = FollowSerializer(follow)
 
-        # since author 1 and author 2 are on different nodes, a remote follow object is also created
-        # RemoteFollow.objects.create(remote_follow_info = follow_serializer.data)
-        # self.assertEqual(len(RemoteFollow.objects.all()), 1)
-
         self.author2.followers_items.create(author_info = author_data_dict)
         self.assertEqual(len(self.author2.followers_items.all()), 1)
-
-        post = Post.objects.get(url_id=self.post2.url_id)
-        post_serializer = PostSerializer(post)
-        followers_serializer = AuthorFollowersSerializer(post.author) # get the followers
-        for item in followers_serializer.data['items']:
-            follower_host = item["host"] + "/" if not item["host"].endswith("/") else item["host"]
- 
-            if follower_host != self.author2.home_host: # if it's a remote author
-                follower_id = item["id"].split("/")[-1]
-                url = follower_host + "api/authors/" + follower_id + "/inbox/" 
-                #r = requests.head(url) 
-                #self.assertEqual(r.status_code, 200) # check if url exists
-
 
     def test_receiving_comment_from_remote_author(self):
 
