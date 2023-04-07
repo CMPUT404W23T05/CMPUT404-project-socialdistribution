@@ -19,7 +19,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.views import serve
 from . import views
-from home.views import CustomnUserViewSet
 
 
 urlpatterns = [
