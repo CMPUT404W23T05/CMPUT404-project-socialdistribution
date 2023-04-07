@@ -20,17 +20,11 @@ from django.forms.models import model_to_dict
 from django.core.serializers.json import DjangoJSONEncoder
 import json
 
-from djoser.views import UserViewSet
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 import requests
 import sys
 
-
-class CustomUserViewSet(UserViewSet):
-    def options(self, request, *args, **kwargs):
-        self.permission_classes = [AllowAny]
-        return super().options(request, *args, **kwargs)
 
 
 class RemoteApiKey(APIView):
