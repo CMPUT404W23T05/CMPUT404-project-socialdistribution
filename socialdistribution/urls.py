@@ -19,12 +19,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.staticfiles.views import serve
 from . import views
+from home.views import CustomnUserViewSet
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
 
     path('api/', include('djoser.urls')),
     path('api/', include('djoser.urls.authtoken')),
     path('api/', include('home.urls')),
+    path('api/users/me/', CustomUserViewSet.as_view({'options': 'options'}), name='user-options'),
     path('404', views.handleVue404, name='404'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
