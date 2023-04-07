@@ -528,13 +528,13 @@ class InboxDetails(APIView, PageNumberPagination):
         object = Author.objects.get(author_id = uuid.UUID(object_id))
         object_serializer = AuthorSerializer(object)
 
-        r = requests.get(actor_url, headers = remote_auth)
-        actor = r.json()
+        #r = requests.get(actor_url, headers = remote_auth)
+        #actor = r.json()
 
         follow_format = {"type": "Follow",
-                         "actor": actor,
+                         "actor": actor_url,
                         "object": object_serializer.data,
-                        "summary": actor["displayName"] + " wants to follow " + object_serializer.data["displayName"]}
+                        "summary": actor_url + " wants to follow " + object_serializer.data["displayName"]}
 
         return follow_format 
     
