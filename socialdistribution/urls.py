@@ -28,7 +28,6 @@ urlpatterns = [
     path('api/', include('djoser.urls')),
     path('api/', include('djoser.urls.authtoken')),
     path('api/', include('home.urls')),
-    path('api/users/me/', CustomUserViewSet.as_view({'options': 'options'}), name='user-options'),
     path('404', views.handleVue404, name='404'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
