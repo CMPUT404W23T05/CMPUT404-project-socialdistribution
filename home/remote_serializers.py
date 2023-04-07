@@ -14,6 +14,7 @@ class PostForRemoteSevenSerializer(serializers.ModelSerializer):
     image = serializers.CharField(required=False)
     content = serializers.CharField(required=False)
     author = AuthorSerializer()
+    categories = serializers.ListField(child=serializers.CharField(), required=False)
     count = serializers.IntegerField(source='comment_count')    
     published = serializers.DateTimeField(source='pub_date')
     unlisted = serializers.BooleanField(source='is_unlisted')
@@ -22,12 +23,17 @@ class PostForRemoteSevenSerializer(serializers.ModelSerializer):
         model = Post
         # add 'categories' later
         fields = ['type', 'title', 'id', '_id', 'source', 'origin', 'description', 'contentType',
-                  'image', 'content', 'author', 'count', 'comments', 'published',
+                  'image', 'content', 'author', 'categories', 'count', 'comments', 'published',
                   'visibility', 'unlisted']
 
     def to_representation(self, instance):
         
         data = super().to_representation(instance)
+
+        if "categories" in data.keys():
+            if data["categories"] == "":
+                data["categories"] = ["post"]
+                
         return_data = {} # update how it's displayed after being serialized
         return_data.update({
                 'type': data['type'],
@@ -44,6 +50,7 @@ class PostForRemoteSevenSerializer(serializers.ModelSerializer):
                 'comments': data['comments'],
                 'published': data['published'],
                 'visibility': data['visibility'],
+                'categories': data['categories'],
                 'object': data['id'], # making object as id 
                 'unlisted': data['unlisted']})
         return return_data
@@ -60,6 +67,7 @@ class PostForRemoteTenSerializer(serializers.ModelSerializer):
     image = serializers.CharField(required=False)
     content = serializers.CharField(required=False)
     author = AuthorSerializer()
+    categories = serializers.ListField(child=serializers.CharField(), required=False)
     count = serializers.IntegerField(source='comment_count')    
     published = serializers.DateTimeField(source='pub_date')
     unlisted = serializers.BooleanField(source='is_unlisted')
@@ -68,7 +76,7 @@ class PostForRemoteTenSerializer(serializers.ModelSerializer):
         model = Post
         # add 'categories' later
         fields = ['type', 'title', 'id', '_id', 'source', 'origin', 'description', 'contentType',
-                  'image', 'content', 'author', 'count', 'comments', 'published',
+                  'image', 'content', 'author', 'count', 'comments', 'categories', 'published',
                   'visibility', 'unlisted']
 
     def to_representation(self, instance):
@@ -78,6 +86,10 @@ class PostForRemoteTenSerializer(serializers.ModelSerializer):
         # description cannot be blank (if blank, add something in like the content)
         if not data["description"]:
             data["description"] = data["content"]
+        
+        if "categories" in data.keys():
+            if data["categories"] == "":
+                data["categories"] = ["post"]
 
         if data["visibility"] == "PUBLIC":
             data["visibility"] = "VISIBLE"
@@ -94,6 +106,7 @@ class PostForRemoteTenSerializer(serializers.ModelSerializer):
                 'content': data['content'],
                 'image': data['image'],
                 'author': data['author'],
+                'categories': data['categories'],
                 'count': data['count'],
                 'comments': data['comments'],
                 'published': data['published'],
