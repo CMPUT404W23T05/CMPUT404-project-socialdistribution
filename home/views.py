@@ -387,29 +387,14 @@ class CommentList(APIView, PageNumberPagination):
             
     def get_author(self, author_id):
         try:
-            return Author.objects.get(author_id=author_id)
+            Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
 
     def get(self, request, post_id, author_id, format=None):
+        self.get_author(author_id)
         post = self.get_object(post_id, author_id)
-        author = self.get_author(author_id)
-        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
-        followers_serializer = AuthorFollowersSerializer(author)
-
-        if post.visibility == 'PUBLIC':
-            print('1a')
-            comments = Comment.objects.filter(post_id=post_id)
-        if uid and (str(uid) == str(author_id)):
-            print('2a')
-            comments = Comment.objects.filter(post_id=post_id)
-        for item in followers_serializer.data['items']:
-            if item['_id'] == str(uid) and uid:
-                print('3a')
-                comments = Comment.objects.filter(post_id=post_id)
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
-
+        comments = Comment.objects.filter(post_id=post_id)
 
         self.page = int(request.query_params.get('page', 1))
         self.page_size = int(request.query_params.get('size', len(comments)))
@@ -464,32 +449,17 @@ class CommentDetail(APIView):
                                  
     def get_author(self, author_id):
         try:
-            return Author.objects.get(author_id=author_id)
+            Author.objects.get(author_id=author_id)
         except Author.DoesNotExist:
             raise Http404 
 
     def get(self, request, post_id, author_id, comment_id, format=None):
         post = self.get_object(post_id, author_id)
-        author = self.get_author(author_id)
+        self.get_author(author_id)
         comment = self.get_comment(comment_id)
-        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
-        followers_serializer = AuthorFollowersSerializer(author)
 
-        if post.visibility == 'PUBLIC':
-            print('1b')
-            serializer = CommentSerializer(comment)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        if uid and (str(uid) == str(author_id)):
-            print('2b')
-            serializer = CommentSerializer(comment)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        for item in followers_serializer.data['items']:
-            if item['_id'] == str(uid) and uid:
-                print('3b')
-                serializer = CommentSerializer(comment)
-                return Response(serializer.data, status=status.HTTP_200_OK)
-        else:
-            return Response(status=status.HTTP_401_UNAUTHORIZED)
+        serializer = CommentSerializer(comment)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
