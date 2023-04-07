@@ -398,11 +398,14 @@ class CommentList(APIView, PageNumberPagination):
         followers_serializer = AuthorFollowersSerializer(author)
 
         if post.visibility == 'PUBLIC':
+            print('1a')
             comments = Comment.objects.filter(post_id=post_id)
         if uid and (str(uid) == str(author_id)):
+            print('2a')
             comments = Comment.objects.filter(post_id=post_id)
         for item in followers_serializer.data['items']:
             if item['_id'] == str(uid) and uid:
+                print('3a')
                 comments = Comment.objects.filter(post_id=post_id)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
@@ -469,16 +472,21 @@ class CommentDetail(APIView):
         post = self.get_object(post_id, author_id)
         author = self.get_author(author_id)
         comment = self.get_comment(comment_id)
-        serializer = CommentSerializer(comment)
         uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
         followers_serializer = AuthorFollowersSerializer(author)
 
         if post.visibility == 'PUBLIC':
+            print('1b')
+            serializer = CommentSerializer(comment)
             return Response(serializer.data, status=status.HTTP_200_OK)
         if uid and (str(uid) == str(author_id)):
+            print('2b')
+            serializer = CommentSerializer(comment)
             return Response(serializer.data, status=status.HTTP_200_OK)
         for item in followers_serializer.data['items']:
             if item['_id'] == str(uid) and uid:
+                print('3b')
+                serializer = CommentSerializer(comment)
                 return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
