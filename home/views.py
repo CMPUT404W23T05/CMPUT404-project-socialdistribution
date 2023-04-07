@@ -94,6 +94,9 @@ class BrowsePosts(APIView, PageNumberPagination):
 class PostList(APIView, PageNumberPagination):
     """
     URL: ://service/api/authors/{AUTHOR_ID}/posts/
+    
+    GETs can have param, type, that can be PUBLIC or FRIENDS for filtering which type
+    of Posts are returned.
     """
     def get_permissions(self):
         if self.request.method == 'GET':
@@ -102,22 +105,27 @@ class PostList(APIView, PageNumberPagination):
             permission_classes = [CustomIsAuthenticated]
 
         return [permission() for permission in permission_classes]
+    
+    def get_object(self, author_id):
+        try:
+            return Author.objects.get(author_id=author_id)
+        except Author.DoesNotExist:
+            raise Http404 
 
     def get(self, request, author_id, format=None):
-        try:
-            uid = request.user.author.author_id
-            if (uid == author_id):
-                visibility = request.query_params.get('type', None)
-                if visibility:
-                    posts = Post.objects.filter(visibility=visibility, author__author_id=author_id)
-                else:
-                    posts = Post.objects.filter(author__author_id=author_id)
+        author = self.get_object(author_id)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+        followers_serializer = AuthorFollowersSerializer(author)
+
+        # checks if logged in user is the author in the url or a friend/follower of the author in the url
+        if uid and ((str(uid) == str(author_id)) or (any(item['_id'] == str(uid) for item in followers_serializer.data['items']))):
+            visibility = request.query_params.get('type', None)
+            if visibility:
+                posts = Post.objects.filter(visibility=visibility, author__author_id=author_id)
             else:
-                posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
-        except AttributeError:
+                posts = Post.objects.filter(author__author_id=author_id)
+        else:
             posts = Post.objects.filter(visibility='PUBLIC', author__author_id=author_id)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
         self.page = int(request.query_params.get('page', 1))
@@ -129,18 +137,20 @@ class PostList(APIView, PageNumberPagination):
 
    
     def post(self, request, author_id, format=None):
-        try:
-            Author.objects.get(author_id=author_id)
-        except Author.DoesNotExist:
-            raise Http404 
+        author = self.get_object(author_id)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
 
-        serializer = PostDeSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if uid and (str(uid) == str(author_id)):
+            serializer = PostDeSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
+       
 class PostDetail(APIView):
     """
     URL: ://service/api/authors/{AUTHOR_ID}/posts/{POST_ID}/
@@ -160,37 +170,74 @@ class PostDetail(APIView):
         except Post.DoesNotExist:
             raise Http404 
 
+    def get_author(self, author_id):
+        try:
+            return Author.objects.get(author_id=author_id)
+        except Author.DoesNotExist:
+            raise Http404
 
         # FOR RETRIEVING THE DETAILS OF A GIVEN POST
     def get(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id, author_id)
-        serializer = PostSerializer(post)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        author = self.get_author(author_id)
+        if post.visibility == 'PUBLIC':
+            serializer = PostSerializer(post)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+        followers_serializer = AuthorFollowersSerializer(author)
+
+        if uid and (str(uid) == str(author_id)):
+            serializer = PostSerializer(post)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        for item in followers_serializer.data['items']:
+            if item['_id'] == str(uid) and uid:
+                serializer = PostSerializer(post)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
         # PUT DOES NOT WORK CURRENTLY - for creating a post from another node in db
     @permission_classes([IsAuthenticated])
     def put(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id, author_id)
-        serializer = PostDeSerializer(post, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+        
+        if uid and (str(uid) == str(author_id)):
+            serializer = PostDeSerializer(post, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         # FOR EDITING EXISTING POST
     def post(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id, author_id)
-        serializer = PostDeSerializer(instance=post, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+
+        if uid and (str(uid) == str(author_id)):
+            serializer = PostDeSerializer(instance=post, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
         # FOR DELETING EXISITING POST
     def delete(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id, author_id)
-        post.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+
+        if uid and (str(uid) == str(author_id)):
+            post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 class ImageView(APIView):
     """
@@ -208,17 +255,36 @@ class ImageView(APIView):
         try:
             return Post.objects.get(post_id=post_id, author__author_id=author_id)
         except Post.DoesNotExist:
-            raise Http404 
+            raise Http404
+
+    def get_author(self, author_id):
+        try:
+            return Author.objects.get(author_id=author_id)
+        except Author.DoesNotExist:
+            raise Http404
 
 
     def get(self, request, author_id, post_id, format=None):
         post = self.get_object(post_id, author_id)
+        author = self.get_author(author_id)
         image, content_type = post.get_image()
-
         if not image:
             raise Http404
+        response = HttpResponse(image, content_type=content_type)
 
-        return HttpResponse(image, content_type=content_type)
+        if post.visibility == 'PUBLIC':
+            return response
+
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+        followers_serializer = AuthorFollowersSerializer(author)
+
+        if uid and (str(uid) == str(author_id)):
+            return response
+        for item in followers_serializer.data['items']:
+            if item['_id'] == str(uid) and uid:
+                return response
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 
@@ -274,11 +340,15 @@ class AuthorDetail(APIView):
 
     def post(self, request, author_id, format=None):
         author = self.get_object(author_id)
-        serializer = AuthorSerializer(instance=author, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(data=serializer.data, status=status.HTTP_200_OK)
-        return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+        if uid and (str(uid) == str(author_id)):
+            serializer = AuthorSerializer(instance=author, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 
@@ -296,13 +366,25 @@ class CommentList(APIView, PageNumberPagination):
 
     def get_object(self, post_id, author_id):
         try:
-            Post.objects.get(post_id=post_id, author__author_id=author_id)
+            return Post.objects.get(post_id=post_id, author__author_id=author_id)
         except Post.DoesNotExist:
             raise Http404
 
     def get(self, request, post_id, author_id, format=None):
-        self.get_object(post_id, author_id)
-        comments = Comment.objects.filter(post_id=post_id)
+        post = self.get_object(post_id, author_id)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+        followers_serializer = AuthorFollowersSerializer(author)
+
+        if post.visibility == 'PUBLIC':
+            comments = Comment.objects.filter(post_id=post_id)
+        if uid and (str(uid) == str(author_id)):
+            comments = Comment.objects.filter(post_id=post_id)
+        for item in followers_serializer.data['items']:
+            if item['_id'] == str(uid) and uid:
+                comments = Comment.objects.filter(post_id=post_id)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
 
         self.page = int(request.query_params.get('page', 1))
         self.page_size = int(request.query_params.get('size', len(comments)))
@@ -343,7 +425,7 @@ class CommentDetail(APIView):
 
     def get_object(self, post_id, author_id):
         try:
-            Post.objects.get(post_id=post_id, author__author_id=author_id)
+            return Post.objects.get(post_id=post_id, author__author_id=author_id)
         except Post.DoesNotExist:
             raise Http404
 
@@ -354,10 +436,23 @@ class CommentDetail(APIView):
             raise Http404 
 
     def get(self, request, post_id, author_id, comment_id, format=None):
-        self.get_object(post_id, author_id)
+        post = self.get_object(post_id, author_id)
         comment = self.get_comment(comment_id)
         serializer = CommentSerializer(comment)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
+        followers_serializer = AuthorFollowersSerializer(author)
+
+        if post.visibility == 'PUBLIC':
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        if uid and (str(uid) == str(author_id)):
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        for item in followers_serializer.data['items']:
+            if item['_id'] == str(uid) and uid:
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
 
 class PostLikes(APIView):
     """

@@ -1,6 +1,7 @@
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from .models import RemoteToken
 
 
 class RemoteAuth(BasePermission):
@@ -10,19 +11,19 @@ class RemoteAuth(BasePermission):
             user = User.objects.get(username='anonymous')
 
             try:
-                token_obj = Token.objects.get(user=user)
-                token = token_obj.key
-                return token
+                token = Token.objects.get(user=user)
+                return token.key
             except Token.DoesNotExist:
-                return '1d2e3d4d55453d6da3cc618e7d83f3099e7b70e8' #garbage token
+                return None
         except User.DoesNotExist:
-            user = None
-            return '1d2e3d4d55453d6da3cc618e7d83f3099e7b70e8' #garbage token
-    
+            return None
+
     def has_permission(self, request, view):
-        token = self.get_anon_user()
-        if str(request.auth) == str(token):
-            print(True)
+        anon_token = self.get_anon_user()
+        if request.auth and str(request.auth) == str(anon_token):
+            return True
+        remote_token = RemoteToken.objects.filter(token=str(request.auth))
+        if remote_token.exists():
             return True
         else:
             return False
@@ -34,21 +35,22 @@ class CustomIsAuthenticated(IsAuthenticated):
             user = User.objects.get(username='anonymous')
 
             try:
-                token_obj = Token.objects.get(user=user)
-                token = token_obj.key
-                return token
+                token = Token.objects.get(user=user)
+                return token.key
             except Token.DoesNotExist:
-                return '1d2e3d4d55453d6da3cc618e7d83f3099e7b70e8' #garbage token
+                return None
         except User.DoesNotExist:
-            user = None
-            return '1d2e3d4d55453d6da3cc618e7d83f3099e7b70e8' #garbage token
+            return None
     
     def has_permission(self, request, view):
-        token = self.get_anon_user()
+        anon_token = self.get_anon_user()
         if not super().has_permission(request, view):
             return False
 
-        if request.auth and str(request.auth) == str(token):
+        if request.auth and str(request.auth) == str(anon_token):
+            return False
+        remote_token = RemoteToken.objects.filter(token=str(request.auth))
+        if remote_token.exists():
             return False
         return True
 

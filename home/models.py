@@ -104,6 +104,13 @@ class Remote(models.Model):
         return self.name
 
 
+class RemoteToken(models.Model):
+    token = models.CharField(max_length=BIG_MAX_LENGTH, null=False, blank=False, unique=True)
+
+    def __str__(self):
+        return self.token
+
+
 class Author(models.Model):
     object_type = models.CharField(max_length=SMALL_MAX_LENGTH)
     url_id = models.URLField(max_length=URL_MAX_LENGTH, unique=True, null=False, blank=False)
