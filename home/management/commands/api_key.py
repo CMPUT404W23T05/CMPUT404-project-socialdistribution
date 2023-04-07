@@ -11,7 +11,7 @@ class Command(BaseCommand):
         anonymous_user, _ = User.objects.get_or_create(username='anonymous')
 
         # Create or update the token
-        token, _ = Token.objects.get_or_create(user=anonymous_user, key='itQmiFiX.HVJyCDX61EIHHjWRYm5naspa204iMrQA')
+        token, _ = Token.objects.get_or_create(user=anonymous_user, key='itQmiFiXHVJyCDX61EIHHjWRYm5naspa204iMrQA')
 
         # Print the token
         print(f'Token: {token.key}')
