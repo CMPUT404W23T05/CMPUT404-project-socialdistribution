@@ -1,7 +1,7 @@
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.contrib.auth import get_user_model
 from .models import Author, Comment, Post
@@ -31,12 +31,26 @@ def create_author(sender, instance, created, **kwargs):
                 )
 
 @receiver(post_save, sender=Remote)
-def create_user_and_token(sender, instance, created, **kwargs):
+def create_user_and_token_on_remote_create(sender, instance, created, **kwargs):
     if created:
         username = instance.name.lower()
         user = User.objects.create_user(username=username)
 
         token = Token.objects.create(user=user)
+
+@receiver(post_delete, sender=Remote)
+def delete_user_and_token_on_remote_delete(sender, instance, **kwargs):
+    try:
+        user = User.objects.get(username=instance.name.lower())
+        user.delete()
+    except User.DoesNotExist:
+        pass
+
+    try:
+        token = Token.objects.get(user__username=instance.name.lower())
+        token.delete()
+    except Token.DoesNotExist:
+        pass
 
 
         
