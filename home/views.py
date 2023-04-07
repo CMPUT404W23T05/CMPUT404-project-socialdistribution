@@ -621,7 +621,11 @@ class InboxDetails(APIView, PageNumberPagination):
         
         # COMMENT
         elif request.data["type"] == "comment":
-            new_comment_dict = self.handle_local_or_remote_comment(request)
+
+            if "private" not in request.data.keys(): # if it's a public comment, take appropiate action
+                new_comment_dict = self.handle_local_or_remote_comment(request)
+            else:
+                new_comment_dict = request.data # private comment
 
             # return the error details back to them if it's a bad request
             if "details" in new_comment_dict:
@@ -655,7 +659,7 @@ class InboxDetails(APIView, PageNumberPagination):
         # FOLLOW
         elif request.data["type"] == "Follow" or request.data["type"] == "follow":
             
-            if "author" in request.data.keys(): # got a request from team 9
+            if "author" in request.data.keys(): # got a request from team 7
                 follow_format = self.handle_remote_follow_request(request)
             else:
                 follow_format = request.data
