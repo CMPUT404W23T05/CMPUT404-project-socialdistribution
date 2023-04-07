@@ -369,9 +369,16 @@ class CommentList(APIView, PageNumberPagination):
             return Post.objects.get(post_id=post_id, author__author_id=author_id)
         except Post.DoesNotExist:
             raise Http404
+            
+    def get_author(self, author_id):
+        try:
+            return Author.objects.get(author_id=author_id)
+        except Author.DoesNotExist:
+            raise Http404 
 
     def get(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id, author_id)
+        author = self.get_author(author_id_
         uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
         followers_serializer = AuthorFollowersSerializer(author)
 
@@ -434,9 +441,16 @@ class CommentDetail(APIView):
             return Comment.objects.get(comment_id=comment_id)
         except Comment.DoesNotExist:
             raise Http404 
+                                 
+    def get_author(self, author_id):
+        try:
+            return Author.objects.get(author_id=author_id)
+        except Author.DoesNotExist:
+            raise Http404 
 
     def get(self, request, post_id, author_id, comment_id, format=None):
         post = self.get_object(post_id, author_id)
+        author = self.get_author(author_id)
         comment = self.get_comment(comment_id)
         serializer = CommentSerializer(comment)
         uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
