@@ -46,6 +46,20 @@ REST_FRAMEWORK = {
     ),
 }
 
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOW_HEADERS = "access-control-allow-origin"
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8080',    # for testing
+    'http://127.0.0.1:8080',
+    'http://socialdistcmput404.herokuapp.com',
+    'http://sd7-api.herokuapp.com'
+    # add server ip here
+]
+
+
+
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -62,16 +76,6 @@ INSTALLED_APPS = [
 
     'home',
     "whitenoise.runserver_nostatic",  # for heroku whitenoise
-]
-
-CORS_ALLOW_ALL_ORIGINS = True
-
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:8080',    # for testing
-    'http://127.0.0.1:8080',
-    'https://socialdistcmput404.herokuapp.com',
-    'https://sd7-api.herokuapp.com'
-    # add server ip here
 ]
 
 DJOSER = {
