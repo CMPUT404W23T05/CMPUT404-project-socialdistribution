@@ -70,6 +70,8 @@ class BrowsePosts(APIView, PageNumberPagination):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -101,6 +103,8 @@ class PostList(APIView, PageNumberPagination):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -158,6 +162,8 @@ class PostDetail(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -246,6 +252,8 @@ class ImageView(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -295,6 +303,8 @@ class AuthorList(APIView, PageNumberPagination):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -322,6 +332,8 @@ class AuthorDetail(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -359,6 +371,8 @@ class CommentList(APIView, PageNumberPagination):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -425,6 +439,8 @@ class CommentDetail(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -478,6 +494,8 @@ class PostLikes(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -523,6 +541,8 @@ class CommentLikes(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -566,6 +586,8 @@ class LikedList(APIView):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
@@ -837,7 +859,7 @@ class InboxDetails(APIView, PageNumberPagination):
 class RedirectToInbox(APIView, PageNumberPagination):
 
     def get_permissions(self):
-        if self.request.method == 'POST':
+        if self.request.method == 'POST' or self.request.method == 'OPTIONS':
             permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
@@ -860,6 +882,8 @@ class RemoteRequestsList(APIView, PageNumberPagination):
     def get_permissions(self):
         if self.request.method == 'GET':
             permission_classes = [RemoteAuth | CustomIsAuthenticated]
+        elif self.request.method == 'OPTIONS':
+            permission_classes = [AllowAny]
         else:
             permission_classes = [CustomIsAuthenticated]
 
