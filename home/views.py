@@ -392,7 +392,7 @@ class CommentList(APIView, PageNumberPagination):
 
     def get(self, request, post_id, author_id, format=None):
         post = self.get_object(post_id, author_id)
-        author = self.get_author(author_id_
+        author = self.get_author(author_id)
         uid = getattr(getattr(request.user, 'author', None), 'author_id', None)
         followers_serializer = AuthorFollowersSerializer(author)
 
