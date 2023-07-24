@@ -8,6 +8,11 @@ Make a distributed social network!
 * Frontend repo: [CMPUT404W23T05/Social-Distribution-Front-End](https://github.com/CMPUT404W23T05/Social-Distribution-Front-End)
 * OpenAPI documentation: [View openapi.yaml](https://editor.swagger.io/?url=https://raw.githubusercontent.com/CMPUT404W23T05/CMPUT404-project-socialdistribution/master/openapi.yaml) in Swagger Editor
 
+Demo
+====
+[Team 5 Social Distribution Demo.webm](https://github.com/CMPUT404W23T05/CMPUT404-project-socialdistribution/assets/38046772/965c8625-c352-4ab4-b291-0d88fb8486ea)
+
+
 Contributing
 ============
 
